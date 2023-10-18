@@ -32,7 +32,7 @@ async def iostat(ctx):
     if ctx.message.author.bot:
         return
     try:
-        output = subprocess.check_output(['iostat', '-x', '1', '2'], text=True, stderr=subprocess.STDOUT)
+        output = subprocess.check_output(['iostat', '-x', '1', '2', 'sda', 'sdb'], text=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         output = str(e.output)
     embed = discord.Embed(title='IOStat', description=f'```\n{output}```', color=0x3498db)
