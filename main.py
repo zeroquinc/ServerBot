@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 import src.weekly_trakt_plays_user
 import src.weekly_trakt_plays_global
 
+import src.docker
+
 # Import Logging
 logger = logging.getLogger("ServerBot")
 logger.setLevel(logging.INFO)
@@ -60,6 +62,11 @@ async def trakt_weekly_global(ctx):
     channel = bot.get_channel(1144085449007177758)
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
+        
+@bot.command(name='dockerps')
+async def docker_ps(ctx):
+    docker_output = src.docker.run_docker_ps()
+    await ctx.send("```" + docker_output + "```")
 
 if __name__ == '__main__':
     bot.run(TOKEN)
