@@ -16,7 +16,6 @@ def create_weekly_embed():
 
     # Access the environment variables from the .env file
     trakt_client_id = os.getenv("TRAKT_CLIENT_ID")
-    trakt_client_secret = os.getenv("TRAKT_CLIENT_SECRET")
     tmdb_api_key = os.getenv("TMDB_API_KEY")
     trakt_username = os.getenv("TRAKT_USERNAME")
 

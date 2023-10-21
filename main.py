@@ -8,6 +8,7 @@ import asyncio
 from datetime import datetime, timedelta
 
 import src.weekly_trakt_plays_user
+import src.weekly_trakt_plays_global
 
 # Import Logging
 logger = logging.getLogger("ServerBot")
@@ -40,10 +41,17 @@ async def on_ready():
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
         
-@bot.command(name='traktweekly')
-async def trakt_weekly(ctx):
+@bot.command(name='traktweeklyuser')
+async def trakt_weekly_user(ctx):
     data = src.weekly_trakt_plays_user.create_weekly_embed()
     channel = bot.get_channel(1046746288412176434)
+    for embed in data['embeds']:
+        await channel.send(embed=discord.Embed.from_dict(embed))
+        
+@bot.command(name='traktweeklyglobal')
+async def trakt_weekly_global(ctx):
+    data = src.weekly_trakt_plays_global.create_weekly_embed()
+    channel = bot.get_channel(1144085449007177758)
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
 
