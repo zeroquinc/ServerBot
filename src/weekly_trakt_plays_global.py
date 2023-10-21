@@ -131,7 +131,6 @@ def create_weekly_embed():
             "inline": True
         })
 
-
     # Combine the two embeds into one dictionary
     combined_embeds = [movie_embed, show_embed]
 
