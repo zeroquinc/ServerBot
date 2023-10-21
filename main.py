@@ -4,7 +4,10 @@ from discord.ext import commands
 import logging
 from dotenv import load_dotenv
 import os
-import subprocess
+import asyncio
+from datetime import datetime, timedelta
+
+import src.weekly_trakt_plays_user
 
 # Import Logging
 logger = logging.getLogger("ServerBot")
@@ -27,17 +30,22 @@ TOKEN = os.environ["DISCORD_TOKEN"]
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     
-@bot.command(name='iostat', brief='Get IOStat information', help='Display IOStat information in an embed.')
-async def iostat(ctx):
-    if ctx.message.author.bot:
-        return
-    try:
-        output = subprocess.check_output(['iostat', '-x', '1', '2', 'sda', 'sdb'], text=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        output = str(e.output)
-    embed = discord.Embed(title='IOStat', description=f'```\n{output}```', color=0x3498db)
-    await ctx.message.delete()
-    await ctx.send(embed=embed)
+    now = datetime.now()
+    time_until_monday = (7 - now.weekday()) % 7
+    target_time = datetime(now.year, now.month, now.day, 0, 0) + timedelta(days=time_until_monday)
+    seconds_until_target = (target_time - now).total_seconds()
+    await asyncio.sleep(seconds_until_target)
+    data = src.weekly_trakt_plays_user.create_weekly_embed()
+    channel = bot.get_channel(1046746288412176434)
+    for embed in data['embeds']:
+        await channel.send(embed=discord.Embed.from_dict(embed))
+        
+@bot.command(name='traktweekly')
+async def trakt_weekly(ctx):
+    data = src.weekly_trakt_plays_user.create_weekly_embed()
+    channel = bot.get_channel(1046746288412176434)
+    for embed in data['embeds']:
+        await channel.send(embed=discord.Embed.from_dict(embed))
 
 if __name__ == '__main__':
     bot.run(TOKEN)
