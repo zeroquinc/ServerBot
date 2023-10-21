@@ -36,8 +36,14 @@ async def on_ready():
     target_time = datetime(now.year, now.month, now.day, 0, 0) + timedelta(days=time_until_monday)
     seconds_until_target = (target_time - now).total_seconds()
     await asyncio.sleep(seconds_until_target)
+    # Weekly Trakt User Plays
     data = src.weekly_trakt_plays_user.create_weekly_embed()
     channel = bot.get_channel(1046746288412176434)
+    for embed in data['embeds']:
+        await channel.send(embed=discord.Embed.from_dict(embed))
+    # Weekly Trakt Global Plays
+    data = src.weekly_trakt_plays_global.create_weekly_embed()
+    channel = bot.get_channel(1144085449007177758)
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
         
