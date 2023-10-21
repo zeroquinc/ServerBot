@@ -65,8 +65,13 @@ async def trakt_weekly_global(ctx):
         
 @bot.command(name='dockerps')
 async def docker_ps(ctx):
-    docker_output = src.docker.run_docker_ps()
-    await ctx.send("```" + docker_output + "```")
+    docker_info = src.docker.run_docker_ps()
+    for info in docker_info:
+        message = "```"
+        for key, value in info.items():
+            message += f"{key}: {value}\n"
+        message += "```"
+        await ctx.send(message)
 
 if __name__ == '__main__':
     bot.run(TOKEN)
