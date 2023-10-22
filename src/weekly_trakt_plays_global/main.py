@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 import os
 
 def create_weekly_embed():
-    # Determine the path to the parent directory (one level up from the current script's location)
-    parent_directory = os.path.dirname(os.path.dirname(__file__))
+    # Determine the path to the parent directory (two levels up from the current script's location)
+    parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     env_file_path = os.path.join(parent_directory, '.env')
 
     # Load the .env file from the parent directory
