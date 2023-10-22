@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import asyncio
 from datetime import datetime, timedelta
+import json
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -39,7 +40,7 @@ async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     
     # Load Tasks
-    #trakt_ratings_task.start()
+    trakt_ratings_task.start()
     
     now = datetime.now()
     time_until_monday = (7 - now.weekday()) % 7
@@ -110,11 +111,17 @@ async def git_status(ctx):
     else:
         await ctx.send("You are not authorized!")
         
-#@tasks.loop(minutes=1)
-#async def trakt_ratings_task():
-#    data = src.trakt_ratings_user.ratings.trakt_ratings()
-#    channel = bot.get_channel(1071806800527118367)
-#    print(data)
-
+@tasks.loop(minutes=1)
+async def trakt_ratings_task():
+    src.trakt_ratings_user.ratings.load_processed_embeds()
+    try:
+        data = src.trakt_ratings_user.ratings.trakt_ratings()
+        channel = bot.get_channel(1071806800527118367)
+        if data is not None:
+            for embed in data['embeds']:
+                await channel.send(embed=discord.Embed.from_dict(embed))
+    except Exception as e:
+        print(f'Error occurred: {str(e)}')
+        
 if __name__ == '__main__':
     bot.run(TOKEN)
