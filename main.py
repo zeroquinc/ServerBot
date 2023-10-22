@@ -111,7 +111,7 @@ async def git_status(ctx):
     else:
         await ctx.send("You are not authorized!")
         
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=5)
 async def trakt_ratings_task():
     src.trakt_ratings_user.ratings.load_processed_embeds()
     try:
