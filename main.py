@@ -4,8 +4,7 @@ from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
 import os
-import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
