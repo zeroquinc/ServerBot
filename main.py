@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
 import os
-import asyncio
+import time
 from datetime import datetime, timedelta
 
 import src.weekly_trakt_plays_user.main
@@ -15,8 +15,6 @@ import src.trakt_ratings_user.ratings
 import src.trakt_favorites.favorites
 
 import src.git_commands.git
-
-import src.docker_commands.main
 
 # Import Logging
 logger = logging.getLogger("ServerBot")
@@ -36,6 +34,7 @@ DISCORD_SERVER_ID = os.getenv("DISCORD_SERVER_ID")
 TOKEN = os.environ["DISCORD_TOKEN"]
 allowed_roles = "Captain"
 
+# On Ready event
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
@@ -43,47 +42,25 @@ async def on_ready():
     # Load Tasks
     trakt_ratings_task.start()
     trakt_favorites_task.start()
-    
-    now = datetime.now()
-    time_until_monday = (7 - now.weekday()) % 7
-    target_time = datetime(now.year, now.month, now.day, 0, 0) + timedelta(days=time_until_monday)
-    seconds_until_target = (target_time - now).total_seconds()
-    await asyncio.sleep(seconds_until_target)
-    # Weekly Trakt User Plays
-    data = src.weekly_trakt_plays_user.main.create_weekly_embed()
-    channel = bot.get_channel(1046746288412176434)
-    for embed in data['embeds']:
-        await channel.send(embed=discord.Embed.from_dict(embed))
-    # Weekly Trakt Global Plays
-    data = src.weekly_trakt_plays_global.main.create_weekly_embed()
-    channel = bot.get_channel(1144085449007177758)
-    for embed in data['embeds']:
-        await channel.send(embed=discord.Embed.from_dict(embed))
+    send_weekly_embeds.start()
 
+# !traktweeklyuser
 @bot.command(name='traktweeklyuser')
 async def trakt_weekly_user(ctx):
     data = src.weekly_trakt_plays_user.main.create_weekly_embed()
     channel = bot.get_channel(1046746288412176434)
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
-        
+
+# !traktweeklyglobal
 @bot.command(name='traktweeklyglobal')
 async def trakt_weekly_global(ctx):
     data = src.weekly_trakt_plays_global.main.create_weekly_embed()
     channel = bot.get_channel(1144085449007177758)
     for embed in data['embeds']:
         await channel.send(embed=discord.Embed.from_dict(embed))
-        
-@bot.command(name='dockerps')
-async def docker_ps(ctx):
-    docker_info = src.docker.run_docker_ps()
-    for info in docker_info:
-        message = "```"
-        for key, value in info.items():
-            message += f"{key}: {value}\n"
-        message += "```"
-        await ctx.send(message)
-        
+
+# !gitpull
 @bot.command(name='gitpull', help='Pulls GitHub', brief='Pulls the latest changes from GitHub.')
 async def git_pull(ctx):
     if any(role.name in allowed_roles for role in ctx.author.roles):
@@ -96,7 +73,8 @@ async def git_pull(ctx):
         await message.edit(embed=embed)
     else:
         await ctx.send("You are not authorized!")
-        
+
+# !gitstatus
 @bot.command(name='gitstatus', help='Status GitHub', brief='Check the current status of the repo on GitHub.')
 async def git_status(ctx):
     if any(role.name in allowed_roles for role in ctx.author.roles):
@@ -112,29 +90,51 @@ async def git_status(ctx):
         await message.edit(embed=embed)
     else:
         await ctx.send("You are not authorized!")
-        
-@tasks.loop(minutes=5)
+
+# Trakt Ratings Task Loop
+@tasks.loop(seconds=60)
 async def trakt_ratings_task():
-    src.trakt_ratings_user.ratings.load_processed_embeds()
-    try:
-        data = src.trakt_ratings_user.ratings.trakt_ratings()
-        channel = bot.get_channel(1071806800527118367)
-        if data is not None:
-            for embed in data['embeds']:
-                await channel.send(embed=discord.Embed.from_dict(embed))
-    except Exception as e:
-        print(f'Error occurred: {str(e)}')
-        
-@tasks.loop(minutes=1)
+    now = datetime.now()  
+    if now.minute == 0:
+        src.trakt_ratings_user.ratings.load_processed_embeds()
+        try:
+            data = src.trakt_ratings_user.ratings.trakt_ratings()
+            channel = bot.get_channel(1071806800527118367)
+            if data is not None:
+                for embed in data['embeds']:
+                    await channel.send(embed=discord.Embed.from_dict(embed))
+        except Exception as e:
+            print(f'Error occurred: {str(e)}')
+
+# Trakt Favorites Task Loop        
+@tasks.loop(seconds=60)
 async def trakt_favorites_task():
-    try:
-        data = src.trakt_favorites.favorites.trakt_favorites()
-        channel = bot.get_channel(1071806800527118367)
-        if data is not None:
-            for embed in data['embeds']:
-                await channel.send(embed=discord.Embed.from_dict(embed))
-    except Exception as e:
-        print(f'Error occurred: {str(e)}')
-        
+    now = datetime.now()
+    if now.minute == 0:
+        try:
+            data = src.trakt_favorites.favorites.trakt_favorites()
+            channel = bot.get_channel(1071806800527118367)
+            if data is not None:
+                for embed in data['embeds']:
+                    await channel.send(embed=discord.Embed.from_dict(embed))
+        except Exception as e:
+            print(f'Error occurred: {str(e)}')
+
+# Weekly Trakt User & Global Plays Task Loop            
+@tasks.loop(time=[time(12, 0)])
+async def send_weekly_embeds():
+    # This task will run every day at 12:00 PM, but we can filter it to only run on Mondays
+    if datetime.now().weekday() == 0:  # 0 corresponds to Monday
+        # Weekly Trakt User Plays
+        data_user = src.weekly_trakt_plays_user.main.create_weekly_embed()
+        channel_user = bot.get_channel(1046746288412176434)
+        for embed in data_user['embeds']:
+            await channel_user.send(embed=discord.Embed.from_dict(embed))  
+        # Weekly Trakt Global Plays
+        data_global = src.weekly_trakt_plays_global.main.create_weekly_embed()
+        channel_global = bot.get_channel(1144085449007177758)
+        for embed in data_global['embeds']:
+            await channel_global.send(embed=discord.Embed.from_dict(embed))
+   
 if __name__ == '__main__':
     bot.run(TOKEN)
