@@ -4,16 +4,14 @@ from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
 import os
-from datetime import datetime, timedelta, time
+from datetime import datetime, time
 import json
+from watchfiles import awatch, Change
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
-
 import src.trakt_ratings_user.ratings
-
 import src.trakt_favorites.favorites
-
 import src.git_commands.git
 
 # Import Logging
@@ -38,12 +36,30 @@ allowed_roles = "Captain"
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
-    
+    await plex_now_playing()
     # Load Tasks
     trakt_ratings_task.start()
     trakt_favorites_task.start()
     send_weekly_embeds.start()
-    plex_now_playing.start()
+
+async def plex_now_playing():
+    try:
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.join(script_directory, 'webhook')
+        channel_id = 1025825630668984450
+        async for changes in awatch(directory):
+            for change, path in changes:
+                if change == Change.added:
+                    with open(path, 'r') as f:
+                        data = json.load(f)
+                    channel = bot.get_channel(channel_id)
+                    if data is not None:
+                        embed = discord.Embed.from_dict(data)
+                        await channel.send(embed=embed)
+                        print(f'A new Embed has been send!')
+                    os.remove(path)
+    except Exception as e:
+        print(f'Error occurred: {str(e)}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -92,30 +108,8 @@ async def git_status(ctx):
     else:
         await ctx.send("You are not authorized!")
 
-# Plex Now Playing Notifications
-@tasks.loop(seconds=5)
-async def plex_now_playing():
-    try:
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        directory = os.path.join(script_directory, 'webhook')
-        channel_id = 1025825630668984450
-        for filename, command in [('plex_resuming.json', 'plex_resuming'),
-                                 ('plex_finished.json', 'plex_finished'),
-                                 ('plex_started.json', 'plex_started')]:
-            file_path = os.path.join(directory, filename)
-            if os.path.exists(file_path):
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                channel = bot.get_channel(channel_id)
-                if data is not None:
-                    embed = discord.Embed.from_dict(data)
-                    await channel.send(embed=embed)
-                    os.remove(file_path)
-    except Exception as e:
-        print(f'Error occurred: {str(e)}')
-
 # Trakt Ratings Task Loop
-@tasks.loop(minutes=10)
+@tasks.loop(minutes=30)
 async def trakt_ratings_task():
     now = datetime.now()  
     if now.minute == 0:
@@ -130,7 +124,7 @@ async def trakt_ratings_task():
             print(f'Error occurred: {str(e)}')
 
 # Trakt Favorites Task Loop        
-@tasks.loop(minutes=10)
+@tasks.loop(minutes=30)
 async def trakt_favorites_task():
     now = datetime.now()
     if now.minute == 0:
