@@ -5,6 +5,7 @@ import logging
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta, time
+import json
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -42,6 +43,7 @@ async def on_ready():
     trakt_ratings_task.start()
     trakt_favorites_task.start()
     send_weekly_embeds.start()
+    check_and_post_embeds_task.start()
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -89,6 +91,38 @@ async def git_status(ctx):
         await message.edit(embed=embed)
     else:
         await ctx.send("You are not authorized!")
+        
+@tasks.loop(seconds=10)
+async def check_and_post_embeds_task():
+    try:
+        await check_and_post_json('plex_resuming.json', 'plex_resuming')
+        await check_and_post_json('plex_finished.json', 'plex_finished')
+        await check_and_post_json('plex_started.json', 'plex_started')
+
+    except Exception as e:
+        if not isinstance(e, FileNotFoundError):
+            print(f'Error occurred: {str(e)}')
+
+async def check_and_post_json(filename, command):
+    try:
+        if os.path.exists(f'/webhook/{filename}'):
+            with open(f'/webhook/{filename}', 'r') as f:
+                data = json.load(f)
+            await post_embed(data, command)
+
+    except Exception as e:
+        if not isinstance(e, FileNotFoundError):
+            print(f'Error occurred: {str(e)}')
+
+async def post_embed(data, command):
+    try:
+        channel = bot.get_channel(1025825630668984450)
+
+        if data is not None:
+            embed = discord.Embed.from_dict(data)
+            await channel.send(embed=embed)
+    except Exception as e:
+        print(f'Error occurred while posting embed for {command}: {str(e)}')
 
 # Trakt Ratings Task Loop
 @tasks.loop(seconds=60)
