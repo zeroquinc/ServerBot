@@ -96,12 +96,13 @@ async def git_status(ctx):
 @tasks.loop(seconds=5)
 async def plex_now_playing():
     try:
-        script_directory = os.path.abspath(os.path.dirname(__file__))
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.join(script_directory, 'webhook')
         channel_id = 1025825630668984450
         for filename, command in [('plex_resuming.json', 'plex_resuming'),
                                  ('plex_finished.json', 'plex_finished'),
                                  ('plex_started.json', 'plex_started')]:
-            file_path = os.path.join(script_directory, filename)
+            file_path = os.path.join(directory, filename)
             if os.path.exists(file_path):
                 with open(file_path, 'r') as f:
                     data = json.load(f)
