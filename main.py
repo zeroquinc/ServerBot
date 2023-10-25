@@ -103,26 +103,25 @@ async def check_and_post_embeds_task():
         if not isinstance(e, FileNotFoundError):
             print(f'Error occurred: {str(e)}')
 
-async def check_and_post_json(filename, command):
-    try:
-        if os.path.exists(f'/webhook/{filename}'):
-            with open(f'/webhook/{filename}', 'r') as f:
-                data = json.load(f)
-            await post_embed(data, command)
+    async def check_and_post_json(filename, command):
+        try:
+            if os.path.exists(f'/webhook/{filename}'):
+                with open(f'/webhook/{filename}', 'r') as f:
+                    data = json.load(f)
+                await post_embed(data, command)
 
-    except Exception as e:
-        if not isinstance(e, FileNotFoundError):
-            print(f'Error occurred: {str(e)}')
+        except Exception as e:
+            if not isinstance(e, FileNotFoundError):
+                print(f'Error occurred: {str(e)}')
 
-async def post_embed(data, command):
-    try:
-        channel = bot.get_channel(1025825630668984450)
-
-        if data is not None:
-            embed = discord.Embed.from_dict(data)
-            await channel.send(embed=embed)
-    except Exception as e:
-        print(f'Error occurred while posting embed for {command}: {str(e)}')
+    async def post_embed(data, command):
+        try:
+            channel = bot.get_channel(1025825630668984450)
+            if data is not None:
+                embed = discord.Embed.from_dict(data)
+                await channel.send(embed=embed)
+        except Exception as e:
+            print(f'Error occurred while posting embed for {command}: {str(e)}')
 
 # Trakt Ratings Task Loop
 @tasks.loop(seconds=60)
