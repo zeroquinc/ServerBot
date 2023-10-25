@@ -93,7 +93,7 @@ async def git_status(ctx):
         await ctx.send("You are not authorized!")
 
 # Plex Now Playing Notifications
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=5)
 async def plex_now_playing():
     try:
         script_directory = os.path.abspath(os.path.dirname(__file__))
@@ -114,7 +114,7 @@ async def plex_now_playing():
         print(f'Error occurred: {str(e)}')
 
 # Trakt Ratings Task Loop
-@tasks.loop(seconds=60)
+@tasks.loop(minutes=10)
 async def trakt_ratings_task():
     now = datetime.now()  
     if now.minute == 0:
@@ -129,7 +129,7 @@ async def trakt_ratings_task():
             print(f'Error occurred: {str(e)}')
 
 # Trakt Favorites Task Loop        
-@tasks.loop(seconds=60)
+@tasks.loop(minutes=10)
 async def trakt_favorites_task():
     now = datetime.now()
     if now.minute == 0:
