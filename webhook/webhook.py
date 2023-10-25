@@ -6,6 +6,8 @@ import logging
 app = Flask(__name__)
 app.debug = True
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     try:
@@ -15,13 +17,13 @@ def webhook():
             for i, embed in enumerate(embeds):
                 author_name = embed['author']['name']
                 if "has resumed playing" in author_name:
-                    filename = 'plex_resuming.json'
+                    filename = os.path.join(script_directory, 'plex_resuming.json')
                 elif "has finished playing" in author_name:
-                    filename = 'plex_finished.json'
+                    filename = os.path.join(script_directory, 'plex_finished.json')
                 elif "has started playing" in author_name:
-                    filename = 'plex_started.json'
+                    filename = os.path.join(script_directory, 'plex_started.json')
                 else:
-                    filename = f'event_{i}.json'
+                    filename = os.path.join(script_directory, f'event_{i}.json')
 
                 with open(filename, 'w') as f:
                     f.write(json.dumps(embed, indent=4))
