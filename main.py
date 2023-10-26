@@ -36,27 +36,30 @@ allowed_roles = "Captain"
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
-    await plex_now_playing()
+    await plex_webhook()
     # Load Tasks
     trakt_ratings_task.start()
     trakt_favorites_task.start()
     send_weekly_embeds.start()
 
-async def plex_now_playing():
+async def plex_webhook():
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        directory = os.path.join(script_directory, 'webhook')
-        channel_id = 1025825630668984450
-        async for changes in awatch(directory):
+        playing_directory = os.path.join(script_directory, 'webhook', 'json', 'playing')
+        playing_channel_id = 1025825630668984450
+        content_directory = os.path.join(script_directory, 'webhook', 'json', 'content')
+        content_channel_id = 1044424524290072587
+        async for changes in awatch(playing_directory, content_directory):
             for change, path in changes:
                 if change == Change.added:
                     with open(path, 'r') as f:
                         data = json.load(f)
+                    channel_id = playing_channel_id if "playing" in path else content_channel_id
                     channel = bot.get_channel(channel_id)
                     if data is not None:
                         embed = discord.Embed.from_dict(data)
                         await channel.send(embed=embed)
-                        print(f'A new Embed has been send!')
+                        print(f'A new Embed has been sent to channel ID: {channel_id}')
                     os.remove(path)
     except Exception as e:
         print(f'Error occurred: {str(e)}')

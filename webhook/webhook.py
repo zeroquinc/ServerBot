@@ -4,9 +4,10 @@ import json
 import logging
 
 app = Flask(__name__)
-app.debug = True
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
+content_directory = os.path.join(script_directory, 'json', 'content')
+playing_directory = os.path.join(script_directory, 'json', 'playing')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -17,11 +18,13 @@ def webhook():
             for i, embed in enumerate(embeds):
                 author_name = embed['author']['name']
                 if "has resumed playing" in author_name:
-                    filename = os.path.join(script_directory, 'plex_resuming.json')
+                    filename = os.path.join(playing_directory, 'plex_resuming.json')
                 elif "has finished playing" in author_name:
-                    filename = os.path.join(script_directory, 'plex_finished.json')
+                    filename = os.path.join(playing_directory, 'plex_finished.json')
                 elif "has started playing" in author_name:
-                    filename = os.path.join(script_directory, 'plex_started.json')
+                    filename = os.path.join(playing_directory, 'plex_started.json')
+                elif "New Added to Plex" in author_name:
+                    filename = os.path.join(content_directory, 'plex_new_content.json')
                 else:
                     filename = os.path.join(script_directory, f'event_{i}.json')
 
@@ -37,4 +40,4 @@ def webhook():
         return "Internal server error", 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=1337)
+    app.run(host='0.0.0.0', port=1337)
