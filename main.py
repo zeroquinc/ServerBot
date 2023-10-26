@@ -25,7 +25,7 @@ load_dotenv()
 # Discord.py stuff
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="!",intents=intents)
+bot = commands.Bot(command_prefix="!",intents=intents, activity = discord.Activity(type=discord.ActivityType.watching, name="127.0.0.1"))
 
 # Globals
 DISCORD_SERVER_ID = os.getenv("DISCORD_SERVER_ID")
