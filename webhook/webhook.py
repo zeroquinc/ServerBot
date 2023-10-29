@@ -23,7 +23,7 @@ def webhook():
                     filename = os.path.join(playing_directory, 'plex_finished.json')
                 elif "has started playing" in author_name:
                     filename = os.path.join(playing_directory, 'plex_started.json')
-                elif "New Added to Plex" in author_name:
+                elif "New added to Plex" in author_name:
                     filename = os.path.join(content_directory, 'plex_new_content.json')
                 else:
                     filename = os.path.join(script_directory, f'event_{i}.json')
