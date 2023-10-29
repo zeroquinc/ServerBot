@@ -81,7 +81,7 @@ def create_weekly_embed():
     movies_embed.url = f"https://trakt.tv/users/desiler/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
 
     # Set the author name
-    movies_embed.set_author(name=f"Movies watched by Desiler in Week {week_number}")
+    movies_embed.set_author(name=f"Trakt: Movies watched by Desiler in Week {week_number}")
 
     # Add timestamp with date range to the embed
     timestamp_start = start_date.strftime('%a %b %d %Y')
@@ -159,7 +159,7 @@ def create_weekly_embed():
     episodes_embed.url = f"https://trakt.tv/users/desiler/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
 
     # Set the author name
-    episodes_embed.set_author(name=f"Episodes watched by Desiler in Week {week_number}")
+    episodes_embed.set_author(name=f"Trakt: Episodes watched by Desiler in Week {week_number}")
 
     # Add timestamp with date range to the embed
     episodes_embed.timestamp = datetime.now()

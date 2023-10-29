@@ -77,8 +77,8 @@ def format_show_embed(show):
         'title': f'{show["show"]["title"]}',
         'thumbnail': {'url': thumbnail},
         'author': {
-            'name': 'Show rated on Trakt',
-            'icon_url': 'https://i.imgur.com/poGtHrf.png'
+            'name': 'Trakt: Show rated',
+            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'color': color,
         'fields': fields
@@ -113,8 +113,8 @@ def format_episode_embed(episode):
     return {
         'title': f'{episode["show"]["title"]} - {episode["episode"]["title"]} (S{season_number:02d}E{episode_number:02d})',
         'author': {
-            'name': 'Episode rated on Trakt',
-            'icon_url': 'https://i.imgur.com/poGtHrf.png'
+            'name': 'Trakt: Episode rated',
+            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
@@ -154,8 +154,8 @@ def format_season_embed(season):
     return {
         'title': f'{season["show"]["title"]} - Season {season["season"]["number"]}',
         'author': {
-            'name': 'Season rated on Trakt',
-            'icon_url': 'https://i.imgur.com/poGtHrf.png'
+            'name': 'Trakt: Season rated',
+            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
@@ -187,8 +187,8 @@ def format_movie_embed(movie):
     return {
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
         'author': {
-            'name': 'Movie rated on Trakt',
-            'icon_url': 'https://i.imgur.com/fjWQwef.png'
+            'name': 'Trakt: Movie rated',
+            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
