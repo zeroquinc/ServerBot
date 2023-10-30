@@ -76,7 +76,7 @@ def create_weekly_embed():
             "url": "",
         },
         "author": {
-            "name": f"Trakt: Top Movies in Week {iso_week}",
+            "name": f"Trakt - Top Movies in Week {iso_week}",
             "icon_url": "https://i.imgur.com/tvnkxAY.png"
         },
         "footer": {
@@ -108,7 +108,7 @@ def create_weekly_embed():
         "url": "",
         },
         "author": {
-            "name": f"Trakt: Top Shows in Week {iso_week}",
+            "name": f"Trakt - Top Shows in Week {iso_week}",
             "icon_url": "https://i.imgur.com/tvnkxAY.png"
         },
         "footer": {

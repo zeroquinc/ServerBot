@@ -77,7 +77,7 @@ def format_show_embed(show):
         'title': f'{show["show"]["title"]}',
         'thumbnail': {'url': thumbnail},
         'author': {
-            'name': 'Trakt: Show rated',
+            'name': 'Trakt - Show rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'color': color,
@@ -113,7 +113,7 @@ def format_episode_embed(episode):
     return {
         'title': f'{episode["show"]["title"]} - {episode["episode"]["title"]} (S{season_number:02d}E{episode_number:02d})',
         'author': {
-            'name': 'Trakt: Episode rated',
+            'name': 'Trakt - Episode rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
@@ -154,7 +154,7 @@ def format_season_embed(season):
     return {
         'title': f'{season["show"]["title"]} - Season {season["season"]["number"]}',
         'author': {
-            'name': 'Trakt: Season rated',
+            'name': 'Trakt - Season rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
@@ -187,7 +187,7 @@ def format_movie_embed(movie):
     return {
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
         'author': {
-            'name': 'Trakt: Movie rated',
+            'name': 'Trakt - Movie rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
