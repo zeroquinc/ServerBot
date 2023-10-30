@@ -40,7 +40,6 @@ async def on_ready():
     # Load Tasks
     trakt_ratings_task.start()
     trakt_favorites_task.start()
-    send_weekly_embeds.start()
 
 async def plex_webhook():
     try:
@@ -110,6 +109,30 @@ async def git_status(ctx):
         await message.edit(embed=embed)
     else:
         await ctx.send("You are not authorized!")
+        
+# Define the !trakt command
+@bot.command(name='trakt')
+async def send_weekly_embeds(ctx):
+    # Put your task loop code here
+    try:
+        # Weekly Trakt User Plays
+        data_user = src.weekly_trakt_plays_user.main.create_weekly_embed()
+        channel_user = bot.get_channel(1046746288412176434)
+        for embed in data_user['embeds']:
+            await channel_user.send(embed=discord.Embed.from_dict(embed))
+        # Log success
+        await ctx.send("Weekly Trakt User Plays sent successfully.")
+
+        # Weekly Trakt Global Plays
+        data_global = src.weekly_trakt_plays_global.main.create_weekly_embed()
+        channel_global = bot.get_channel(1144085449007177758)
+        for embed in data_global['embeds']:
+            await channel_global.send(embed=discord.Embed.from_dict(embed))
+        # Log success
+        await ctx.send("Weekly Trakt Global Plays sent successfully.")
+    except Exception as e:
+        # Log and inform about errors
+        await ctx.send(f"An error occurred: {str(e)}")
 
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=30)
@@ -139,22 +162,6 @@ async def trakt_favorites_task():
                     await channel.send(embed=discord.Embed.from_dict(embed))
         except Exception as e:
             print(f'Error occurred: {str(e)}')
-
-# Weekly Trakt User & Global Plays Task Loop            
-@tasks.loop(time=[time(12, 0)])
-async def send_weekly_embeds():
-    # This task will run every day at 12:00 PM, but we can filter it to only run on Mondays
-    if datetime.now().weekday() == 0:  # 0 corresponds to Monday
-        # Weekly Trakt User Plays
-        data_user = src.weekly_trakt_plays_user.main.create_weekly_embed()
-        channel_user = bot.get_channel(1046746288412176434)
-        for embed in data_user['embeds']:
-            await channel_user.send(embed=discord.Embed.from_dict(embed))  
-        # Weekly Trakt Global Plays
-        data_global = src.weekly_trakt_plays_global.main.create_weekly_embed()
-        channel_global = bot.get_channel(1144085449007177758)
-        for embed in data_global['embeds']:
-            await channel_global.send(embed=discord.Embed.from_dict(embed))
    
 if __name__ == '__main__':
     bot.run(TOKEN)
