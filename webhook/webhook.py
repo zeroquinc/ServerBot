@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import os
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -32,8 +33,14 @@ def webhook():
                 app.logger.info(f"Event saved as {filename}")
             return "Webhook received and events saved successfully!", 200
         else:
-            app.logger.info("Webhook received, but no events found.")
-            return "Webhook received, but no events found.", 200
+            # If no 'embeds' are found, save the whole data to a JSON file with the current date and time
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d_%H-%M-%S")
+            filename = os.path.join(script_directory, f'no_embeds_{current_time}.json')
+            with open(filename, 'w') as f:
+                f.write(json.dumps(data, indent=4))
+            app.logger.info(f"Webhook data saved as {filename}")
+            return "Webhook received, but no events found. Data saved to a file.", 200
     except Exception as e:
         app.logger.error(f"Error while processing JSON payload: {str(e)}")
         return "Internal server error", 500
