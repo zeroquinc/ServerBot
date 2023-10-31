@@ -201,6 +201,8 @@ def get_user_comment(username, content_id, content_type):
         for comment in comments:
             if comment['type'] == content_type and comment[content_type]['ids']['trakt'] == content_id:
                 return comment['comment']
+    else:
+        logger_trakt.error(f'Request to {comments_url} returned status code {response.status_code}')
     return None
 
 def get_color_from_rating(rating):
@@ -238,7 +240,7 @@ def fetch_trakt_ratings():
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.info(f'Failed to fetch Trakt ratings: {response.status_code}')
+        logger_trakt.error(f'Failed to fetch Trakt ratings: {response.status_code}')
         return []
         
 def get_tmdb_details(media_type, tmdb_id):
@@ -247,7 +249,7 @@ def get_tmdb_details(media_type, tmdb_id):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.info(f'Failed to fetch TMDB details: {response.status_code}')
+        logger_trakt.error(f'Failed to fetch TMDB details: {response.status_code}')
         return None
 
 def get_tmdb_season_details(tmdb_id, season_number):
@@ -256,7 +258,7 @@ def get_tmdb_season_details(tmdb_id, season_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.info(f'Failed to fetch TMDB season details: {response.status_code}')
+        logger_trakt.error(f'Failed to fetch TMDB season details: {response.status_code}')
         return None
         
 def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
@@ -265,7 +267,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.info(f'Failed to fetch TMDB episode details: {response.status_code}')
+        logger_trakt.error(f'Failed to fetch TMDB episode details: {response.status_code}')
         return None
 
 def process_ratings(ratings):

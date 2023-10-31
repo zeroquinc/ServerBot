@@ -24,7 +24,7 @@ async def on_ready():
         trakt_favorites_task.start()
         logger_discord.info("Trakt Ratings Task and Trakt Favorites Task started.")
     except Exception as e:
-        logger_discord.info(f'Error starting tasks: {str(e)}')
+        logger_discord.error(f'Error starting tasks: {str(e)}')
     
     await plex_webhook()
 
@@ -48,7 +48,7 @@ async def plex_webhook():
                         logger_plex.info(f'A new Embed has been sent to channel ID: {channel_id}')
                     os.remove(path)
     except Exception as e:
-        logger_plex.info(f'Error occurred: {str(e)}')
+        logger_plex.error(f'Error occurred: {str(e)}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -155,7 +155,7 @@ async def trakt_favorites_task():
         else:
             logger_trakt.info("No data to send. Trying again in 24 hours.")
     except Exception as e:
-        logger_trakt.info(f'Error occurred: {str(e)}')
+        logger_trakt.error(f'Error occurred: {str(e)}')
    
 if __name__ == '__main__':
     bot.run(TOKEN)
