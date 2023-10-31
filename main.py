@@ -17,7 +17,7 @@ import src.git_commands.git
 # Import Logging
 logger = logging.getLogger("ServerBot")
 logger.setLevel(logging.INFO)
-formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", datefmt = "%d-%m-%Y %I:%M:%S %p")
+formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 # Add a StreamHandler with the specified formatter
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
