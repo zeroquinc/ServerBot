@@ -6,7 +6,7 @@ from watchfiles import awatch, Change
 
 from src.globals import bot, TOKEN, allowed_roles
 
-from src.logging import logger_discord, logger_trakt, logger_plex
+from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -27,6 +27,7 @@ async def on_ready():
         logger_discord.error(f'Error starting tasks: {str(e)}')
     
     await plex_webhook()
+    await sonarr_webhook()
 
 async def plex_webhook():
     try:
@@ -49,6 +50,28 @@ async def plex_webhook():
                     os.remove(path)
     except Exception as e:
         logger_plex.error(f'Error occurred: {str(e)}')
+        
+async def sonarr_webhook():
+    try:
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        sonarr_directory = os.path.join(script_directory, 'webhook', 'json', 'sonarr')
+        grab_channel_id = 1006483865117937744
+        update_channel_id = 1000389279865905202
+        async for changes in awatch(sonarr_directory):
+            for change, path in changes:
+                if change == Change.added:
+                    with open(path, 'r') as f:
+                        data = json.load(f)
+                    filename = os.path.basename(path)
+                    channel_id = grab_channel_id if "Grab" in filename else update_channel_id
+                    channel = bot.get_channel(channel_id)
+                    if data is not None:
+                        embed = discord.Embed.from_dict(data)
+                        await channel.send(embed=embed)
+                        logger_sonarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
+                    os.remove(path)
+    except Exception as e:
+        logger_sonarr.error(f'Error occurred: {str(e)}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')

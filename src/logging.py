@@ -20,4 +20,5 @@ def setup_logger(logger_name, log_level=logging.INFO):
 logger_discord = setup_logger("DISCORD")
 logger_trakt = setup_logger("TRAKT")
 logger_plex = setup_logger("PLEX")
+logger_sonarr = setup_logger("SONARR")
 logger_webhook = setup_logger("WEBHOOK")
