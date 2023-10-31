@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify
 import os
 import json
 
-from src.logging import logger_webhook
-
 app = Flask(__name__)
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
