@@ -17,6 +17,7 @@ def setup_logger(logger_name, log_level=logging.INFO):
     return logger
 
 # Example usage for Discord, Trakt, and Plex loggers
+logger = setup_logger("")
 logger_discord = setup_logger("DISCORD")
 logger_trakt = setup_logger("TRAKT")
 logger_plex = setup_logger("PLEX")
