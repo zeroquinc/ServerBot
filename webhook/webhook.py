@@ -19,7 +19,7 @@ def webhook():
         
         # Handle Sonarr-related events here
         if data and 'eventType' in data:
-            data = sonarr_embed()
+            data = sonarr_embed(data)
             app.logger.info(f"Event saved!")
             
             # Handle Plex-related events here
