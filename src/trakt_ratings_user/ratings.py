@@ -4,7 +4,7 @@ import re
 import os
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_API_URL, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
+from src.globals import TRAKT_URL_RATINGS, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
 
 from src.logging import logger_trakt
 
@@ -234,7 +234,7 @@ def fetch_trakt_ratings():
         'trakt-api-version': '2',
         'trakt-api-key': TRAKT_CLIENT_ID
     }
-    response = requests.get(TRAKT_API_URL, headers=headers)
+    response = requests.get(TRAKT_URL_RATINGS, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
@@ -326,9 +326,7 @@ def trakt_ratings():
     try:
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
-        if result is not None:
-            logger_trakt.info("A new Embed has been sent to the Bot:")
-            logger_trakt.info(result)
         return result
+
     except Exception as e:
-        logger_trakt.info(f'Error occurred: {str(e)}')
+        logger_trakt.error(f'Error occurred: {str(e)}')

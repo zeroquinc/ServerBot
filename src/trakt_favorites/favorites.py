@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_API_URL, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
+from src.globals import load_dotenv, TRAKT_URL_FAVORITES, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
 
 from src.logging import logger_trakt
 
@@ -58,7 +58,7 @@ def fetch_trakt_favorites():
         'trakt-api-key': TRAKT_CLIENT_ID
     }
     try:
-        response = requests.get(TRAKT_API_URL, headers=headers)
+        response = requests.get(TRAKT_URL_FAVORITES, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
