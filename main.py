@@ -1,12 +1,10 @@
 import discord
-from discord import app_commands
-from discord.ext import commands, tasks
-import logging
-from dotenv import load_dotenv
+from discord.ext import tasks
 import os
-from datetime import datetime, time
 import json
 from watchfiles import awatch, Change
+
+from src.globals import logger, bot, TOKEN, allowed_roles, load_dotenv
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -14,32 +12,10 @@ import src.trakt_ratings_user.ratings
 import src.trakt_favorites.favorites
 import src.git_commands.git
 
-# Import Logging
-logger = logging.getLogger("ServerBot")
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-# Add a StreamHandler with the specified formatter
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
-
-# Load dotenv
-load_dotenv()
-
-# Discord.py stuff
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix="!",intents=intents, activity = discord.Activity(type=discord.ActivityType.watching, name="127.0.0.1"))
-
-# Globals
-DISCORD_SERVER_ID = os.getenv("DISCORD_SERVER_ID")
-TOKEN = os.environ["DISCORD_TOKEN"]
-allowed_roles = "Captain"
-
 # On Ready event
 @bot.event
 async def on_ready():
-    logger.info(f'Logged in as {bot.user.name} ({bot.user.id})')
+    logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
     # Load Tasks
     try:
         trakt_ratings_task.start()
@@ -47,8 +23,6 @@ async def on_ready():
         logger.info("Trakt Ratings Task and Trakt Favorites Task started.")
     except Exception as e:
         logger.info(f'Error starting tasks: {str(e)}')
-
-    logger.info('Bot is ready!')
     
     await plex_webhook()
 
@@ -148,19 +122,17 @@ async def send_weekly_embeds(ctx):
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
 async def trakt_ratings_task():
-    logger.info("Starting Trakt Ratings Task")
+    logger.info("Starting Trakt Ratings Task.")
     
     try:
-        logger.info("Loading processed embeds...")
-        src.trakt_ratings_user.ratings.load_processed_embeds()
         
-        logger.info("Fetching Trakt ratings data...")
+        logger.info("Fetching Trakt ratings data.")
         data = src.trakt_ratings_user.ratings.trakt_ratings()
         
         channel = bot.get_channel(1071806800527118367)
         
         if data is not None:
-            logger.info("Sending Trakt ratings data to channel...")
+            logger.info("Found Trakt Ratings and sending them to Discord.")
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
@@ -169,18 +141,22 @@ async def trakt_ratings_task():
         logger.info(f'Error occurred: {str(e)}')
 
 # Trakt Favorites Task Loop        
-@tasks.loop(minutes=30)
+@tasks.loop(minutes=60)
 async def trakt_favorites_task():
-    now = datetime.now()
-    if now.minute == 0:
-        try:
-            data = src.trakt_favorites.favorites.trakt_favorites()
-            channel = bot.get_channel(1071806800527118367)
-            if data is not None:
-                for embed in data['embeds']:
-                    await channel.send(embed=discord.Embed.from_dict(embed))
-        except Exception as e:
-            logger.info(f'Error occurred: {str(e)}')
+    logger.info("Starting Trakt Favorites Task")
+    
+    try:
+        data = src.trakt_favorites.favorites.trakt_favorites()
+        channel = bot.get_channel(1071806800527118367)
+        
+        if data is not None:
+            logger.info("Found Trakt Favorites and sending them to Discord.")
+            for embed in data['embeds']:
+                await channel.send(embed=discord.Embed.from_dict(embed))
+        else:
+            logger.info("No data to send. Trying again in 60 minutes.")
+    except Exception as e:
+        logger.info(f'Error occurred: {str(e)}')
    
 if __name__ == '__main__':
     bot.run(TOKEN)

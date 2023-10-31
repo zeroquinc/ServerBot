@@ -1,18 +1,7 @@
 import requests
-import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-# Determine the path to the parent directory (one level up from the current script's location)
-parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-env_file_path = os.path.join(parent_directory, '.env')
-# Load the .env file from the parent directory
-load_dotenv(env_file_path)
-TRAKT_USERNAME = os.getenv("TRAKT_USERNAME")
-TRAKT_API_URL = f'https://api.trakt.tv/users/{TRAKT_USERNAME}/favorites'
-TRAKT_CLIENT_ID = os.getenv("TRAKT_CLIENT_ID")
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
-user_link = f'[{TRAKT_USERNAME}](https://trakt.tv/users/{TRAKT_USERNAME})'
+from src.globals import logger, load_dotenv, TRAKT_API_URL, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
 
 processed_embeds = set()
 
@@ -71,7 +60,7 @@ def fetch_trakt_favorites():
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f'Failed to fetch Trakt favorites: {str(e)}')
+        logger.info(f'Failed to fetch Trakt favorites: {str(e)}')
         return []
 
 def get_tmdb_details(media_type, tmdb_id):
@@ -81,7 +70,7 @@ def get_tmdb_details(media_type, tmdb_id):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f'Failed to fetch TMDB details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB details: {str(e)}')
         return None
 
 def get_tmdb_season_details(tmdb_id, season_number):
@@ -91,7 +80,7 @@ def get_tmdb_season_details(tmdb_id, season_number):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f'Failed to fetch TMDB season details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB season details: {str(e)}')
         return None
 
 def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
@@ -101,7 +90,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f'Failed to fetch TMDB episode details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB episode details: {str(e)}')
         return None
 
 def process_favorites(favorites):
@@ -149,8 +138,8 @@ def trakt_favorites():
             favorites = fetch_trakt_favorites()
             result = process_favorites(favorites)
             if result is not None:
-                print("A new Embed has been sent to the Bot:")
-                print(result)
+                logger.info("A new Embed has been sent to the Bot:")
+                logger.info(result)
             return result
         except Exception as e:
-            print(f'Error occurred: {str(e)}')
+            logger.info(f'Error occurred: {str(e)}')
