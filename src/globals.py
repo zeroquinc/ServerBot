@@ -1,16 +1,7 @@
-import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-
-# Import Logging
-logger = logging.getLogger("ServerBot")
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
 
 # Discord.py stuff
 intents = discord.Intents.default()

@@ -3,9 +3,10 @@ import json
 import re
 import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-from src.globals import logger, load_dotenv, TRAKT_API_URL, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
+from src.globals import load_dotenv, TRAKT_API_URL, TRAKT_CLIENT_ID, TRAKT_USERNAME, TMDB_API_KEY, user_link
+
+from src.logging import logger_trakt
 
 processed_embeds = set()
 
@@ -237,7 +238,7 @@ def fetch_trakt_ratings():
     if response.status_code == 200:
         return response.json()
     else:
-        logger.info(f'Failed to fetch Trakt ratings: {response.status_code}')
+        logger_trakt.info(f'Failed to fetch Trakt ratings: {response.status_code}')
         return []
         
 def get_tmdb_details(media_type, tmdb_id):
@@ -246,7 +247,7 @@ def get_tmdb_details(media_type, tmdb_id):
     if response.status_code == 200:
         return response.json()
     else:
-        logger.info(f'Failed to fetch TMDB details: {response.status_code}')
+        logger_trakt.info(f'Failed to fetch TMDB details: {response.status_code}')
         return None
 
 def get_tmdb_season_details(tmdb_id, season_number):
@@ -255,7 +256,7 @@ def get_tmdb_season_details(tmdb_id, season_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger.info(f'Failed to fetch TMDB season details: {response.status_code}')
+        logger_trakt.info(f'Failed to fetch TMDB season details: {response.status_code}')
         return None
         
 def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
@@ -264,7 +265,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger.info(f'Failed to fetch TMDB episode details: {response.status_code}')
+        logger_trakt.info(f'Failed to fetch TMDB episode details: {response.status_code}')
         return None
 
 def process_ratings(ratings):
@@ -326,8 +327,8 @@ def trakt_ratings():
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
         if result is not None:
-            logger.info("A new Embed has been sent to the Bot:")
-            logger.info(result)
+            logger_trakt.info("A new Embed has been sent to the Bot:")
+            logger_trakt.info(result)
         return result
     except Exception as e:
-        logger.info(f'Error occurred: {str(e)}')
+        logger_trakt.info(f'Error occurred: {str(e)}')

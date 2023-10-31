@@ -4,7 +4,9 @@ import os
 import json
 from watchfiles import awatch, Change
 
-from src.globals import logger, bot, TOKEN, allowed_roles, load_dotenv
+from src.globals import bot, TOKEN, allowed_roles, load_dotenv
+
+from src.logging import logger_discord, logger_trakt, logger_plex
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -15,14 +17,14 @@ import src.git_commands.git
 # On Ready event
 @bot.event
 async def on_ready():
-    logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
+    logger_discord.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
     # Load Tasks
     try:
         trakt_ratings_task.start()
         trakt_favorites_task.start()
-        logger.info("Trakt Ratings Task and Trakt Favorites Task started.")
+        logger_discord.info("Trakt Ratings Task and Trakt Favorites Task started.")
     except Exception as e:
-        logger.info(f'Error starting tasks: {str(e)}')
+        logger_discord.info(f'Error starting tasks: {str(e)}')
     
     await plex_webhook()
 
@@ -43,10 +45,10 @@ async def plex_webhook():
                     if data is not None:
                         embed = discord.Embed.from_dict(data)
                         await channel.send(embed=embed)
-                        logger.info(f'A new Embed has been sent to channel ID: {channel_id}')
+                        logger_plex.info(f'A new Embed has been sent to channel ID: {channel_id}')
                     os.remove(path)
     except Exception as e:
-        logger.info(f'Error occurred: {str(e)}')
+        logger_plex.info(f'Error occurred: {str(e)}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -122,41 +124,41 @@ async def send_weekly_embeds(ctx):
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
 async def trakt_ratings_task():
-    logger.info("Starting Trakt Ratings Task.")
+    logger_trakt.info("Starting Trakt Ratings Task.")
     
     try:
         
-        logger.info("Fetching Trakt ratings data.")
+        logger_trakt.info("Fetching Trakt ratings data.")
         data = src.trakt_ratings_user.ratings.trakt_ratings()
         
         channel = bot.get_channel(1071806800527118367)
         
         if data is not None:
-            logger.info("Found Trakt Ratings and sending them to Discord.")
+            logger_trakt().info("Found Trakt Ratings and sending them to Discord.")
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger.info("No data to send. Trying again in 60 minutes.")
+            logger_trakt.info("No data to send. Trying again in 60 minutes.")
     except Exception as e:
-        logger.info(f'Error occurred: {str(e)}')
+        logger_trakt.info(f'Error occurred: {str(e)}')
 
 # Trakt Favorites Task Loop        
 @tasks.loop(minutes=60)
 async def trakt_favorites_task():
-    logger.info("Starting Trakt Favorites Task")
+    logger_trakt.info("Starting Trakt Favorites Task")
     
     try:
         data = src.trakt_favorites.favorites.trakt_favorites()
         channel = bot.get_channel(1071806800527118367)
         
         if data is not None:
-            logger.info("Found Trakt Favorites and sending them to Discord.")
+            logger_trakt.info("Found Trakt Favorites and sending them to Discord.")
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger.info("No data to send. Trying again in 60 minutes.")
+            logger_trakt.info("No data to send. Trying again in 60 minutes.")
     except Exception as e:
-        logger.info(f'Error occurred: {str(e)}')
+        logger_trakt.info(f'Error occurred: {str(e)}')
    
 if __name__ == '__main__':
     bot.run(TOKEN)
