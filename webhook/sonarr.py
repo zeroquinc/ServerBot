@@ -17,10 +17,6 @@ def sonarr_embed(data):
             inline=False
         )
 
-    # Add episode file information
-    episode_file = data['episodeFile']
-    embed.add_field(name="Episode File", value=episode_file['relativePath'], inline=False)
-
     # Add download information
     embed.add_field(name="Download Client", value=data['downloadClient'], inline=True)
     embed.add_field(name="Download ID", value=data['downloadId'], inline=True)
