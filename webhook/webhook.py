@@ -29,13 +29,13 @@ def webhook():
 
                 with open(filename, 'w') as f:
                     f.write(json.dumps(embed, indent=4))
-                logger_webhook.info(f"Event saved as {filename}")
+                app.logger.info(f"Event saved as {filename}")
             return "Webhook received and events saved successfully!", 200
         else:
             app.logger.info("Webhook received, but no events found.")
             return "Webhook received, but no events found.", 200
     except Exception as e:
-        logger_webhook.error(f"Error while processing JSON payload: {str(e)}")
+        app.logger.error(f"Error while processing JSON payload: {str(e)}")
         return "Internal server error", 500
 
 if __name__ == '__main__':
