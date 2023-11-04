@@ -23,3 +23,8 @@ TRAKT_URL_RATINGS = f'https://api.trakt.tv/users/{TRAKT_USERNAME}/ratings'
 TRAKT_CLIENT_ID = os.getenv("TRAKT_CLIENT_ID")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 user_link = f'[{TRAKT_USERNAME}](https://trakt.tv/users/{TRAKT_USERNAME})'
+
+# Tautulli Globals
+TAUTULLI_API_URL = os.getenv("TAUTULLI_API_URL")
+TAUTULLI_API_KEY = os.getenv("TAUTULLI_API_KEY")
+TAUTULLI_USER = os.getenv("TAUTULLI_USER")

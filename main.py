@@ -1,12 +1,13 @@
 import discord
 from discord.ext import tasks
-import os
-import json
-from watchfiles import awatch, Change
 
 from src.globals import bot, TOKEN, allowed_roles
 
-from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr
+from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_tautulli
+
+from src.tautulli import tautulli_discord_presence
+
+from src.plex import plex_webhook
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -18,60 +19,23 @@ import src.git_commands.git
 @bot.event
 async def on_ready():
     logger_discord.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
+    
     # Load Tasks
     try:
         trakt_ratings_task.start()
         trakt_favorites_task.start()
-        logger_discord.info("Trakt Ratings Task and Trakt Favorites Task started.")
+        tautulli_discord_activity.start()
+        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, and Tautulli Activity started.")
     except Exception as e:
         logger_discord.error(f'Error starting tasks: {str(e)}')
     
-    await plex_webhook()
-    await sonarr_webhook()
-
-async def plex_webhook():
+    # Logging for plex_webhook
     try:
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        playing_directory = os.path.join(script_directory, 'webhook', 'json', 'playing')
-        playing_channel_id = 1025825630668984450
-        content_directory = os.path.join(script_directory, 'webhook', 'json', 'content')
-        content_channel_id = 1044424524290072587
-        async for changes in awatch(playing_directory, content_directory):
-            for change, path in changes:
-                if change == Change.added:
-                    with open(path, 'r') as f:
-                        data = json.load(f)
-                    channel_id = playing_channel_id if "playing" in path else content_channel_id
-                    channel = bot.get_channel(channel_id)
-                    if data is not None:
-                        embed = discord.Embed.from_dict(data)
-                        await channel.send(embed=embed)
-                        logger_plex.info(f'A new Embed has been sent to channel ID: {channel_id}')
-                    os.remove(path)
+        logger_plex.info("Calling plex_webhook...")
+        await plex_webhook()
+        logger_plex.info("plex_webhook call succeeded.")
     except Exception as e:
-        logger_plex.error(f'Error occurred: {str(e)}')
-        
-async def sonarr_webhook():
-    try:
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        sonarr_directory = os.path.join(script_directory, 'webhook', 'json', 'sonarr')
-        grab_channel_id = 1006483865117937744
-        update_channel_id = 1000389279865905202
-        async for changes in awatch(sonarr_directory):
-            for change, path in changes:
-                if change == Change.added:
-                    with open(path, 'r') as f:
-                        data = json.load(f)
-                    filename = os.path.basename(path)
-                    channel_id = grab_channel_id if "Grab" in filename else update_channel_id
-                    channel = bot.get_channel(channel_id)
-                    if data is not None:
-                        embed = discord.Embed.from_dict(data)
-                        await channel.send(embed=embed)
-                        logger_sonarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
-                    os.remove(path)
-    except Exception as e:
-        logger_sonarr.error(f'Error occurred: {str(e)}')
+        logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -179,6 +143,14 @@ async def trakt_favorites_task():
             logger_trakt.info("No data to send. Trying again in 24 hours.")
     except Exception as e:
         logger_trakt.error(f'Error occurred: {str(e)}')
+
+# Discord Rich Presence Tautulli Task Loop 
+@tasks.loop(seconds=300)
+async def tautulli_discord_activity():
+    try:
+        await tautulli_discord_presence(bot)
+    except Exception as e:
+        logger_tautulli.error(f'An error occurred while calling Tautulli Discord Activity {e}')
    
 if __name__ == '__main__':
     bot.run(TOKEN)
