@@ -59,14 +59,7 @@ async def tautulli_discord_presence(bot):
                 # Check if the current activity is different from the previous one
                 if activity_name != previous_activity:
                     logger_tautulli.info(f"Discord presence updated: {activity_name}")
-                    
-                    # Determine the activity type based on the condition
-                    if activity_name == '127.0.0.1':
-                        activity_type = discord.ActivityType.watching
-                    else:
-                        activity_type = discord.ActivityType.streaming
-                    
-                    activity = discord.Activity(name=activity_name, type=activity_type)
+                    activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
                     await bot.change_presence(activity=activity)
                 else:
                     logger_tautulli.debug("Discord presence is the same as before, not updating.")
@@ -77,18 +70,10 @@ async def tautulli_discord_presence(bot):
                 # No activity, set the activity_name to "127.0.0.1"
                 activity_name = '127.0.0.1'
                 logger_tautulli.info("No Tautulli activity, setting Discord presence back to '127.0.0.1")
-                # Set the activity type to Watching
-                activity_type = discord.ActivityType.watching
-                activity = discord.Activity(name=activity_name, type=activity_type)
-                await bot.change_presence(activity=activity)
         else:
             # No data returned, set the activity_name to "127.0.0.1"
             activity_name = '127.0.0.1'
             logger_tautulli.info("No Tautulli data, setting Discord presence back to '127.0.0.1")
-            # Set the activity type to Watching
-            activity_type = discord.ActivityType.watching
-            activity = discord.Activity(name=activity_name, type=activity_type)
-            await bot.change_presence(activity=activity)
 
     except Exception as e:
         logger_tautulli.error(f"An error occurred: {e}")
