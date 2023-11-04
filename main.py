@@ -145,7 +145,7 @@ async def trakt_favorites_task():
         logger_trakt.error(f'Error occurred: {str(e)}')
 
 # Discord Rich Presence Tautulli Task Loop 
-@tasks.loop(seconds=300)
+@tasks.loop(seconds=600)
 async def tautulli_discord_activity():
     try:
         await tautulli_discord_presence(bot)

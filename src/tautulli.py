@@ -24,7 +24,6 @@ def fetch_tautulli_activity():
 
         if response.status_code == 200:
             data = response.json()
-            logger_tautulli.debug("Tautulli activity fetched successfully")
             logger_tautulli.debug("Tautulli JSON data: %s", data)
             return data.get('response', {}).get('data', [])
         else:
@@ -42,48 +41,45 @@ async def tautulli_discord_presence(bot):
         tautulli_data = fetch_tautulli_activity()
 
         if tautulli_data:
-            sessions = tautulli_data.get('sessions', [])
-            if sessions:
-                activity = sessions[0]
-                media_type = activity.get('media_type', 'Unknown Media Type')
+            stream_count = int(tautulli_data.get('stream_count', 0))
 
-                if media_type == 'movie':
-                    title = activity.get('title', 'Unknown Movie Title')
-                elif media_type == 'episode':
-                    title = activity.get('grandparent_title', 'Unknown Show Title')
-                else:
-                    title = 'Unknown Title'
+            if stream_count > 0:
+                sessions = tautulli_data.get('sessions', [])
+                if sessions:
+                    activity = sessions[0]
+                    media_type = activity.get('media_type', 'Unknown Media Type')
 
-                activity_name = f'{title}'  # Set the activity_name before creating discord.Activity
+                    if media_type == 'movie':
+                        title = activity.get('title', 'Unknown Movie Title')
+                    elif media_type == 'episode':
+                        title = activity.get('grandparent_title', 'Unknown Show Title')
+                    else:
+                        title = 'Unknown Title'
 
-                # Check if the current activity is different from the previous one
-                if activity_name != previous_activity:
-                    logger_tautulli.info(f"Discord presence updated: {activity_name}")
-                    activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
-                    await bot.change_presence(activity=activity)
-                else:
-                    logger_tautulli.debug("Discord presence is the same as before, not updating.")
+                    activity_name = f'{title}'  # Set the activity_name before creating discord.Activity
 
-                # Update the previous_activity to the current activity
-                previous_activity = activity_name
-            else:
-                # No activity, but still check the stream_count
-                if tautulli_data.get('stream_count', 0) == 0:
-                    activity_name = '127.0.0.1'
-                    logger_tautulli.info("No Tautulli activity, setting Discord presence back to '127.0.0.1'")
+                    # Check if the current activity is different from the previous one
                     if activity_name != previous_activity:
-                        logger_tautulli.info("Discord presence updated to '127.0.0.1'")
+                        logger_tautulli.info(f"Discord presence updated: {activity_name}")
                         activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
                         await bot.change_presence(activity=activity)
-                else:
-                    activity_name = 'Unknown Activity'  # You can set a default value if needed
-        else:
-            # No data returned, set the activity_name to "127.0.0.1"
-            activity_name = '127.0.0.1'
-            logger_tautulli.info("No Tautulli data, setting Discord presence back to '127.0.0.1'")
-            if activity_name != previous_activity:
-                logger_tautulli.info("Discord presence updated to '127.0.0.1'")
+                        previous_activity = activity_name
+                    else:
+                        logger_tautulli.debug("Discord presence is the same as before, not updating.")
+            elif previous_activity != '127.0.0.1':  # Check if not already '127.0.0.1'
+                # No activity, and stream_count is 0, set the activity_name to "127.0.0.1"
+                activity_name = '127.0.0.1'
+                logger_tautulli.info("No Tautulli activity, setting Discord presence to '127.0.0.1'")
                 activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
                 await bot.change_presence(activity=activity)
+                previous_activity = activity_name
+        else:
+            if previous_activity != '127.0.0.1':  # Check if not already '127.0.0.1'
+                # No data returned, set the activity_name to "127.0.0.1"
+                activity_name = '127.0.0.1'
+                logger_tautulli.info("No Tautulli data, setting Discord presence to '127.0.0.1'")
+                activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
+                await bot.change_presence(activity=activity)
+                previous_activity = activity_name
     except Exception as e:
         logger_tautulli.error(f"An error occurred: {e}")
