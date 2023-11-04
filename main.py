@@ -31,9 +31,9 @@ async def on_ready():
     
     # Logging for plex_webhook
     try:
-        logger_plex.info("Calling plex_webhook...")
+        logger_plex.debug("Calling plex_webhook...")
         await plex_webhook()
-        logger_plex.info("plex_webhook call succeeded.")
+        logger_plex.debug("plex_webhook call succeeded.")
     except Exception as e:
         logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
 
