@@ -27,4 +27,4 @@ user_link = f'[{TRAKT_USERNAME}](https://trakt.tv/users/{TRAKT_USERNAME})'
 # Tautulli Globals
 TAUTULLI_API_URL = os.getenv("TAUTULLI_API_URL")
 TAUTULLI_API_KEY = os.getenv("TAUTULLI_API_KEY")
-TAUTULLI_USER = os.getenv("TAUTULLI_USER")
+TAUTULLI_USER_ID = os.getenv("TAUTULLI_USER_ID")

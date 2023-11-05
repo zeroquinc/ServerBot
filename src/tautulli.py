@@ -1,11 +1,99 @@
 import requests
 import discord
 
-from src.globals import TAUTULLI_API_URL, TAUTULLI_API_KEY
+from src.globals import TAUTULLI_API_URL, TAUTULLI_API_KEY, TAUTULLI_USER_ID
 
 from src.logging import logger_tautulli
 
-# Initialize the previous_activity variable to None
+# Start of Home Stats User, not finished, only logs now, will fix later.
+def home_stats():
+    try:
+        response = requests.get(
+            f'{TAUTULLI_API_URL}/api/v2',
+            params={
+                'apikey': TAUTULLI_API_KEY,
+                'cmd': 'get_history',
+                'after': '2023-10-29',
+                'media_type': 'movie, episode',
+                'user_id': TAUTULLI_USER_ID
+            }
+        )
+
+        logger_tautulli.info(f"Tautulli API Response Status Code: {response.status_code}")
+        response_content = response.text
+        logger_tautulli.info(f"Tautulli API Response Content: {response_content}")
+
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                data = response_data.get('response', {}).get('data', {}).get('data', [])
+            except (ValueError, KeyError):
+                logger_tautulli.error("Invalid JSON response or missing data from the API.")
+                return
+
+            episodes_watched = 0
+            movies_watched = 0
+            grandparent_titles = {}
+            movie_titles = {}
+
+            for item in data:
+                media_type = item.get('media_type')
+                grandparent_title = item.get('grandparent_title')
+                title = item.get('title')
+                year = item.get('year')
+
+                if media_type == 'episode':
+                    episodes_watched += 1
+                    if grandparent_title:
+                        if grandparent_title not in grandparent_titles:
+                            grandparent_titles[grandparent_title] = {'years': set(), 'count': 0}
+                        grandparent_titles[grandparent_title]['years'].add(year)
+                        grandparent_titles[grandparent_title]['count'] += 1
+                elif media_type == 'movie':
+                    movies_watched += 1
+                    if title:
+                        if title not in movie_titles:
+                            movie_titles[title] = {'year': None, 'count': 0}
+                        if movie_titles[title]['year'] is None:
+                            movie_titles[title]['year'] = year
+                        movie_titles[title]['count'] += 1
+
+            # Sort the grandparent_titles by count in descending order
+            sorted_grandparent_titles = sorted(
+                grandparent_titles.items(),
+                key=lambda x: x[1]['count'],
+                reverse=True
+            )
+
+            # Sort the movie_titles by count in descending order
+            sorted_movie_titles = sorted(
+                movie_titles.items(),
+                key=lambda x: x[1]['count'],
+                reverse=True
+            )
+
+            # Modify the log message to handle "episode" or "episodes" based on count
+            episodes_label = "episode" if episodes_watched == 1 else "episodes"
+            logger_tautulli.info(f"Episodes - {episodes_watched} {episodes_label} watched")
+
+            for title, info in sorted_grandparent_titles:
+                years_str = ', '.join(map(str, info['years']))
+                episode_count = info['count']
+                episode_label = "episode" if episode_count == 1 else "episodes"
+                logger_tautulli.info(f"{title} ({years_str}) - {episode_count} {episode_label}")
+
+            logger_tautulli.info(f"Movies - {movies_watched} watched")
+            for title, info in sorted_movie_titles:
+                year = info['year']
+                logger_tautulli.info(f"{title} ({year})")
+
+        else:
+            return
+
+    except Exception as e:
+        logger_tautulli.error(f"An error occurred while fetching home stats for user: {e}")
+
+# Start of Tautulli Discord Task
 previous_activity = None
 
 def fetch_tautulli_activity():

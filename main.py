@@ -5,7 +5,7 @@ from src.globals import bot, TOKEN, allowed_roles
 
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_tautulli
 
-from src.tautulli import tautulli_discord_presence
+from src.tautulli import tautulli_discord_presence, home_stats
 
 from src.plex import plex_webhook
 
@@ -107,6 +107,18 @@ async def send_weekly_embeds(ctx):
     except Exception as e:
         # Log and inform about errors
         await ctx.send(f"An error occurred: {str(e)}")
+
+# Tautulli Weekly Plays command  
+@bot.command()
+async def test(ctx):
+    try:
+        stats = home_stats()
+        if stats:
+            await ctx.send("Home stats fetched successfully!")
+        else:
+            await ctx.send("Failed to fetch home stats.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
 
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
