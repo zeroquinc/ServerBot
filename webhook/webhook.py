@@ -18,15 +18,15 @@ def webhook():
             for i, embed in enumerate(embeds):
                 author_name = embed['author']['name']
                 if "Resumed Playing" in author_name:
-                    filename = os.path.join(playing_directory, 'plex_resuming.json')
+                    filename = os.path.join(playing_directory, f'plex_resuming_{i}.json')
                 elif "has finished playing" in author_name:
-                    filename = os.path.join(playing_directory, 'plex_finished.json')
+                    filename = os.path.join(playing_directory, f'plex_finished_{i}.json')
                 elif "Now Playing" in author_name:
-                    filename = os.path.join(playing_directory, 'plex_started.json')
+                    filename = os.path.join(playing_directory, f'plex_started_{i}.json')
                 elif "added" in author_name:
-                    filename = os.path.join(content_directory, 'plex_new_content.json')
+                    filename = os.path.join(content_directory, f'plex_new_content_{i}.json')
                 else:
-                    filename = os.path.join(script_directory, f'event_{i}.json')
+                    filename = os.path.join(script_directory, f'event_{i}_{datetime.now().strftime("%Y%m%d%H%M%S")}.json')
 
                 with open(filename, 'w') as f:
                     f.write(json.dumps(embed, indent=4))
