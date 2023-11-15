@@ -10,7 +10,7 @@ This is a Discord.py bot created for learning Python and for fun.
 
 ## Usage
 
-- Make a .env and fill in these variables
+- Make a .env and fill in these variables and save it in the root folder
 
 ```
 DISCORD_SERVER_ID=xxx
@@ -22,6 +22,17 @@ TRAKT_USERNAME=xxx
 TAUTULLI_API_URL = "http://xxx:8181/api/v2"
 TAUTULLI_API_KEY=
 TAUTULLI_USER=
+```
+
+Make a bash script like this and then run the file
+
+```
+#!/bin/bash
+cd /path/to/folder
+#source venv/bin/activate
+python3 /path/to/folder/main.py &
+python3 /path/to/folder/webhook.py
+#deactivate
 ```
 
 ## Contact
