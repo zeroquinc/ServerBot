@@ -5,7 +5,7 @@ from src.globals import bot, TOKEN, allowed_roles
 
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_tautulli
 
-from src.tautulli import tautulli_discord_presence, home_stats
+from src.tautulli import tautulli_discord_presence
 
 from src.plex import plex_webhook
 
@@ -25,17 +25,10 @@ async def on_ready():
         trakt_ratings_task.start()
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
-        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, and Tautulli Activity started.")
+        plex_webhook_task.start()
+        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook and Tautulli Activity started.")
     except Exception as e:
         logger_discord.error(f'Error starting tasks: {str(e)}')
-    
-    # Logging for plex_webhook
-    try:
-        logger_plex.debug("Calling plex_webhook...")
-        await plex_webhook()
-        logger_plex.debug("plex_webhook call succeeded.")
-    except Exception as e:
-        logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
 
 # !traktweeklyuser
 @bot.command(name='traktweeklyuser')
@@ -108,17 +101,17 @@ async def send_weekly_embeds(ctx):
         # Log and inform about errors
         await ctx.send(f"An error occurred: {str(e)}")
 
-# Tautulli Weekly Plays command  
-@bot.command()
-async def test(ctx):
+# Plex Webhook loop
+@tasks.loop(hours=24)
+async def plex_webhook_task():
+    # Logging for plex_webhook
     try:
-        stats = home_stats()
-        if stats:
-            await ctx.send("Home stats fetched successfully!")
-        else:
-            await ctx.send("Failed to fetch home stats.")
+        logger_plex.info("Calling Plex Webhook...")
+        await plex_webhook()
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
+    else:
+        logger_plex.info("plex_webhook call succeeded.")
 
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
