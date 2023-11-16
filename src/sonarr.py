@@ -76,7 +76,7 @@ def create_discord_embed(json_data):
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Indexer", value=release_indexer, inline=True)
-        embed.add_field(name='Release', value=release_title, inline=False)
+        embed.add_field(name='Release', value=release_title, inline=True)
         
         # Add Custom Formats field if customFormats is filled in
         if custom_formats:
