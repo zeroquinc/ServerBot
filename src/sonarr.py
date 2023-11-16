@@ -11,7 +11,7 @@ from src.logging import logger_sonarr
 
 def get_tmdb_poster_path(tvdb_id):
     tmdb_api_key = TMDB_API_KEY
-    tmdb_url = f"https://api.themoviedb.org/3/tv/{tvdb_id}?api_key={tmdb_api_key}&language=en-US"
+    tmdb_url = f"https://api.themoviedb.org/3/find/{tvdb_id}?api_key={tmdb_api_key}&language=en-US&external_source=tvdb_id"
 
     try:
         response = requests.get(tmdb_url)
@@ -19,9 +19,14 @@ def get_tmdb_poster_path(tvdb_id):
 
         tmdb_data = response.json()
 
-        poster_path = tmdb_data.get("poster_path")
-
-        return poster_path
+        # Extract the poster path from the response
+        # Assuming the TVDB ID is found, and the first result is used
+        result = tmdb_data.get("tv_results", [])
+        if result:
+            poster_path = result[0].get("poster_path")
+            return poster_path
+        else:
+            return None
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from TMDB: {str(e)}")
         return None
@@ -58,7 +63,7 @@ def create_discord_embed(json_data):
 
     if event_type == "Grab":
         embed = discord.Embed(
-            title=f"{series_title} - (S{formatted_season_number}E{formatted_episode_number})",
+            title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
             color=0x00ff00
         )
         
@@ -77,7 +82,7 @@ def create_discord_embed(json_data):
         if custom_formats:
             embed.add_field(
                 name="Custom Formats",
-                value=f"Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}",
+                value=f"```Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}```",
                 inline=False
             )
 
