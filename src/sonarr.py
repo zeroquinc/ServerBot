@@ -80,7 +80,7 @@ def create_discord_embed(json_data):
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
-        embed.add_field(name='Release', value=release_title, inline=True)
+        embed.add_field(name='Release', value=release_title, inline=False)
         
         # Add Custom Formats field if customFormats is filled in
         if custom_formats:
@@ -126,9 +126,9 @@ def dump_embed_to_json(data, script_directory, sonarr_directory):
     
 def convert_bytes_to_human_readable(size_in_bytes):
     # Convert bytes to human-readable format
-    if size_in_bytes < 1024 ** 2:  # Less than 1 MB
+    if size_in_bytes < 1024 * 1024:  # Less than or equal to 1024 MB
         return "{:.2f}MB".format(size_in_bytes / 1024 ** 2)
-    else:  # 1 MB or greater
+    else:  # Greater than 1024 MB
         return "{:.2f}GB".format(size_in_bytes / (1024 ** 3))
     
 async def sonarr_webhook():
