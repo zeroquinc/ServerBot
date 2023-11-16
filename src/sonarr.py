@@ -84,12 +84,12 @@ def create_discord_embed(json_data):
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
         
-        # Process the "Release" field to split lines after dot (.) or hyphen (-)
+        # Process the "Release" field to split lines after hyphen (-)
         release_lines = []
         current_line = ""
         for char in release_title:
             current_line += char
-            if len(current_line) >= 40 and (char == '-'):
+            if len(current_line) >= 40 and char == '-':
                 release_lines.append(current_line)
                 current_line = ""
         if current_line:
