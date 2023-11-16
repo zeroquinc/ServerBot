@@ -87,15 +87,22 @@ def create_discord_embed(json_data):
         # Process the "Release" field to split lines after hyphen (-)
         release_lines = []
         current_line = ""
+        count = 0
         for char in release_title:
-            if len(current_line) >= 40 and char == '-':
+            current_line += char
+            count += 1
+            if count >= 40 and char == '-':
                 release_lines.append(current_line)
                 current_line = ""
-            current_line += char
+                count = 0
 
         # Add the remaining characters after the loop
         if current_line:
             release_lines.append(current_line)
+
+        # Add Release field with multiple lines
+        release_value = "\n".join(release_lines)
+        embed.add_field(name='Release', value=release_value, inline=False)
 
         # Add Release field with multiple lines
         release_value = "\n".join(release_lines)
