@@ -81,7 +81,7 @@ def create_discord_embed(json_data):
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
         # Add fields with invisible characters for equal spacing
-        invisible_char = "\u200c"  # Zero-width non-joiner
+        invisible_char = "\u200b" * 10  # Zero-width non-joiner
         embed.add_field(name="Size", value=release_size_human_readable + invisible_char, inline=True)  # Add invisible character
         embed.add_field(name="Quality", value=release_quality + invisible_char, inline=True)  # Add invisible character
         embed.add_field(name="Indexer", value=indexer_value + invisible_char, inline=True)  # Add invisible character
