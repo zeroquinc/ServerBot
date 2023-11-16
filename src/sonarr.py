@@ -2,8 +2,10 @@ import datetime
 import json
 import os
 import discord
+from discord.utils import utcnow
 from watchfiles import awatch, Change
 import requests
+import asyncio
 
 from src.globals import bot, TMDB_API_KEY
 
@@ -91,6 +93,9 @@ def create_discord_embed(json_data):
                 value=f"```Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}```",
                 inline=False
             )
+        # Add timestamp
+        timestamp = utcnow()
+        embed.timestamp = timestamp
 
     elif event_type == "Download":
         embed = discord.Embed(
@@ -141,21 +146,38 @@ def convert_bytes_to_human_readable(size_in_bytes):
 async def sonarr_webhook():
     logger_sonarr.info('Sonarr Webhook started and listening for events')
     try:
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        script_directory = os.path.dirname(script_directory)
-        grab_directory = os.path.join(script_directory, 'webhook', 'json', 'sonarr')
+        script_directory, grab_directory = sonarr_directories()
+
         grab_channel_id = 1006483865117937744
+
+        # List to store collected embeds during the 1-minute interval
+        embed_queue = []
+
         async for changes in awatch(grab_directory):
             for change, path in changes:
                 if change == Change.added:
                     with open(path, 'r') as f:
                         data = json.load(f)
-                    channel_id = grab_channel_id
-                    channel = bot.get_channel(channel_id)
                     if data is not None:
-                        embed = discord.Embed.from_dict(data)
-                        await channel.send(embed=embed)
-                        logger_sonarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
+                        # Create Discord embed from JSON data
+                        discord_embed = create_discord_embed(data)
+                        # Append the embed to the queue
+                        embed_queue.append(discord_embed)
                     os.remove(path)
+
+        # Check if there are any embeds in the queue
+        if embed_queue:
+            # Wait for 1 minute before sending the embeds
+            await asyncio.sleep(60)
+
+            # Get the channel
+            channel_id = grab_channel_id
+            channel = bot.get_channel(channel_id)
+
+            # Send all embeds in chunks of 10
+            for chunk in [embed_queue[i:i + 10] for i in range(0, len(embed_queue), 10)]:
+                await channel.send(embeds=chunk)
+                logger_sonarr.info(f'{len(chunk)} Embeds have been sent to channel ID: {channel_id}')
+
     except Exception as e:
         logger_sonarr.error(f'Error occurred: {str(e)}')
