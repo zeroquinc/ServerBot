@@ -114,7 +114,7 @@ def dump_embed_to_json(data, script_directory, sonarr_directory):
         event_type = data['eventType']
         
         if event_type == "Test":
-            return 200, "Test event received successfully"
+            return "Test event received successfully", 200
 
         # Write the Discord embed to a file with the current date and time
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
