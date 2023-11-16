@@ -129,7 +129,7 @@ def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes < 1024 ** 2:  # Less than 1 GB
         return "{:.2f}MB".format(size_in_bytes / 1024 ** 2)
     else:  # 1 GB or greater
-        return "{:.2f}GB".format(size_in_bytes / (1024 ** 3))
+        return "{:.2f}GB".format(size_in_bytes / 1024 ** 3)
     
 async def sonarr_webhook():
     logger_sonarr.info('Sonarr Webhook started and listening for events')
