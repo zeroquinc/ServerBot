@@ -8,11 +8,11 @@ import requests
 
 from src.globals import bot, TMDB_API_KEY
 
-from src.logging import logger_sonarr
+from src.logging import logger_radarr
 
-def get_tmdb_poster_path(tvdb_id):
+def get_tmdb_poster_path(tmdb_id):
     tmdb_api_key = TMDB_API_KEY
-    tmdb_url = f"https://api.themoviedb.org/3/find/{tvdb_id}?api_key={tmdb_api_key}&language=en-US&external_source=tvdb_id"
+    tmdb_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}?api_key={tmdb_api_key}&language=en-US"
 
     try:
         response = requests.get(tmdb_url)
@@ -21,22 +21,17 @@ def get_tmdb_poster_path(tvdb_id):
         tmdb_data = response.json()
 
         # Extract the poster path from the response
-        # Assuming the TVDB ID is found, and the first result is used
-        result = tmdb_data.get("tv_results", [])
-        if result:
-            poster_path = result[0].get("poster_path")
-            return poster_path
-        else:
-            return None
+        poster_path = tmdb_data.get("poster_path")
+        return poster_path
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from TMDB: {str(e)}")
         return None
 
-def sonarr_directories():
+def radarr_directories():
     script_directory = os.path.dirname(os.path.abspath(__file__))
     json_directory = os.path.join(script_directory, '..', 'webhook', 'json')
-    sonarr_directory = os.path.join(json_directory, 'sonarr')
-    return script_directory, sonarr_directory
+    radarr_directory = os.path.join(json_directory, 'radarr')
+    return script_directory, radarr_directory
 
 def create_discord_embed(json_data):
     
@@ -44,10 +39,8 @@ def create_discord_embed(json_data):
     event_type = json_data['eventType']
     instance_name = json_data['instanceName']
     
-    series_title = json_data['series']['title']
-    episode_title = json_data['episodes'][0]['title']
-    episode_number = json_data['episodes'][0]['episodeNumber']
-    season_number = json_data['episodes'][0]['seasonNumber']
+    movie_title = json_data['movie']['title']
+    movie_year = json_data['movie']['year']
     release_quality = json_data['release']['quality']
     release_size_bytes = json_data['release']['size']
     release_size_human_readable = convert_bytes_to_human_readable(release_size_bytes)
@@ -59,18 +52,14 @@ def create_discord_embed(json_data):
     indexer_value = "\n".join(indexer_words)
     custom_format_score = json_data['release']['customFormatScore']
     custom_formats = json_data['release']['customFormats']
-    tvdb_id = json_data['series']['tvdbId']
+    tmdb_id = json_data['movie']['tmdbId']
     
     # Get the poster path from TMDB using the TVDB ID
-    poster_path = get_tmdb_poster_path(tvdb_id)
-
-    # Format episode and season numbers with leading zeros if necessary
-    formatted_episode_number = f"{episode_number:02d}"
-    formatted_season_number = f"{season_number:02d}"
+    poster_path = get_tmdb_poster_path(tmdb_id)
 
     if event_type == "Grab":
         embed = discord.Embed(
-            title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
+            title=f"{movie_title} ({movie_year})",
             color=0x00ff00
         )
         
@@ -79,7 +68,6 @@ def create_discord_embed(json_data):
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
 
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
-        embed.add_field(name="Episode", value=episode_title, inline=False)
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
@@ -121,7 +109,7 @@ def create_discord_embed(json_data):
 
     elif event_type == "Download":
         embed = discord.Embed(
-            title=f"{series_title} - Download Started",
+            title=f"{movie_title} - Download Started",
             color=0xffa500
         )
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
@@ -129,10 +117,10 @@ def create_discord_embed(json_data):
 
     return embed
 
-def sonarr_embed_to_json(data, script_directory, sonarr_directory):
+def radarr_embed_to_json(data, script_directory, radarr_directory):
     try:
         # Ensure the directories exist, create them if necessary
-        os.makedirs(sonarr_directory, exist_ok=True)
+        os.makedirs(radarr_directory, exist_ok=True)
 
         # Create Discord embed from JSON data
         discord_embed = create_discord_embed(data)
@@ -146,7 +134,7 @@ def sonarr_embed_to_json(data, script_directory, sonarr_directory):
         # Write the Discord embed to a file with the current date and time
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name = f"{event_type}_{timestamp}.json"
-        file_path = os.path.join(sonarr_directory, file_name)
+        file_path = os.path.join(radarr_directory, file_name)
 
         with open(file_path, 'w') as file:
             json.dump(discord_embed.to_dict(), file, indent=2)
@@ -165,13 +153,13 @@ def convert_bytes_to_human_readable(size_in_bytes):
         result = size_in_bytes / (1024 ** 3)
         return "{:.2f}GB".format(result)
     
-async def sonarr_webhook():
-    logger_sonarr.info('Sonarr Webhook started and listening for events')
+async def radarr_webhook():
+    logger_radarr.info('Radarr Webhook started and listening for events')
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
         script_directory = os.path.dirname(script_directory)
-        grab_directory = os.path.join(script_directory, 'webhook', 'json', 'sonarr')
-        grab_channel_id = 1006483865117937744
+        grab_directory = os.path.join(script_directory, 'webhook', 'json', 'radarr')
+        grab_channel_id = 1000190137818431518
         async for changes in awatch(grab_directory):
             for change, path in changes:
                 if change == Change.added:
@@ -182,7 +170,7 @@ async def sonarr_webhook():
                     if data is not None:
                         embed = discord.Embed.from_dict(data)
                         await channel.send(embed=embed)
-                        logger_sonarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
+                        logger_radarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
                     os.remove(path)
     except Exception as e:
-        logger_sonarr.error(f'Error occurred: {str(e)}')
+        logger_radarr.error(f'Error occurred: {str(e)}')

@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify
 
 from src.plex import plex_directories, handle_webhook_data
 
-from src.sonarr import sonarr_directories, dump_embed_to_json
+from src.sonarr import sonarr_directories, sonarr_embed_to_json
+
+from src.radarr import radarr_directories, radarr_embed_to_json
 
 app = Flask(__name__)
 
@@ -22,7 +24,18 @@ def sonarr_webhook():
     script_directory, sonarr_directory = sonarr_directories()
     try:
         data = request.get_json()
-        response, status_code = dump_embed_to_json(data, script_directory, sonarr_directory)
+        response, status_code = sonarr_embed_to_json(data, script_directory, sonarr_directory)
+        return response, status_code
+    except Exception as e:
+        print(f"Error in webhook route: {str(e)}")
+        return "Internal server error", 500
+    
+@app.route('/radarr', methods=['POST'])
+def radarr_webhook():
+    script_directory, radarr_directory = radarr_directories()
+    try:
+        data = request.get_json()
+        response, status_code = radarr_embed_to_json(data, script_directory, radarr_directory)
         return response, status_code
     except Exception as e:
         print(f"Error in webhook route: {str(e)}")
