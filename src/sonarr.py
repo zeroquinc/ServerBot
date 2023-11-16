@@ -126,10 +126,10 @@ def dump_embed_to_json(data, script_directory, sonarr_directory):
     
 def convert_bytes_to_human_readable(size_in_bytes):
     # Convert bytes to human-readable format
-    if size_in_bytes < 1024 * 1024:  # Less than or equal to 1024 MB
+    if size_in_bytes < 1024 * 1024:  # Less than 1024 MB
         return "{:.2f}MB".format(size_in_bytes / 1024 ** 2)
-    else:  # Greater than 1024 MB
-        return "{:.2f}GB".format(size_in_bytes / (1024 ** 3))
+    else:  # 1024 MB or greater
+        return "{:.2f}GB".format(size_in_bytes / (1024 * 1024))
     
 async def sonarr_webhook():
     logger_sonarr.info('Sonarr Webhook started and listening for events')
