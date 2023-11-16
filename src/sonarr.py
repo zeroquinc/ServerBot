@@ -80,9 +80,11 @@ def create_discord_embed(json_data):
 
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
-        embed.add_field(name="Size", value=release_size_human_readable + "\u200b", inline=True)  # Add invisible character
-        embed.add_field(name="Quality", value=release_quality + "\u200b", inline=True)  # Add invisible character
-        embed.add_field(name="Indexer", value=indexer_value + "\u200b", inline=True)  # Add invisible character
+        # Add fields with invisible characters for equal spacing
+        invisible_char = "\u200c"  # Zero-width non-joiner
+        embed.add_field(name="Size", value=release_size_human_readable + invisible_char, inline=True)  # Add invisible character
+        embed.add_field(name="Quality", value=release_quality + invisible_char, inline=True)  # Add invisible character
+        embed.add_field(name="Indexer", value=indexer_value + invisible_char, inline=True)  # Add invisible character
         
         # Process the "Release" field to split lines after hyphen (-)
         release_lines = []
