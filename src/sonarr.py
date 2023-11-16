@@ -83,7 +83,21 @@ def create_discord_embed(json_data):
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
-        embed.add_field(name='Release', value=release_title, inline=False)
+        
+        # Process the "Release" field to split lines after dot (.) or hyphen (-)
+        release_lines = []
+        current_line = ""
+        for char in release_title:
+            current_line += char
+            if len(current_line) >= 55 and (char == '.' or char == '-'):
+                release_lines.append(current_line)
+                current_line = ""
+        if current_line:
+            release_lines.append(current_line)
+
+        # Add Release field with multiple lines
+        release_value = "\n".join(release_lines)
+        embed.add_field(name='Release', value=release_value, inline=False)
         
         # Add Custom Formats field if customFormats is filled in
         if custom_formats:
