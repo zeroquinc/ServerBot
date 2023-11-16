@@ -60,14 +60,14 @@ def create_discord_embed(json_data):
     if event_type == "Grab":
         embed = discord.Embed(
             title=f"{movie_title} ({movie_year})",
-            color=0x00ff00
+            color=0xa84300
         )
         
         # Set the thumbnail using the poster path from TMDB
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
 
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)

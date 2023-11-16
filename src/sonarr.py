@@ -71,7 +71,7 @@ def create_discord_embed(json_data):
     if event_type == "Grab":
         embed = discord.Embed(
             title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
-            color=0x00ff00
+            color=0x67B7D1
         )
         
         # Set the thumbnail using the poster path from TMDB
