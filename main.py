@@ -9,6 +9,8 @@ from src.tautulli import tautulli_discord_presence
 
 from src.plex import plex_webhook
 
+from src.sonarr import sonarr_webhook
+
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
 import src.trakt_ratings_user.ratings
@@ -26,7 +28,8 @@ async def on_ready():
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
         plex_webhook_task.start()
-        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook and Tautulli Activity started.")
+        sonarr_webhook_task.start()
+        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook, Sonarr Webhook and Tautulli Activity started.")
     except Exception as e:
         logger_discord.error(f'Error starting tasks: {str(e)}')
 
@@ -112,6 +115,19 @@ async def plex_webhook_task():
         logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
     else:
         logger_plex.info("plex_webhook call succeeded.")
+        
+# Sonarr Webhook loop
+@tasks.loop(hours=24)
+async def sonarr_webhook_task():
+    # Logging for sonarr_webhook
+    try:
+        logger_sonarr.info("Calling Sonarr Webhook...")
+        await sonarr_webhook()
+    except Exception as e:
+        logger_sonarr.error(f'An error occurred while calling sonarr_webhook: {e}')
+    else:
+        logger_sonarr.info("sonarr_webhook call succeeded.")
+
 
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)

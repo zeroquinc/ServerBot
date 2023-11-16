@@ -1,0 +1,107 @@
+import datetime
+import json
+import os
+import discord
+from watchfiles import awatch, Change
+
+from src.globals import bot
+
+from src.logging import logger_sonarr
+
+def setup_directories():
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    json_directory = os.path.join(script_directory, '..', 'webhook', 'json')
+    sonarr_directory = os.path.join(json_directory, 'sonarr')
+    return script_directory, sonarr_directory
+
+def create_discord_embed(json_data):
+    series_title = json_data['series']['title']
+    episode_title = json_data['episodes'][0]['title']
+    episode_number = json_data['episodes'][0]['episodeNumber']
+    season_number = json_data['episodes'][0]['seasonNumber']
+    release_quality = json_data['release']['quality']
+    release_size_bytes = json_data['release']['size']
+    release_size_human_readable = convert_bytes_to_human_readable(release_size_bytes)
+    release_title = json_data['release']['releaseTitle']
+    release_indexer = json_data['release']['indexer']
+    
+    event_type = json_data['eventType']
+    instance_name = json_data['instanceName']
+
+    # Format episode and season numbers with leading zeros if necessary
+    formatted_episode_number = f"{episode_number:02d}"
+    formatted_season_number = f"{season_number:02d}"
+
+    if event_type == "Grab":
+        embed = discord.Embed(
+            title=f"{series_title} - (S{formatted_season_number}E{formatted_episode_number})",
+            color=0x00ff00
+        )
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="")
+        embed.add_field(name="Episode", value=episode_title, inline=False)
+        embed.add_field(name="Quality", value=release_quality, inline=True)
+        embed.add_field(name="Size", value=release_size_human_readable, inline=True)
+        embed.add_field(name="Indexer", value=release_indexer, inline=True)
+        embed.add_field(name='Release', value=release_title, inline=False)
+    elif event_type == "Download":
+        embed = discord.Embed(
+            title=f"{series_title} - Download Started",
+            color=0xffa500
+        )
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="")
+    # Add more conditions for other event types as needed
+
+    return embed
+
+def dump_embed_to_json(data, script_directory, sonarr_directory):
+    try:
+        # Ensure the directories exist, create them if necessary
+        os.makedirs(sonarr_directory, exist_ok=True)
+
+        # Create Discord embed from JSON data
+        discord_embed = create_discord_embed(data)
+
+        # Get the event type from the data
+        event_type = data['eventType']
+
+        # Write the Discord embed to a file with the current date and time
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file_name = f"{event_type}_{timestamp}.json"
+        file_path = os.path.join(sonarr_directory, file_name)
+
+        with open(file_path, 'w') as file:
+            json.dump(discord_embed.to_dict(), file, indent=2)
+
+        return "Data dumped successfully", 200
+    except Exception as e:
+        print(f"Error dumping Discord embed to JSON: {str(e)}")
+        return "Internal server error", 500
+    
+def convert_bytes_to_human_readable(size_in_bytes):
+    # Convert bytes to human-readable format
+    if size_in_bytes < 1024 ** 2:  # Less than 1 MB
+        return "{:.2f}MB".format(size_in_bytes / 1024 ** 2)
+    else:  # 1 MB or greater
+        return "{:.2f}GB".format(size_in_bytes / (1024 ** 3))
+    
+async def sonarr_webhook():
+    logger_sonarr.info('Sonarr Webhook started and listening for events')
+    try:
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        script_directory = os.path.dirname(script_directory)
+        grab_directory = os.path.join(script_directory, 'webhook', 'json', 'sonarr')
+        grab_channel_id = 1006483865117937744
+        async for changes in awatch(grab_directory):
+            for change, path in changes:
+                if change == Change.added:
+                    with open(path, 'r') as f:
+                        data = json.load(f)
+                    channel_id = grab_channel_id
+                    channel = bot.get_channel(channel_id)
+                    if data is not None:
+                        embed = discord.Embed.from_dict(data)
+                        await channel.send(embed=embed)
+                        logger_sonarr.info(f'A new Embed has been sent to channel ID: {channel_id}')
+                    os.remove(path)
+    except Exception as e:
+        logger_sonarr.error(f'Error occurred: {str(e)}')
