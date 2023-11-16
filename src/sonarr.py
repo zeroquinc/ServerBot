@@ -43,9 +43,6 @@ def create_discord_embed(json_data):
     event_type = json_data['eventType']
     instance_name = json_data['instanceName']
     
-    if event_type == "Test":
-        return 200, "Test event received successfully"
-    
     series_title = json_data['series']['title']
     episode_title = json_data['episodes'][0]['title']
     episode_number = json_data['episodes'][0]['episodeNumber']
@@ -115,6 +112,9 @@ def dump_embed_to_json(data, script_directory, sonarr_directory):
 
         # Get the event type from the data
         event_type = data['eventType']
+        
+        if event_type == "Test":
+            return 200, "Test event received successfully"
 
         # Write the Discord embed to a file with the current date and time
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
