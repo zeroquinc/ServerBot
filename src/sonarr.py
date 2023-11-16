@@ -47,6 +47,10 @@ def create_discord_embed(json_data):
     release_size_human_readable = convert_bytes_to_human_readable(release_size_bytes)
     release_title = json_data['release']['releaseTitle']
     release_indexer = json_data['release']['indexer']
+    # Split the release indexer into a list of words
+    indexer_words = release_indexer.split()
+    # Join the words with newline characters
+    indexer_value = "\n".join(indexer_words)
     custom_format_score = json_data['release']['customFormatScore']
     custom_formats = json_data['release']['customFormats']
     tvdb_id = json_data['series']['tvdbId']
@@ -73,9 +77,9 @@ def create_discord_embed(json_data):
 
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
-        embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
-        embed.add_field(name="Indexer", value=release_indexer, inline=True)
+        embed.add_field(name="Quality", value=release_quality, inline=True)
+        embed.add_field(name="Indexer", value=indexer_value, inline=True)
         embed.add_field(name='Release', value=release_title, inline=True)
         
         # Add Custom Formats field if customFormats is filled in
