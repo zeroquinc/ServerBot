@@ -89,7 +89,7 @@ def create_discord_embed(json_data):
         current_line = ""
         for char in release_title:
             current_line += char
-            if len(current_line) >= 40 and (char == '.' or char == '-'):
+            if len(current_line) >= 55 and (char == '-'):
                 release_lines.append(current_line)
                 current_line = ""
         if current_line:
