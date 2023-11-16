@@ -38,6 +38,14 @@ def sonarr_directories():
     return script_directory, sonarr_directory
 
 def create_discord_embed(json_data):
+    
+    # Check if the event type is "test" and return a custom message
+    event_type = json_data['eventType']
+    instance_name = json_data['instanceName']
+    
+    if event_type == "Test":
+        return 200, "Test event received successfully"
+    
     series_title = json_data['series']['title']
     episode_title = json_data['episodes'][0]['title']
     episode_number = json_data['episodes'][0]['episodeNumber']
@@ -54,9 +62,6 @@ def create_discord_embed(json_data):
     custom_format_score = json_data['release']['customFormatScore']
     custom_formats = json_data['release']['customFormats']
     tvdb_id = json_data['series']['tvdbId']
-    
-    event_type = json_data['eventType']
-    instance_name = json_data['instanceName']
     
     # Get the poster path from TMDB using the TVDB ID
     poster_path = get_tmdb_poster_path(tvdb_id)
