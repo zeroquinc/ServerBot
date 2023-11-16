@@ -91,7 +91,7 @@ def create_discord_embed(json_data):
         for char in release_title:
             current_line += char
             count += 1
-            if count >= 40 and char == '-':
+            if count >= 35 and char == '-':
                 release_lines.append(current_line)
                 current_line = ""
                 count = 0
@@ -99,10 +99,6 @@ def create_discord_embed(json_data):
         # Add the remaining characters after the loop
         if current_line:
             release_lines.append(current_line)
-
-        # Add Release field with multiple lines
-        release_value = "\n".join(release_lines)
-        embed.add_field(name='Release', value=release_value, inline=False)
 
         # Add Release field with multiple lines
         release_value = "\n".join(release_lines)
