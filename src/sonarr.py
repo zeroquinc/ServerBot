@@ -116,6 +116,9 @@ def create_discord_embed(json_data):
         # Add timestamp
         timestamp = utcnow()
         embed.timestamp = timestamp
+        
+        # Add whitespace thumbnail
+        embed.set_image(url='https://imgur.com/a/D3MxSNM')
 
     elif event_type == "Download":
         embed = discord.Embed(
