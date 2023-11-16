@@ -3,13 +3,15 @@ from discord.ext import tasks
 
 from src.globals import bot, TOKEN, allowed_roles
 
-from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_tautulli
+from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
 from src.tautulli import tautulli_discord_presence
 
 from src.plex import plex_webhook
 
 from src.sonarr import sonarr_webhook
+
+from src.radarr import radarr_webhook
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
@@ -29,7 +31,8 @@ async def on_ready():
         tautulli_discord_activity.start()
         plex_webhook_task.start()
         sonarr_webhook_task.start()
-        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook, Sonarr Webhook and Tautulli Activity started.")
+        radarr_webhook_task.start()
+        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook, Sonarr Webhook, Radarr Webhook and Tautulli Activity started.")
     except Exception as e:
         logger_discord.error(f'Error starting tasks: {str(e)}')
 
@@ -128,6 +131,17 @@ async def sonarr_webhook_task():
     else:
         logger_sonarr.info("sonarr_webhook call succeeded.")
 
+# Radarr Webhook loop
+@tasks.loop(hours=24)
+async def radarr_webhook_task():
+    # Logging for radarr_webhook
+    try:
+        logger_radarr.info("Calling Radarr Webhook...")
+        await radarr_webhook()
+    except Exception as e:
+        logger_radarr.error(f'An error occurred while calling radarr_webhook: {e}')
+    else:
+        logger_radarr.info("radarr_webhook call succeeded.")
 
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
