@@ -3,10 +3,28 @@ import json
 import os
 import discord
 from watchfiles import awatch, Change
+import requests
 
-from src.globals import bot
+from src.globals import bot, TMDB_API_KEY
 
 from src.logging import logger_sonarr
+
+def get_tmdb_poster_path(tvdb_id):
+    tmdb_api_key = TMDB_API_KEY
+    tmdb_url = f"https://api.themoviedb.org/3/tv/{tvdb_id}?api_key={tmdb_api_key}&language=en-US"
+
+    try:
+        response = requests.get(tmdb_url)
+        response.raise_for_status()
+
+        tmdb_data = response.json()
+
+        poster_path = tmdb_data.get("poster_path")
+
+        return poster_path
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from TMDB: {str(e)}")
+        return None
 
 def sonarr_directories():
     script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -24,9 +42,15 @@ def create_discord_embed(json_data):
     release_size_human_readable = convert_bytes_to_human_readable(release_size_bytes)
     release_title = json_data['release']['releaseTitle']
     release_indexer = json_data['release']['indexer']
+    custom_format_score = json_data['release']['customFormatScore']
+    custom_formats = json_data['release']['customFormats']
+    tvdb_id = json_data['series']['tvdbId']
     
     event_type = json_data['eventType']
     instance_name = json_data['instanceName']
+    
+    # Get the poster path from TMDB using the TVDB ID
+    poster_path = get_tmdb_poster_path(tvdb_id)
 
     # Format episode and season numbers with leading zeros if necessary
     formatted_episode_number = f"{episode_number:02d}"
@@ -37,18 +61,32 @@ def create_discord_embed(json_data):
             title=f"{series_title} - (S{formatted_season_number}E{formatted_episode_number})",
             color=0x00ff00
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="")
+        
+        # Set the thumbnail using the poster path from TMDB
+        if poster_path:
+            embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Indexer", value=release_indexer, inline=True)
         embed.add_field(name='Release', value=release_title, inline=False)
+        
+        # Add Custom Formats field if customFormats is filled in
+        if custom_formats:
+            embed.add_field(
+                name="Custom Formats",
+                value=f"Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}",
+                inline=False
+            )
+
     elif event_type == "Download":
         embed = discord.Embed(
             title=f"{series_title} - Download Started",
             color=0xffa500
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="")
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
     # Add more conditions for other event types as needed
 
     return embed
