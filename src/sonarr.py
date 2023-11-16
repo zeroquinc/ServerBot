@@ -8,7 +8,7 @@ from src.globals import bot
 
 from src.logging import logger_sonarr
 
-def setup_directories():
+def sonarr_directories():
     script_directory = os.path.dirname(os.path.abspath(__file__))
     json_directory = os.path.join(script_directory, '..', 'webhook', 'json')
     sonarr_directory = os.path.join(json_directory, 'sonarr')

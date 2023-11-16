@@ -1,14 +1,14 @@
 from flask import Flask, request, jsonify
 
-from src.plex import setup_directories, handle_webhook_data
+from src.plex import plex_directories, handle_webhook_data
 
-from src.sonarr import setup_directories, dump_embed_to_json
+from src.sonarr import sonarr_directories, dump_embed_to_json
 
 app = Flask(__name__)
 
 @app.route('/plex', methods=['POST'])
 def plex_webhook():
-    script_directory, content_directory, playing_directory = setup_directories()
+    script_directory, content_directory, playing_directory = plex_directories()
     try:
         data = request.get_json()
         response, status_code = handle_webhook_data(data, script_directory, content_directory, playing_directory)
@@ -19,7 +19,7 @@ def plex_webhook():
     
 @app.route('/sonarr', methods=['POST'])
 def sonarr_webhook():
-    script_directory, sonarr_directory = setup_directories()
+    script_directory, sonarr_directory = sonarr_directories()
     try:
         data = request.get_json()
         response, status_code = dump_embed_to_json(data, script_directory, sonarr_directory)
