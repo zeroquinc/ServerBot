@@ -80,11 +80,11 @@ def create_discord_embed(json_data):
 
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
-        # Add fields with invisible characters for equal spacing
-        invisible_char = " " * 10
-        embed.add_field(name="Size", value=release_size_human_readable + invisible_char, inline=True)  # Add invisible character
-        embed.add_field(name="Quality", value=release_quality + invisible_char, inline=True)  # Add invisible character
-        embed.add_field(name="Indexer", value=indexer_value + invisible_char, inline=True)  # Add invisible character
+
+
+        embed.add_field(name="Size", value=release_size_human_readable, inline=True)
+        embed.add_field(name="Quality", value=release_quality, inline=True)
+        embed.add_field(name="Indexer", value=indexer_value, inline=True)
         
         # Process the "Release" field to split lines after hyphen (-)
         release_lines = []
@@ -113,11 +113,12 @@ def create_discord_embed(json_data):
                 value=f"```Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}```",
                 inline=False
             )
+
         # Add timestamp
         timestamp = utcnow()
         embed.timestamp = timestamp
         
-        # Add whitespace thumbnail
+        # Add whitespace thumbnail to fix width of the Embed
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
 
     elif event_type == "Download":
