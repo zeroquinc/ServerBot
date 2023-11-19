@@ -28,11 +28,11 @@ Make a bash script like this and then run the file
 
 ```
 #!/bin/bash
+set -e
 cd /path/to/folder
-#source venv/bin/activate
-python3 /path/to/folder/main.py &
-python3 /path/to/folder/webhook.py
-#deactivate
+source venv/bin/activate
+python3 main.py & 
+wait
 ```
 
 ## Contact
