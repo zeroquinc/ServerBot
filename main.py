@@ -5,8 +5,9 @@ import asyncio
 
 from src.globals import bot, TOKEN
 from src.sonarr import create_sonarr_embed
-from src.tautulli import tautulli_discord_presence
+from src.radarr import create_radarr_embed
 from src.plex import create_plex_embed
+from src.tautulli import tautulli_discord_presence
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
 import src.weekly_trakt_plays_user.main
@@ -89,11 +90,18 @@ async def handle_sonarr(request):
 
 # Webhook setup for Radarr
 async def handle_radarr(request):
-    data = await request.json()
-    channel_id_radarr = 123456789012345678
-    channel_radarr = bot.get_channel(channel_id_radarr)
-    await channel_radarr.send("")
-    return web.Response()
+    try:
+        data = await request.json()
+        embed_data = create_radarr_embed(data)
+        channel_id = 1000190137818431518
+        channel = bot.get_channel(channel_id)
+        embed = discord.Embed.from_dict(embed_data)
+        await channel.send(embed=embed)
+        logger_radarr.info("Radarr webhook received and processed successfully.")
+        return web.Response()
+    except Exception as e:
+        logger_radarr.error(f"Error processing Radarr webhook: {e}")
+        return web.Response(status=500)
 
 # Webhook setup for Plex/Tautulli
 async def handle_plex(request):
