@@ -41,7 +41,6 @@ def create_radarr_embed(json_data):
 
     if event_type == "Test":
         embed = discord.Embed(
-            title=f"Test Event",
             description=f"This is a test event from Radarr, it was a success!",
             color=0x00ff00
         )
@@ -139,7 +138,22 @@ def create_radarr_embed(json_data):
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
-
+        
+    elif event_type == "ApplicationUpdate":
+        old_version = json_data.get('previousVersion', 'N/A')
+        new_version = json_data.get('newVersion', 'N/A')
+        embed = discord.Embed(
+            color=0x00ff00
+        )
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
+        embed.add_field(name="Old Version", value=old_version, inline=True)
+        embed.add_field(name="New Version", value=new_version, inline=True)
+        timestamp = utcnow()
+        embed.timestamp = timestamp
+        embed.set_image(url='https://imgur.com/a/D3MxSNM')
+        
+        embed_data = embed.to_dict()
+    
     else:
         embed = discord.Embed(
             title=f"Unknown Event Type: {event_type}",
