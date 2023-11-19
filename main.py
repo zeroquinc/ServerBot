@@ -1,25 +1,18 @@
 import discord
 from discord.ext import tasks
+from aiohttp import web
+import asyncio
 
-from src.globals import bot, TOKEN, allowed_roles
-
-from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
-
+from src.globals import bot, TOKEN
+from src.sonarr import create_sonarr_embed
 from src.tautulli import tautulli_discord_presence
-
-from src.plex import plex_webhook
-
-from src.sonarr import sonarr_webhook
-
-from src.radarr import radarr_webhook
+from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
 import src.weekly_trakt_plays_user.main
 import src.weekly_trakt_plays_global.main
 import src.trakt_ratings_user.ratings
 import src.trakt_favorites.favorites
-import src.git_commands.git
 
-# On Ready event
 @bot.event
 async def on_ready():
     logger_discord.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
@@ -29,131 +22,32 @@ async def on_ready():
         trakt_ratings_task.start()
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
-        plex_webhook_task.start()
-        sonarr_webhook_task.start()
-        radarr_webhook_task.start()
-        logger_discord.info("Trakt Ratings Task, Trakt Favorites Task, Plex Webhook, Sonarr Webhook, Radarr Webhook and Tautulli Activity started.")
+        logger_discord.info("Tasks started succesfully.")
     except Exception as e:
         logger_discord.error(f'Error starting tasks: {str(e)}')
 
-# !traktweeklyuser
-@bot.command(name='traktweeklyuser')
-async def trakt_weekly_user(ctx):
-    data = src.weekly_trakt_plays_user.main.create_weekly_embed()
-    channel = bot.get_channel(1046746288412176434)
-    for embed in data['embeds']:
-        await channel.send(embed=discord.Embed.from_dict(embed))
-
-# !traktweeklyglobal
-@bot.command(name='traktweeklyglobal')
-async def trakt_weekly_global(ctx):
-    data = src.weekly_trakt_plays_global.main.create_weekly_embed()
-    channel = bot.get_channel(1144085449007177758)
-    for embed in data['embeds']:
-        await channel.send(embed=discord.Embed.from_dict(embed))
-
-# !gitpull
-@bot.command(name='gitpull', help='Pulls GitHub', brief='Pulls the latest changes from GitHub.')
-async def git_pull(ctx):
-    if any(role.name in allowed_roles for role in ctx.author.roles):
-        embed = discord.Embed(title='GitHub Pull', color=0xFFFFFF)
-        embed.description = 'Pulling the latest changes...'
-        message = await ctx.send(embed=embed)
-        pull_output = src.git_commands.git.run_git_pull()
-        code_block = f'```\n{pull_output}\n```'
-        embed.description = f'Pulling the latest changes...\n{code_block}'
-        await message.edit(embed=embed)
-    else:
-        await ctx.send("You are not authorized!")
-
-# !gitstatus
-@bot.command(name='gitstatus', help='Status GitHub', brief='Check the current status of the repo on GitHub.')
-async def git_status(ctx):
-    if any(role.name in allowed_roles for role in ctx.author.roles):
-        embed = discord.Embed(title='Git Status', color=0xFFFFFF)
-        embed.description = f'Fetching Git changes and checking status...\n'
-        message = await ctx.send(embed=embed)
-        fetch_output = src.git_commands.git.run_git_fetch()
-        code_block_fetch = f'```{fetch_output}```'
-        embed.description += f'\nGit fetch result:\n{code_block_fetch}\n'
-        git_status_output = src.git_commands.git.run_git_status()
-        code_block_status = f'```{git_status_output}```'
-        embed.description += f'Git status:\n{code_block_status}\n'
-        await message.edit(embed=embed)
-    else:
-        await ctx.send("You are not authorized!")
+# Command to send a message to a specific channel
+@bot.command()
+async def send(ctx, channel_id: int, *, message: str):
+    channel = bot.get_channel(channel_id)
+    await channel.send(message)
+    
+# Discord Rich Presence Tautulli Task Loop 
+@tasks.loop(seconds=600)
+async def tautulli_discord_activity():
+    try:
+        await tautulli_discord_presence(bot)
+    except Exception as e:
+        logger_tautulli.error(f'An error occurred while calling Tautulli Discord Activity {e}')
         
-# Define the !trakt command
-@bot.command(name='trakt')
-async def send_weekly_embeds(ctx):
-    # Put your task loop code here
-    try:
-        # Weekly Trakt User Plays
-        data_user = src.weekly_trakt_plays_user.main.create_weekly_embed()
-        channel_user = bot.get_channel(1046746288412176434)
-        for embed in data_user['embeds']:
-            await channel_user.send(embed=discord.Embed.from_dict(embed))
-        # Log success
-        await ctx.send("Weekly Trakt User Plays sent successfully.")
-
-        # Weekly Trakt Global Plays
-        data_global = src.weekly_trakt_plays_global.main.create_weekly_embed()
-        channel_global = bot.get_channel(1144085449007177758)
-        for embed in data_global['embeds']:
-            await channel_global.send(embed=discord.Embed.from_dict(embed))
-        # Log success
-        await ctx.send("Weekly Trakt Global Plays sent successfully.")
-    except Exception as e:
-        # Log and inform about errors
-        await ctx.send(f"An error occurred: {str(e)}")
-
-# Plex Webhook loop
-@tasks.loop(hours=24)
-async def plex_webhook_task():
-    # Logging for plex_webhook
-    try:
-        logger_plex.info("Calling Plex Webhook...")
-        await plex_webhook()
-    except Exception as e:
-        logger_plex.error(f'An error occurred while calling plex_webhook: {e}')
-    else:
-        logger_plex.info("plex_webhook call succeeded.")
-        
-# Sonarr Webhook loop
-@tasks.loop(hours=24)
-async def sonarr_webhook_task():
-    # Logging for sonarr_webhook
-    try:
-        logger_sonarr.info("Calling Sonarr Webhook...")
-        await sonarr_webhook()
-    except Exception as e:
-        logger_sonarr.error(f'An error occurred while calling sonarr_webhook: {e}')
-    else:
-        logger_sonarr.info("sonarr_webhook call succeeded.")
-
-# Radarr Webhook loop
-@tasks.loop(hours=24)
-async def radarr_webhook_task():
-    # Logging for radarr_webhook
-    try:
-        logger_radarr.info("Calling Radarr Webhook...")
-        await radarr_webhook()
-    except Exception as e:
-        logger_radarr.error(f'An error occurred while calling radarr_webhook: {e}')
-    else:
-        logger_radarr.info("radarr_webhook call succeeded.")
-
 # Trakt Ratings Task Loop
 @tasks.loop(hours=24)
 async def trakt_ratings_task():
     logger_trakt.info("Starting Trakt Ratings Task.")
-    
     try:
         data = src.trakt_ratings_user.ratings.trakt_ratings()
-        
         if data is not None:
             channel = bot.get_channel(1071806800527118367)
-            
             for embed in data['embeds']:
                 logger_trakt.info(f"Found Trakt ratings and sending to Discord: {embed}")
                 await channel.send(embed=discord.Embed.from_dict(embed))
@@ -166,11 +60,9 @@ async def trakt_ratings_task():
 @tasks.loop(hours=24)
 async def trakt_favorites_task():
     logger_trakt.info("Starting Trakt Favorites Task")
-    
     try:
         data = src.trakt_favorites.favorites.trakt_favorites()
         channel = bot.get_channel(1071806800527118367)
-        
         if data is not None:
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
@@ -179,13 +71,62 @@ async def trakt_favorites_task():
     except Exception as e:
         logger_trakt.error(f'Error occurred: {str(e)}')
 
-# Discord Rich Presence Tautulli Task Loop 
-@tasks.loop(seconds=600)
-async def tautulli_discord_activity():
+# Webhook setup for Sonarr
+async def handle_sonarr(request):
     try:
-        await tautulli_discord_presence(bot)
+        data = await request.json()
+        embed_data = create_sonarr_embed(data)
+        channel_id = 1006483865117937744
+        channel = bot.get_channel(channel_id)
+        embed = discord.Embed.from_dict(embed_data)
+        await channel.send(embed=embed)
+        logger_sonarr.info("Sonarr webhook received and processed successfully.")
+        return web.Response()
     except Exception as e:
-        logger_tautulli.error(f'An error occurred while calling Tautulli Discord Activity {e}')
-   
-if __name__ == '__main__':
-    bot.run(TOKEN)
+        logger_sonarr.error(f"Error processing Sonarr webhook: {e}")
+        return web.Response(status=500)
+
+# Webhook setup for Radarr
+async def handle_radarr(request):
+    data = await request.json()
+    channel_id_radarr = 123456789012345678
+    channel_radarr = bot.get_channel(channel_id_radarr)
+    await channel_radarr.send("")
+    return web.Response()
+
+app = web.Application()
+app.router.add_post('/sonarr', handle_sonarr)
+app.router.add_post('/radarr', handle_radarr)
+
+# Start the web server for the webhook
+uvicorn_params = {
+    "host": "0.0.0.0",
+    "port": 1337,
+    "access_log": False,
+}
+
+uvicorn_app = web.Application()
+uvicorn_app.router.add_post("/sonarr", handle_sonarr)
+uvicorn_app.router.add_post("/radarr", handle_radarr)
+uvicorn_server = web.AppRunner(uvicorn_app)
+
+async def start():
+    await uvicorn_server.setup()
+    await web._run_app(uvicorn_app, **uvicorn_params)
+
+async def cleanup():
+    await uvicorn_server.cleanup()
+
+async def run_bot():
+    await bot.start(TOKEN)
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.create_task(start())
+    loop.create_task(run_bot())
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(cleanup())
