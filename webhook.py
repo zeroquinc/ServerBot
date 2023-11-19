@@ -42,4 +42,4 @@ def radarr_webhook():
         return "Internal server error", 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1337, debug=True)
+    app.run(host='0.0.0.0', port=1337, debug=True, use_reloader=False)
