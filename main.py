@@ -43,7 +43,7 @@ async def tautulli_discord_activity():
         logger_tautulli.error(f'An error occurred while calling Tautulli Discord Activity {e}')
         
 # Trakt Ratings Task Loop
-@tasks.loop(hours=24)
+@tasks.loop(minutes=60)
 async def trakt_ratings_task():
     logger_trakt.info("Starting Trakt Ratings Task.")
     try:
