@@ -144,7 +144,7 @@ async def radarr_webhook_task():
         logger_radarr.info("radarr_webhook call succeeded.")
 
 # Trakt Ratings Task Loop
-@tasks.loop(minutes=60)
+@tasks.loop(hours=24)
 async def trakt_ratings_task():
     logger_trakt.info("Starting Trakt Ratings Task.")
     
