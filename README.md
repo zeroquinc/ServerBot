@@ -13,15 +13,32 @@ This is a Discord.py bot created for learning Python and for fun.
 - Make a .env and fill in these variables and save it in the root folder
 
 ```
-DISCORD_SERVER_ID=xxx
-DISCORD_TOKEN = "xxx"
-TRAKT_CLIENT_ID=xxx
-TRAKT_CLIENT_SECRET=xxx
-TMDB_API_KEY=xxx
-TRAKT_USERNAME=xxx
-TAUTULLI_API_URL = "http://xxx:8181/api/v2"
-TAUTULLI_API_KEY=
-TAUTULLI_USER=
+# Discord Configuration
+DISCORD_SERVER_ID =
+DISCORD_TOKEN =
+
+# Test Discord Token
+DISCORD_TOKEN_TEST =
+
+# Trakt API Configuration
+TRAKT_CLIENT_ID =
+TRAKT_CLIENT_SECRET =
+TRAKT_USERNAME =
+
+# The Movie Database (TMDb) API Key
+TMDB_API_KEY =
+
+# Tautulli Configuration
+TAUTULLI_API_URL =
+TAUTULLI_API_KEY =
+TAUTULLI_USER_ID =
+TAUTULLI_SCRIPTS_FOLDER =
+
+# Discord Channel IDs
+CHANNEL_PLEX_CONTENT =
+CHANNEL_PLEX_PLAYING =
+CHANNEL_RADARR_GRABS =
+CHANNEL_SONARR_GRABS =
 ```
 
 Make a bash script like this and then run the file
