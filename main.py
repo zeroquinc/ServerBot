@@ -6,6 +6,7 @@ import asyncio
 from src.globals import bot, TOKEN
 from src.sonarr import create_sonarr_embed
 from src.tautulli import tautulli_discord_presence
+from src.plex import create_plex_embed
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
 import src.weekly_trakt_plays_user.main
@@ -94,9 +95,25 @@ async def handle_radarr(request):
     await channel_radarr.send("")
     return web.Response()
 
+# Webhook setup for Plex/Tautulli
+async def handle_plex(request):
+    try:
+        data = await request.json()
+        embed_data = create_plex_embed(data)
+        channel_id = 1025825630668984450
+        channel = bot.get_channel(channel_id)
+        embed = discord.Embed.from_dict(embed_data)
+        await channel.send(embed=embed)
+        logger_plex.info("Sonarr webhook received and processed successfully.")
+        return web.Response()
+    except Exception as e:
+        logger_plex.error(f"Error processing Sonarr webhook: {e}")
+        return web.Response(status=500)
+
 app = web.Application()
 app.router.add_post('/sonarr', handle_sonarr)
 app.router.add_post('/radarr', handle_radarr)
+app.router.add_post('/plex', handle_plex)
 
 # Start the web server for the webhook
 uvicorn_params = {
@@ -108,6 +125,7 @@ uvicorn_params = {
 uvicorn_app = web.Application()
 uvicorn_app.router.add_post("/sonarr", handle_sonarr)
 uvicorn_app.router.add_post("/radarr", handle_radarr)
+uvicorn_app.router.add_post("/plex", handle_radarr)
 uvicorn_server = web.AppRunner(uvicorn_app)
 
 async def start():
