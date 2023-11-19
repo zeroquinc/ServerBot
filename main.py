@@ -3,7 +3,7 @@ from discord.ext import tasks
 from aiohttp import web
 import asyncio
 
-from src.globals import bot, TOKEN
+from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.plex import create_plex_embed
@@ -78,7 +78,7 @@ async def handle_sonarr(request):
     try:
         data = await request.json()
         embed_data = create_sonarr_embed(data)
-        channel_id = 1006483865117937744
+        channel_id = CHANNEL_SONARR_GRABS
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
         await channel.send(embed=embed)
@@ -93,7 +93,7 @@ async def handle_radarr(request):
     try:
         data = await request.json()
         embed_data = create_radarr_embed(data)
-        channel_id = 1000190137818431518
+        channel_id = CHANNEL_RADARR_GRABS
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
         await channel.send(embed=embed)
@@ -108,15 +108,28 @@ async def handle_plex(request):
     try:
         data = await request.json()
         embed_data, status_code = create_plex_embed(data)
-        channel_id = 1025825630668984450
-        channel = bot.get_channel(channel_id)
+        playing_channel_id = CHANNEL_PLEX_PLAYING
+        content_channel_id = CHANNEL_PLEX_CONTENT
 
         if status_code == 200:
-            embed = discord.Embed.from_dict(embed_data)
-            await channel.send(embed=embed)
-            logger_plex.info("Plex webhook received and processed successfully.")
+            if 'embeds' in embed_data and isinstance(embed_data['embeds'], list):
+                for embed_dict in embed_data['embeds']:
+                    author_name = embed_dict.get('author', {}).get('name', '')
+                    if 'playing' in author_name:
+                        channel_id = playing_channel_id
+                    elif 'added' in author_name:
+                        channel_id = content_channel_id
+                    else:
+                        channel_id = playing_channel_id
 
+                    channel = bot.get_channel(channel_id)
+                    embed = discord.Embed.from_dict(embed_dict)
+                    await channel.send(embed=embed)
+                logger_plex.info("Plex webhook received and processed successfully.")
+            else:
+                logger_plex.warning("No valid 'embeds' data found.")
         return web.Response(status=status_code)
+    
     except Exception as e:
         logger_plex.error(f"Error processing Plex webhook: {e}")
         return web.Response(status=500)
