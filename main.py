@@ -104,10 +104,10 @@ async def handle_plex(request):
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
         await channel.send(embed=embed)
-        logger_plex.info("Sonarr webhook received and processed successfully.")
+        logger_plex.info("Plex webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
-        logger_plex.error(f"Error processing Sonarr webhook: {e}")
+        logger_plex.error(f"Plex processing Sonarr webhook: {e}")
         return web.Response(status=500)
 
 app = web.Application()
