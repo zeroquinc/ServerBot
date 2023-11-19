@@ -118,12 +118,37 @@ def create_sonarr_embed(json_data):
         
         embed_data = embed.to_dict()
 
-    elif event_type == "Download":
+    elif event_type == "EpisodeFileDelete":
+        
+        series_title = json_data['series'].get('title', 'N/A')
+        episode_title = json_data['episodes'][0].get('title', 'N/A')
+        episode_number = json_data['episodes'][0].get('episodeNumber', 'N/A')
+        season_number = json_data['episodes'][0].get('seasonNumber', 'N/A')
+        episode_data = json_data.get('episodeFile', {})
+        episode_path = episode_data.get('path', 'N/A')
+        episode_size_bytes = episode_data.get('size', 'N/A')
+        episode_size_human_readable = convert_bytes_to_human_readable(episode_size_bytes)
+        tvdb_id = json_data['series'].get('tvdbId', 'N/A')
+
+        poster_path = get_tmdb_poster_path(tvdb_id)
+
+        formatted_episode_number = f"{episode_number:02d}"
+        formatted_season_number = f"{season_number:02d}"
+        
         embed = discord.Embed(
-            title=f"{series_title} - Download Started",
-            color=0xffa500
+            title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
+            color=0xFF0000
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
+        
+        if poster_path:
+            embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+
+        embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url="https://i.imgur.com/dZSIKZE.png")
+        embed.add_field(name="Size", value=episode_size_human_readable, inline=False)
+        embed.add_field(name="Path", value=episode_path, inline=False)
+        timestamp = utcnow()
+        embed.timestamp = timestamp
+        embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
     else:
