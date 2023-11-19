@@ -8,7 +8,9 @@ from src.logging import logger_radarr
 
 def convert_bytes_to_human_readable(size_in_bytes):
     # Convert bytes to human-readable format
-    if size_in_bytes < 1024 ** 3:  # Less than 1 GB
+    if size_in_bytes == 0:
+        return "Empty folder"
+    elif size_in_bytes < 1024 ** 3:  # Less than 1 GB
         result = size_in_bytes / (1024 ** 2)
         return "{:.2f}MB".format(result)
     else:  # 1 GB or greater
@@ -69,7 +71,7 @@ def create_radarr_embed(json_data):
 
         embed = discord.Embed(
             title=f"{movie_title} ({movie_year})",
-            color=0xa84300
+            color=0xffa500
         )
         
         if poster_path:
@@ -116,28 +118,28 @@ def create_radarr_embed(json_data):
         movie_title = json_data['movie'].get('title', 'N/A')
         movie_year = json_data['movie'].get('year', 'N/A')
         folder_path = json_data['movie'].get('folderPath', 'N/A')
-        folder_size = json_data['movie'].get('movieFolderSize', 'N/A')
+        folder_size = json_data.get('movieFolderSize', 'N/A')
         folder_size_human_readable = convert_bytes_to_human_readable(folder_size)
         tmdb_id = json_data['movie'].get('tmdbId', 'N/A')
         poster_path = get_tmdb_poster_path(tmdb_id)
         
         embed = discord.Embed(
             title=f"{movie_title} ({movie_year})",
-            color=0xffa500
+            color=0xFF0000
         )
         
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
 
-        embed.set_author(name=f"{instance_name} - Movie deleted", icon_url="https://i.imgur.com/6U4aXO0.png")
-        embed.add_field(name="Path", value=folder_path, inline=False)
+        embed.set_author(name=f"{instance_name} - Movie Deleted", icon_url="https://i.imgur.com/6U4aXO0.png")
         embed.add_field(name="Size", value=folder_size_human_readable, inline=False)
-        
+        embed.add_field(name="Path", value=folder_path, inline=False)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
+
     else:
         embed = discord.Embed(
             title=f"Unknown Event Type: {event_type}",
