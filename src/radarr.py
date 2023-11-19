@@ -43,7 +43,7 @@ def create_radarr_embed(json_data):
             description=f"This is a test event from Radarr, it was a success!",
             color=0x00ff00
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
@@ -75,7 +75,7 @@ def create_radarr_embed(json_data):
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
 
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
@@ -116,7 +116,7 @@ def create_radarr_embed(json_data):
             title=f"{movie_title} - Download Started",
             color=0xffa500
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
+        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
         
         embed_data = embed.to_dict()
     else:
