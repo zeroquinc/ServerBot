@@ -3,16 +3,12 @@ from src.logging import logger_plex
 def create_plex_embed(data):
     try:
         embeds_list = []
-
+        
         if data and 'embeds' in data:
             embeds = data['embeds']
             for embed in embeds:
-                # Your existing logic for determining the filename
-                
-                # Append the embed to the list
                 embeds_list.append(embed)
                 logger_plex.info("Event processed successfully")
-
             # Return a dictionary with 'embeds' and a success status code
             return {'embeds': embeds_list}, 200
         else:

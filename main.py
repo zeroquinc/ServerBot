@@ -107,15 +107,18 @@ async def handle_radarr(request):
 async def handle_plex(request):
     try:
         data = await request.json()
-        embed_data = create_plex_embed(data)
+        embed_data, status_code = create_plex_embed(data)
         channel_id = 1025825630668984450
         channel = bot.get_channel(channel_id)
-        embed = discord.Embed.from_dict(embed_data)
-        await channel.send(embed=embed)
-        logger_plex.info("Plex webhook received and processed successfully.")
-        return web.Response()
+
+        if status_code == 200:
+            embed = discord.Embed.from_dict(embed_data)
+            await channel.send(embed=embed)
+            logger_plex.info("Plex webhook received and processed successfully.")
+
+        return web.Response(status=status_code)
     except Exception as e:
-        logger_plex.error(f"Plex processing Sonarr webhook: {e}")
+        logger_plex.error(f"Error processing Plex webhook: {e}")
         return web.Response(status=500)
 
 app = web.Application()
