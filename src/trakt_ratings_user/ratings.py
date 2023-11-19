@@ -53,6 +53,7 @@ def format_show_embed(show):
         thumbnail = ''
     rating = show["rating"]
     color = get_color_from_rating(rating)
+    timestamp = datetime.utcnow().isoformat()
 
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
@@ -69,12 +70,13 @@ def format_show_embed(show):
         'title': f'{show["show"]["title"]}',
         'thumbnail': {'url': thumbnail},
         'author': {
-            'name': 'Trakt - Show rated',
+            'name': 'Trakt - Show Rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'timestamp': timestamp
     }
 
 def format_episode_embed(episode):
@@ -91,6 +93,7 @@ def format_episode_embed(episode):
         thumbnail = ''
     rating = episode["rating"]
     color = get_color_from_rating(rating)
+    timestamp = datetime.utcnow().isoformat()
 
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
@@ -106,13 +109,14 @@ def format_episode_embed(episode):
     return {
         'title': f'{episode["show"]["title"]} - {episode["episode"]["title"]} (S{season_number:02d}E{episode_number:02d})',
         'author': {
-            'name': 'Trakt - Episode rated',
+            'name': 'Trakt - Episode Rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'timestamp': timestamp
     }
 
 def format_season_embed(season):
@@ -133,6 +137,7 @@ def format_season_embed(season):
         thumbnail = ''
     rating = season["rating"]
     color = get_color_from_rating(rating)
+    timestamp = datetime.utcnow().isoformat()
 
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
@@ -148,13 +153,14 @@ def format_season_embed(season):
     return {
         'title': f'{season["show"]["title"]} - Season {season["season"]["number"]}',
         'author': {
-            'name': 'Trakt - Season rated',
+            'name': 'Trakt - Season Rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'timestamp': timestamp
     }
 
 def format_movie_embed(movie):
@@ -167,6 +173,7 @@ def format_movie_embed(movie):
         thumbnail = ''
     rating = movie["rating"]
     color = get_color_from_rating(rating)
+    timestamp = datetime.utcnow().isoformat()
 
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
@@ -182,13 +189,14 @@ def format_movie_embed(movie):
     return {
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
         'author': {
-            'name': 'Trakt - Movie rated',
+            'name': 'Trakt - Movie Rated',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'timestamp': timestamp
     }
 
     
