@@ -52,7 +52,7 @@ def create_radarr_embed(json_data):
 
     elif event_type == "Grab":
         movie_title = json_data['movie'].get('title', 'N/A')
-        movie_year = json_data['movie'][0].get('year', 'N/A')
+        movie_year = json_data['movie'].get('year', 'N/A')
         release_data = json_data.get('release', {})
         release_quality = release_data.get('quality', 'N/A')
         release_size_bytes = release_data.get('size', 'N/A')
