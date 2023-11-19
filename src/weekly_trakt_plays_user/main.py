@@ -78,10 +78,10 @@ def create_weekly_embed():
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
         color=0xFEA232
     )
-    movies_embed.url = f"https://trakt.tv/users/desiler/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
+    movies_embed.url = f"https://trakt.tv/users/{trakt_username}/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
 
     # Set the author name
-    movies_embed.set_author(name=f"Trakt - Movies watched by Desiler in Week {week_number}")
+    movies_embed.set_author(name=f"Trakt - Movies watched by {trakt_username} in Week {week_number}")
 
     # Add timestamp with date range to the embed
     timestamp_start = start_date.strftime('%a %b %d %Y')
@@ -156,10 +156,10 @@ def create_weekly_embed():
         title=f"{total_episode_count} Episode{'s' if total_episode_count != 1 else ''} :tv:",
         color=0x328efe
     )
-    episodes_embed.url = f"https://trakt.tv/users/desiler/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
+    episodes_embed.url = f"https://trakt.tv/users/{trakt_username}/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
 
     # Set the author name
-    episodes_embed.set_author(name=f"Trakt - Episodes watched by Desiler in Week {week_number}")
+    episodes_embed.set_author(name=f"Trakt - Episodes watched by {trakt_username} in Week {week_number}")
 
     # Add timestamp with date range to the embed
     episodes_embed.timestamp = datetime.now()

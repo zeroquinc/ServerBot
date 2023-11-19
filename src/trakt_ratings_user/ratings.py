@@ -60,7 +60,7 @@ def format_show_embed(show):
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
     
-    user_comment = get_user_comment('Desiler', show["show"]["ids"]["trakt"], 'show')
+    user_comment = get_user_comment(TRAKT_USERNAME, show["show"]["ids"]["trakt"], 'show')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
@@ -73,12 +73,13 @@ def format_show_embed(show):
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         },
         'color': color,
-        'fields': fields
+        'fields': fields,
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
     }
 
 def format_episode_embed(episode):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{episode["show"]["ids"]["trakt"]}/seasons/{episode["episode"]["season"]}/episodes/{episode["episode"]["number"]})'
-    imdb_link = f'[IMDb](https://www.imdb.com/title/{episode["episode"]["ids"]["imdb"]})'
+    imdb_link = f'[IMDb](https://www.imdb.com/title/{episode["episode"]["ids"]["imdb"]})' if episode["episode"]["ids"]["imdb"] else ''
     tmdb_details = get_tmdb_details('tv', episode["show"]["ids"]["tmdb"])
     if tmdb_details:
         season_number = episode["episode"]["season"]
@@ -94,10 +95,10 @@ def format_episode_embed(episode):
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
         {'name': 'User', 'value': user_link, 'inline': True},
-        {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
+        {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}' if imdb_link else trakt_link, 'inline': True}
     ]
 
-    user_comment = get_user_comment('Desiler', episode["episode"]["ids"]["trakt"], 'episode')
+    user_comment = get_user_comment(TRAKT_USERNAME, episode["episode"]["ids"]["trakt"], 'episode')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
@@ -110,7 +111,8 @@ def format_episode_embed(episode):
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
-        'fields': fields
+        'fields': fields,
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
     }
 
 def format_season_embed(season):
@@ -138,7 +140,7 @@ def format_season_embed(season):
         {'name': 'Links', 'value': trakt_link, 'inline': True}
     ]
 
-    user_comment = get_user_comment('Desiler', season["season"]["ids"]["trakt"], 'season')
+    user_comment = get_user_comment(TRAKT_USERNAME, season["season"]["ids"]["trakt"], 'season')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
@@ -151,7 +153,8 @@ def format_season_embed(season):
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
-        'fields': fields
+        'fields': fields,
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
     }
 
 def format_movie_embed(movie):
@@ -171,7 +174,7 @@ def format_movie_embed(movie):
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
 
-    user_comment = get_user_comment('Desiler', movie["movie"]["ids"]["trakt"], 'movie')
+    user_comment = get_user_comment(TRAKT_USERNAME, movie["movie"]["ids"]["trakt"], 'movie')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
@@ -184,7 +187,8 @@ def format_movie_embed(movie):
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
-        'fields': fields
+        'fields': fields,
+        'image': {'url': 'https://imgur.com/a/D3MxSNM'}
     }
 
     

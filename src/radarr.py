@@ -111,12 +111,31 @@ def create_radarr_embed(json_data):
         
         embed_data = embed.to_dict()
 
-    elif event_type == "Download":
+    elif event_type == "MovieDelete":
+        
+        movie_title = json_data['movie'].get('title', 'N/A')
+        movie_year = json_data['movie'].get('year', 'N/A')
+        folder_path = json_data['movie'].get('folderPath', 'N/A')
+        folder_size = json_data['movie'].get('movieFolderSize', 'N/A')
+        folder_size_human_readable = convert_bytes_to_human_readable(folder_size)
+        tmdb_id = json_data['movie'].get('tmdbId', 'N/A')
+        poster_path = get_tmdb_poster_path(tmdb_id)
+        
         embed = discord.Embed(
-            title=f"{movie_title} - Download Started",
+            title=f"{movie_title} ({movie_year})",
             color=0xffa500
         )
-        embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
+        
+        if poster_path:
+            embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+
+        embed.set_author(name=f"{instance_name} - Movie deleted", icon_url="https://i.imgur.com/6U4aXO0.png")
+        embed.add_field(name="Path", value=folder_path, inline=False)
+        embed.add_field(name="Size", value=folder_size_human_readable, inline=False)
+        
+        timestamp = utcnow()
+        embed.timestamp = timestamp
+        embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
     else:
