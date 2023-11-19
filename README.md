@@ -17,9 +17,6 @@ This is a Discord.py bot created for learning Python and for fun.
 DISCORD_SERVER_ID =
 DISCORD_TOKEN =
 
-# Test Discord Token
-DISCORD_TOKEN_TEST =
-
 # Trakt API Configuration
 TRAKT_CLIENT_ID =
 TRAKT_CLIENT_SECRET =
