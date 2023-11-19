@@ -133,7 +133,7 @@ uvicorn_params = {
 uvicorn_app = web.Application()
 uvicorn_app.router.add_post("/sonarr", handle_sonarr)
 uvicorn_app.router.add_post("/radarr", handle_radarr)
-uvicorn_app.router.add_post("/plex", handle_radarr)
+uvicorn_app.router.add_post("/plex", handle_plex)
 uvicorn_server = web.AppRunner(uvicorn_app)
 
 async def start():
