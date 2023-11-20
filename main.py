@@ -34,6 +34,25 @@ async def send(ctx, channel_id: int, *, message: str):
     channel = bot.get_channel(channel_id)
     await channel.send(message)
     
+# Define the !trakt command
+@bot.command(name='trakt')
+async def send_weekly_embeds(ctx):
+    try:
+        # Weekly Trakt User Plays
+        data_user = src.weekly_trakt_plays_user.main.create_weekly_embed()
+        channel_user = bot.get_channel(1046746288412176434)
+        for embed in data_user['embeds']:
+            await channel_user.send(embed=discord.Embed.from_dict(embed))
+        await ctx.send("Weekly Trakt User Plays sent successfully.")
+        # Weekly Trakt Global Plays
+        data_global = src.weekly_trakt_plays_global.main.create_weekly_embed()
+        channel_global = bot.get_channel(1144085449007177758)
+        for embed in data_global['embeds']:
+            await channel_global.send(embed=discord.Embed.from_dict(embed))
+        await ctx.send("Weekly Trakt Global Plays sent successfully.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+    
 # Discord Rich Presence Tautulli Task Loop 
 @tasks.loop(seconds=600)
 async def tautulli_discord_activity():

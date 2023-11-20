@@ -80,6 +80,8 @@ def create_weekly_embed():
     timestamp = f"{timestamp_start} to {timestamp_end}"
     movies_embed.timestamp = datetime.now()
     movies_embed.set_footer(text=timestamp)
+    
+    movies_embed.set_image(url='https://imgur.com/a/D3MxSNM')
 
     # Check if there are movies found
     if movie_count > 0:
@@ -158,6 +160,8 @@ def create_weekly_embed():
     # Add timestamp with date range to the embed
     episodes_embed.timestamp = datetime.now()
     episodes_embed.set_footer(text=timestamp)
+    
+    episodes_embed.set_image(url='https://imgur.com/a/D3MxSNM')
 
     # Check if there are episodes found
     if total_episode_count > 0:
