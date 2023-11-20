@@ -1,21 +1,9 @@
 import requests
-import json
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
-import os
 
-def create_weekly_embed():
-    # Determine the path to the parent directory (two levels up from the current script's location)
-    parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    env_file_path = os.path.join(parent_directory, '.env')
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY
 
-    # Load the .env file from the parent directory
-    load_dotenv(env_file_path)
-    
-    # Access the environment variables from the .env file
-    trakt_client_id = os.getenv("TRAKT_CLIENT_ID")
-    tmdb_api_key = os.getenv("TMDB_API_KEY")
-    
+def create_weekly_embed(): 
     # Trakt API endpoints
     movie_url = 'https://api.trakt.tv/movies/watched/period=weekly'
     show_url = 'https://api.trakt.tv/shows/watched/period=weekly'
@@ -24,7 +12,7 @@ def create_weekly_embed():
     headers = {
         'Content-Type': 'application/json',
         'trakt-api-version': '2',
-        "trakt-api-key": trakt_client_id
+        "trakt-api-key": TRAKT_CLIENT_ID
     }
 
     # Define a dictionary to map ranking numbers to emojis
@@ -45,9 +33,9 @@ def create_weekly_embed():
     # Fetch poster image from TMDB API
     def fetch_image(item_type, item_id):
         if item_type == 'movie':
-            url = f'https://api.themoviedb.org/3/movie/{item_id}?api_key={tmdb_api_key}&language=en-US'
+            url = f'https://api.themoviedb.org/3/movie/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
         elif item_type == 'show':
-            url = f'https://api.themoviedb.org/3/tv/{item_id}?api_key={tmdb_api_key}&language=en-US'
+            url = f'https://api.themoviedb.org/3/tv/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
         else:
             return ''
         response = requests.get(url)

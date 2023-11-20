@@ -3,22 +3,10 @@ import discord
 import requests
 import json
 from datetime import datetime, timedelta
-import os
-from dotenv import load_dotenv
+
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME
 
 def create_weekly_embed():
-    # Determine the path to the parent directory (two levels up from the current script's location)
-    parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    env_file_path = os.path.join(parent_directory, '.env')
-
-    # Load the .env file from the parent directory
-    load_dotenv(env_file_path)
-
-    # Access the environment variables from the .env file
-    trakt_client_id = os.getenv("TRAKT_CLIENT_ID")
-    tmdb_api_key = os.getenv("TMDB_API_KEY")
-    trakt_username = os.getenv("TRAKT_USERNAME")
-
     # Calculate the date range for the last 7 days
     end_date = datetime.now()
     start_date = end_date - timedelta(days=7)
@@ -36,7 +24,7 @@ def create_weekly_embed():
     headers = {
         "Content-Type": "application/json",
         "trakt-api-version": "2",
-        "trakt-api-key": trakt_client_id
+        "trakt-api-key": TRAKT_CLIENT_ID
     }
 
     # Fetch all user's history from Trakt API for the last 7 days (with pagination)
@@ -44,7 +32,7 @@ def create_weekly_embed():
     all_history_data = []
 
     while True:
-        history_url = f"https://api.trakt.tv/users/{trakt_username}/history"
+        history_url = f"https://api.trakt.tv/users/{TRAKT_USERNAME}/history"
         params = {
             "start_at": start_date_str,
             "end_at": end_date_str,
@@ -78,10 +66,13 @@ def create_weekly_embed():
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
         color=0xFEA232
     )
-    movies_embed.url = f"https://trakt.tv/users/{trakt_username}/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
+    movies_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
 
-    # Set the author name
-    movies_embed.set_author(name=f"Trakt - Movies watched by {trakt_username} in Week {week_number}")
+# Set the author name and icon URL
+    movies_embed.set_author(
+        name=f"Trakt - Movies watched by {TRAKT_USERNAME} in Week {week_number}",
+        icon_url='https://i.imgur.com/tvnkxAY.png'
+    )
 
     # Add timestamp with date range to the embed
     timestamp_start = start_date.strftime('%a %b %d %Y')
@@ -105,7 +96,7 @@ def create_weekly_embed():
                 # Search for the movie by title
                 search_url = "https://api.themoviedb.org/3/search/multi"
                 search_params = {
-                    "api_key": tmdb_api_key,
+                    "api_key": TMDB_API_KEY,
                     "query": movie_title
                 }
                 search_response = requests.get(search_url, params=search_params)
@@ -156,10 +147,13 @@ def create_weekly_embed():
         title=f"{total_episode_count} Episode{'s' if total_episode_count != 1 else ''} :tv:",
         color=0x328efe
     )
-    episodes_embed.url = f"https://trakt.tv/users/{trakt_username}/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
+    episodes_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
 
-    # Set the author name
-    episodes_embed.set_author(name=f"Trakt - Episodes watched by {trakt_username} in Week {week_number}")
+    # Set the author name and icon URL
+    episodes_embed.set_author(
+        name=f"Trakt - Episodes watched by {TRAKT_USERNAME} in Week {week_number}",
+        icon_url='https://i.imgur.com/tvnkxAY.png'
+    )
 
     # Add timestamp with date range to the embed
     episodes_embed.timestamp = datetime.now()
@@ -175,7 +169,7 @@ def create_weekly_embed():
             # Search for the show by title
             search_url = "https://api.themoviedb.org/3/search/tv"
             search_params = {
-                "api_key": tmdb_api_key,
+                "api_key": TMDB_API_KEY,
                 "query": show_title
             }
             search_response = requests.get(search_url, params=search_params)
