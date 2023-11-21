@@ -69,7 +69,7 @@ async def trakt_ratings_task():
                 logger_trakt.info(f"Found Trakt ratings and sending to Discord: {embed}")
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger_trakt.info("No data to send. Trying again in 1 hour.")
+            logger_trakt.info("No rating data to send. Trying again in 1 hour.")
     except Exception as e:
         logger_trakt.error(f'Error occurred: {str(e)}')
 
@@ -84,7 +84,7 @@ async def trakt_favorites_task():
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger_trakt.info("No data to send. Trying again in 24 hours.")
+            logger_trakt.info("No favorite data to send. Trying again in 24 hours.")
     except Exception as e:
         logger_trakt.error(f'Error occurred: {str(e)}')
 
