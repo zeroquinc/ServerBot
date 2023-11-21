@@ -11,9 +11,6 @@ from src.trakt import create_weekly_global_embed, create_weekly_user_embed, trak
 from src.tautulli import tautulli_discord_presence
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
-
-import src.trakt_favorites.favorites
-
 @bot.event
 async def on_ready():
     logger_discord.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
