@@ -680,10 +680,10 @@ def process_ratings(ratings):
         data = {
             'embeds': embeds
         }
-        save_rating_processed_embeds
+        save_rating_processed_embeds()
         return data
 
-    save_rating_processed_embeds
+    save_rating_processed_embeds()
     return None
 
 def trakt_ratings():
