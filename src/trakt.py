@@ -364,13 +364,15 @@ def load_rating_processed_embeds():
     try:
         with open(file_path, 'r') as f:
             processed_rating_embeds.update(json.load(f))
+            logger_trakt.info(f"Successfully loaded data from {file_path}")
     except FileNotFoundError:
-        pass
+        logger_trakt.info(f"File {file_path} not found. Skipping loading.")
 
 def save_rating_processed_embeds():
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'processed_embeds.json')
     with open(file_path, 'w') as f:
         json.dump(list(processed_rating_embeds), f)
+    logger_trakt.info(f"Successfully saved data to {file_path}")
 
 def convert_spoiler_tags(comment):
     # Replace various spoiler tag formats with Discord spoiler formatting
@@ -706,6 +708,8 @@ def format_show_embed(show):
     else:
         thumbnail = ''
     notes = show["notes"]
+    timestamp = datetime.utcnow().isoformat()
+    
     fields = [
         {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} / {imdb_link}', 'inline': True}
@@ -717,9 +721,10 @@ def format_show_embed(show):
         'color': 3313406,
         'thumbnail': {'url': thumbnail},
         'fields': fields,
+        'timestamp': timestamp,
         'image': {'url': 'https://imgur.com/a/D3MxSNM'},
         'author': {
-            'name': f'Trakt - New Show Favorited',
+            'name': f'Trakt - Show Favorited',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         }
     }
@@ -733,6 +738,8 @@ def format_movie_embed(movie):
     else:
         thumbnail = ''
     notes = movie["notes"]
+    timestamp = datetime.utcnow().isoformat()
+    
     fields = [
         {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} / {imdb_link}', 'inline': True}
@@ -744,9 +751,10 @@ def format_movie_embed(movie):
         'color': 15892745,
         'thumbnail': {'url': thumbnail},
         'fields': fields,
+        'timestamp': timestamp,
         'image': {'url': 'https://imgur.com/a/D3MxSNM'},
         'author': {
-            'name': f'Trakt - New Movie Favorited',
+            'name': f'Trakt - Movie Favorited',
             'icon_url': 'https://i.imgur.com/tvnkxAY.png'
         }
     }
