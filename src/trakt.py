@@ -360,7 +360,7 @@ def create_weekly_global_embed():
 processed_rating_embeds = set()
 
 def load_rating_processed_embeds():
-    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'processed_embeds.json')
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_rating_embeds.json')
     try:
         with open(file_path, 'r') as f:
             processed_rating_embeds.update(json.load(f))
@@ -369,7 +369,7 @@ def load_rating_processed_embeds():
         logger_trakt.info(f"File {file_path} not found. Skipping loading.")
 
 def save_rating_processed_embeds():
-    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'processed_embeds.json')
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_rating_embeds.json')
     with open(file_path, 'w') as f:
         json.dump(list(processed_rating_embeds), f)
     logger_trakt.info(f"Successfully saved data to {file_path}")
@@ -692,12 +692,26 @@ def trakt_ratings():
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
         return result
-
     except Exception as e:
         logger_trakt.error(f'Error occurred: {str(e)}')
         
 # START OF TRAKT USER FAVORITES
 processed_favorite_embeds = set()
+
+def load_favorite_processed_embeds():
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_favorite_embeds.json')
+    try:
+        with open(file_path, 'r') as f:
+            processed_favorite_embeds.update(json.load(f))
+            logger_trakt.info(f"Successfully loaded data from {file_path}")
+    except FileNotFoundError:
+        logger_trakt.info(f"File {file_path} not found. Skipping loading.")
+
+def save_favorite_processed_embeds():
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_favorite_embeds.json')
+    with open(file_path, 'w') as f:
+        json.dump(list(processed_favorite_embeds), f)
+    logger_trakt.info(f"Successfully saved data to {file_path}")
 
 def format_show_embed(show):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{show["show"]["ids"]["trakt"]})'
@@ -806,7 +820,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
 def process_favorites(favorites):
     embeds = []
     current_time = datetime.utcnow()
-    time_limit = current_time - timedelta(minutes=60)
+    time_limit = current_time - timedelta(hours=24)
 
     sorted_favorites = sorted(favorites, key=lambda x: x['listed_at'])
 
@@ -822,6 +836,7 @@ def process_favorites(favorites):
             data = {
                 'embeds': embeds
             }
+            save_favorite_processed_embeds()
             return data
 
         if favorite['type'] == 'show':
@@ -840,16 +855,17 @@ def process_favorites(favorites):
         data = {
             'embeds': embeds
         }
+        save_favorite_processed_embeds()
         return data
+    
+    save_favorite_processed_embeds()
+    return None
 
 def trakt_favorites():
-    while True:
-        try:
-            favorites = fetch_trakt_favorites()
-            result = process_favorites(favorites)
-            if result is not None:
-                logger_trakt.info("A new Embed has been sent to the Bot:")
-                logger_trakt.info(result)
-            return result
-        except Exception as e:
-            logger_trakt.info(f'Error occurred: {str(e)}')
+    load_favorite_processed_embeds()
+    try:
+        favorites = fetch_trakt_favorites()
+        result = process_favorites(favorites)
+        return result
+    except Exception as e:
+        logger_trakt.info(f'Error occurred: {str(e)}')
