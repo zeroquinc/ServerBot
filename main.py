@@ -7,12 +7,11 @@ from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, 
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.plex import create_plex_embed
-from src.trakt import create_weekly_global_embed, create_weekly_user_embed
+from src.trakt import create_weekly_global_embed, create_weekly_user_embed, trakt_ratings, trakt_favorites
 from src.tautulli import tautulli_discord_presence
 from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
 
-import src.weekly_trakt_plays_global.main
-import src.trakt_ratings_user.ratings
+
 import src.trakt_favorites.favorites
 
 @bot.event
@@ -66,7 +65,7 @@ async def tautulli_discord_activity():
 async def trakt_ratings_task():
     logger_trakt.info("Starting Trakt Ratings Task.")
     try:
-        data = src.trakt_ratings_user.ratings.trakt_ratings()
+        data = trakt_ratings()
         if data is not None:
             channel = bot.get_channel(1071806800527118367)
             for embed in data['embeds']:
@@ -82,7 +81,7 @@ async def trakt_ratings_task():
 async def trakt_favorites_task():
     logger_trakt.info("Starting Trakt Favorites Task")
     try:
-        data = src.trakt_favorites.favorites.trakt_favorites()
+        data = trakt_favorites()
         channel = bot.get_channel(1071806800527118367)
         if data is not None:
             for embed in data['embeds']:
