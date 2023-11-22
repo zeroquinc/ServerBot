@@ -394,7 +394,7 @@ def convert_spoiler_tags(comment):
     return comment
 
 
-def format_show_embed(show):
+def format_rating_show_embed(show):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{show["show"]["ids"]["trakt"]})'
     imdb_link = f'[IMDb](https://www.imdb.com/title/{show["show"]["ids"]["imdb"]})'
     tmdb_details = get_tmdb_details('tv', show["show"]["ids"]["tmdb"])
@@ -430,7 +430,7 @@ def format_show_embed(show):
         'timestamp': timestamp
     }
 
-def format_episode_embed(episode):
+def format_rating_episode_embed(episode):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{episode["show"]["ids"]["trakt"]}/seasons/{episode["episode"]["season"]}/episodes/{episode["episode"]["number"]})'
     imdb_link = f'[IMDb](https://www.imdb.com/title/{episode["episode"]["ids"]["imdb"]})' if episode["episode"]["ids"]["imdb"] else ''
     tmdb_details = get_tmdb_details('tv', episode["show"]["ids"]["tmdb"])
@@ -470,7 +470,7 @@ def format_episode_embed(episode):
         'timestamp': timestamp
     }
 
-def format_season_embed(season):
+def format_rating_season_embed(season):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{season["show"]["ids"]["trakt"]}/seasons/{season["season"]["number"]})'
     tmdb_details = get_tmdb_details('tv', season["show"]["ids"]["tmdb"])
     if tmdb_details:
@@ -514,7 +514,7 @@ def format_season_embed(season):
         'timestamp': timestamp
     }
 
-def format_movie_embed(movie):
+def format_rating_movie_embed(movie):
     trakt_link = f'[Trakt](https://trakt.tv/movies/{movie["movie"]["ids"]["trakt"]})'
     imdb_link = f'[IMDb](https://www.imdb.com/title/{movie["movie"]["ids"]["imdb"]})'
     tmdb_details = get_tmdb_details('movie', movie["movie"]["ids"]["tmdb"])
@@ -656,22 +656,22 @@ def process_ratings(ratings):
 
         if rating['type'] == 'show':
             if rating['show']['ids']['trakt'] not in processed_rating_embeds:
-                embed = format_show_embed(rating)
+                embed = format_rating_show_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['show']['ids']['trakt'])
         elif rating['type'] == 'episode':
             if rating['episode']['ids']['trakt'] not in processed_rating_embeds:
-                embed = format_episode_embed(rating)
+                embed = format_rating_episode_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['episode']['ids']['trakt'])
         elif rating['type'] == 'season':
             if rating['season']['ids']['trakt'] not in processed_rating_embeds:
-                embed = format_season_embed(rating)
+                embed = format_rating_season_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['season']['ids']['trakt'])
         elif rating['type'] == 'movie':
             if rating['movie']['ids']['trakt'] not in processed_rating_embeds:
-                embed = format_movie_embed(rating)
+                embed = format_rating_movie_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['movie']['ids']['trakt'])
 
@@ -713,7 +713,7 @@ def save_favorite_processed_embeds():
         json.dump(list(processed_favorite_embeds), f)
     logger_trakt.info(f"Successfully saved data to {file_path}")
 
-def format_show_embed(show):
+def format_favorite_show_embed(show):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{show["show"]["ids"]["trakt"]})'
     imdb_link = f'[IMDb](https://www.imdb.com/title/{show["show"]["ids"]["imdb"]})'
     tmdb_details = get_tmdb_details('tv', show["show"]["ids"]["tmdb"])
@@ -743,7 +743,7 @@ def format_show_embed(show):
         }
     }
 
-def format_movie_embed(movie):
+def format_favorite_movie_embed(movie):
     trakt_link = f'[Trakt](https://trakt.tv/movies/{movie["movie"]["ids"]["trakt"]})'
     imdb_link = f'[IMDb](https://www.imdb.com/title/{movie["movie"]["ids"]["imdb"]})'
     tmdb_details = get_tmdb_details('movie', movie["movie"]["ids"]["tmdb"])
@@ -841,12 +841,12 @@ def process_favorites(favorites):
 
         if favorite['type'] == 'show':
             if favorite['show']['ids']['trakt'] not in processed_favorite_embeds:
-                embed = format_show_embed(favorite)
+                embed = format_favorite_show_embed(favorite)
                 embeds.append(embed)
                 processed_favorite_embeds.add(favorite['show']['ids']['trakt'])
         elif favorite['type'] == 'movie':
             if favorite['movie']['ids']['trakt'] not in processed_favorite_embeds:
-                embed = format_movie_embed(favorite)
+                embed = format_favorite_movie_embed(favorite)
                 embeds.append(embed)
                 processed_favorite_embeds.add(favorite['movie']['ids']['trakt'])
 
