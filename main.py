@@ -1,7 +1,9 @@
 import discord
-from discord.ext import tasks
+from discord.ext import tasks, commands
 from aiohttp import web
 import asyncio
+
+import src.logging
 
 from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS
 from src.sonarr import create_sonarr_embed
@@ -9,20 +11,21 @@ from src.radarr import create_radarr_embed
 from src.plex import create_plex_embed
 from src.trakt import create_weekly_global_embed, create_weekly_user_embed, trakt_ratings, trakt_favorites
 from src.tautulli import tautulli_discord_presence
-from src.logging import logger_discord, logger_trakt, logger_plex, logger_sonarr, logger_radarr, logger_tautulli
+
+logger = src.logging.logging.getLogger("bot")
 
 @bot.event
 async def on_ready():
-    logger_discord.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
+    logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
     
     # Load Tasks
     try:
         trakt_ratings_task.start()
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
-        logger_discord.info("Tasks started succesfully.")
+        logger.info("Tasks started succesfully.")
     except Exception as e:
-        logger_discord.error(f'Error starting tasks: {str(e)}')
+        logger.error(f'Error starting tasks: {str(e)}')
 
 # Command to send a message to a specific channel
 @bot.command()
@@ -55,28 +58,27 @@ async def tautulli_discord_activity():
     try:
         await tautulli_discord_presence(bot)
     except Exception as e:
-        logger_tautulli.error(f'An error occurred while calling Tautulli Discord Activity {e}')
+        logger.error(f'An error occurred while calling Tautulli Discord Activity {e}')
         
 # Trakt Ratings Task Loop
 @tasks.loop(minutes=60)
 async def trakt_ratings_task():
-    logger_trakt.info("Starting Trakt Ratings Task.")
+    logger.info("Starting Trakt Ratings Task.")
     try:
         data = trakt_ratings()
         if data is not None:
             channel = bot.get_channel(1071806800527118367)
             for embed in data['embeds']:
-                logger_trakt.info(f"Found Trakt ratings and sending to Discord: {embed}")
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger_trakt.info("No rating data to send. Trying again in 1 hour.")
+            logger.info("No rating data to send. Trying again in 1 hour.")
     except Exception as e:
-        logger_trakt.error(f'Error occurred: {str(e)}')
+        logger.error(f'Error occurred: {str(e)}')
 
 # Trakt Favorites Task Loop        
 @tasks.loop(hours=24)
 async def trakt_favorites_task():
-    logger_trakt.info("Starting Trakt Favorites Task")
+    logger.info("Starting Trakt Favorites Task")
     try:
         data = trakt_favorites()
         channel = bot.get_channel(1071806800527118367)
@@ -84,9 +86,9 @@ async def trakt_favorites_task():
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
-            logger_trakt.info("No favorite data to send. Trying again in 24 hours.")
+            logger.info("No favorite data to send. Trying again in 24 hours.")
     except Exception as e:
-        logger_trakt.error(f'Error occurred: {str(e)}')
+        logger.error(f'Error occurred: {str(e)}')
 
 # Webhook setup for Sonarr
 async def handle_sonarr(request):
@@ -97,10 +99,10 @@ async def handle_sonarr(request):
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
         await channel.send(embed=embed)
-        logger_sonarr.info("Sonarr webhook received and processed successfully.")
+        logger.info("Sonarr webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
-        logger_sonarr.error(f"Error processing Sonarr webhook: {e}")
+        logger.error(f"Error processing Sonarr webhook: {e}")
         return web.Response(status=500)
 
 # Webhook setup for Radarr
@@ -112,10 +114,10 @@ async def handle_radarr(request):
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
         await channel.send(embed=embed)
-        logger_radarr.info("Radarr webhook received and processed successfully.")
+        logger.info("Radarr webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
-        logger_radarr.error(f"Error processing Radarr webhook: {e}")
+        logger.error(f"Error processing Radarr webhook: {e}")
         return web.Response(status=500)
 
 # Webhook setup for Plex/Tautulli
@@ -140,13 +142,13 @@ async def handle_plex(request):
                     channel = bot.get_channel(channel_id)
                     embed = discord.Embed.from_dict(embed_dict)
                     await channel.send(embed=embed)
-                logger_plex.info("Plex webhook received and processed successfully.")
+                logger.info("Plex webhook received and processed successfully.")
             else:
-                logger_plex.warning("No valid 'embeds' data found.")
+                logger.warning("No valid 'embeds' data found.")
         return web.Response(status=status_code)
     
     except Exception as e:
-        logger_plex.error(f"Error processing Plex webhook: {e}")
+        logger.error(f"Error processing Plex webhook: {e}")
         return web.Response(status=500)
 
 app = web.Application()

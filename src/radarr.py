@@ -1,10 +1,11 @@
 import discord
 from discord.utils import utcnow
 import requests
+import src.logging
 
 from src.globals import TMDB_API_KEY
 
-from src.logging import logger_radarr
+logger = src.logging.logging.getLogger("radarr")
 
 def convert_bytes_to_human_readable(size_in_bytes):
     # Convert bytes to human-readable format

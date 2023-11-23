@@ -7,7 +7,10 @@ import os
 from datetime import datetime, timedelta
 
 from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TRAKT_URL_FAVORITES, TMDB_API_KEY, user_link
-from src.logging import logger_trakt
+
+import src.logging
+
+logger = src.logging.logging.getLogger("trakt")
 
 # START OF WEEKLY USER EMBED
 def create_weekly_user_embed():
@@ -364,15 +367,15 @@ def load_rating_processed_embeds():
     try:
         with open(file_path, 'r') as f:
             processed_rating_embeds.update(json.load(f))
-            logger_trakt.info(f"Successfully loaded data from {file_path}")
+            logger.info(f"Successfully loaded data from {file_path}")
     except FileNotFoundError:
-        logger_trakt.info(f"File {file_path} not found. Skipping loading.")
+        logger.info(f"File {file_path} not found. Skipping loading.")
 
 def save_rating_processed_embeds():
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_rating_embeds.json')
     with open(file_path, 'w') as f:
         json.dump(list(processed_rating_embeds), f)
-    logger_trakt.info(f"Successfully saved data to {file_path}")
+    logger.info(f"Successfully saved data to {file_path}")
 
 def convert_spoiler_tags(comment):
     # Replace various spoiler tag formats with Discord spoiler formatting
@@ -565,7 +568,7 @@ def get_user_comment(username, content_id, content_type):
             if comment['type'] == content_type and comment[content_type]['ids']['trakt'] == content_id:
                 return comment['comment']
     else:
-        logger_trakt.error(f'Request to {comments_url} returned status code {response.status_code}')
+        logger.error(f'Request to {comments_url} returned status code {response.status_code}')
     return None
 
 def get_color_from_rating(rating):
@@ -603,7 +606,7 @@ def fetch_trakt_ratings():
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.error(f'Failed to fetch Trakt ratings: {response.status_code}')
+        logger.error(f'Failed to fetch Trakt ratings: {response.status_code}')
         return []
         
 def get_tmdb_details(media_type, tmdb_id):
@@ -612,7 +615,7 @@ def get_tmdb_details(media_type, tmdb_id):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.error(f'Failed to fetch TMDB details: {response.status_code}')
+        logger.error(f'Failed to fetch TMDB details: {response.status_code}')
         return None
 
 def get_tmdb_season_details(tmdb_id, season_number):
@@ -621,7 +624,7 @@ def get_tmdb_season_details(tmdb_id, season_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.error(f'Failed to fetch TMDB season details: {response.status_code}')
+        logger.error(f'Failed to fetch TMDB season details: {response.status_code}')
         return None
         
 def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
@@ -630,7 +633,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
     if response.status_code == 200:
         return response.json()
     else:
-        logger_trakt.error(f'Failed to fetch TMDB episode details: {response.status_code}')
+        logger.error(f'Failed to fetch TMDB episode details: {response.status_code}')
         return None
 
 def process_ratings(ratings):
@@ -691,9 +694,13 @@ def trakt_ratings():
     try:
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
+
+        if result:
+            logger.info('Rating Data found succesfully')
+            
         return result
     except Exception as e:
-        logger_trakt.error(f'Error occurred: {str(e)}')
+        logger.error(f'Error occurred: {str(e)}')
         
 # START OF TRAKT USER FAVORITES
 processed_favorite_embeds = set()
@@ -703,15 +710,15 @@ def load_favorite_processed_embeds():
     try:
         with open(file_path, 'r') as f:
             processed_favorite_embeds.update(json.load(f))
-            logger_trakt.info(f"Successfully loaded data from {file_path}")
+            logger.info(f"Successfully loaded data from {file_path}")
     except FileNotFoundError:
-        logger_trakt.info(f"File {file_path} not found. Skipping loading.")
+        logger.info(f"File {file_path} not found. Skipping loading.")
 
 def save_favorite_processed_embeds():
     file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json', 'processed_favorite_embeds.json')
     with open(file_path, 'w') as f:
         json.dump(list(processed_favorite_embeds), f)
-    logger_trakt.info(f"Successfully saved data to {file_path}")
+    logger.info(f"Successfully saved data to {file_path}")
 
 def format_favorite_show_embed(show):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{show["show"]["ids"]["trakt"]})'
@@ -784,7 +791,7 @@ def fetch_trakt_favorites():
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        logger_trakt.info(f'Failed to fetch Trakt favorites: {str(e)}')
+        logger.info(f'Failed to fetch Trakt favorites: {str(e)}')
         return []
 
 def get_tmdb_details(media_type, tmdb_id):
@@ -794,7 +801,7 @@ def get_tmdb_details(media_type, tmdb_id):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        logger_trakt.info(f'Failed to fetch TMDB details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB details: {str(e)}')
         return None
 
 def get_tmdb_season_details(tmdb_id, season_number):
@@ -804,7 +811,7 @@ def get_tmdb_season_details(tmdb_id, season_number):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        logger_trakt.info(f'Failed to fetch TMDB season details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB season details: {str(e)}')
         return None
 
 def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
@@ -814,7 +821,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        logger_trakt.info(f'Failed to fetch TMDB episode details: {str(e)}')
+        logger.info(f'Failed to fetch TMDB episode details: {str(e)}')
         return None
 
 def process_favorites(favorites):
@@ -866,6 +873,10 @@ def trakt_favorites():
     try:
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
+
+        if result:
+            logger.info('Favorite data found successfully')
+            
         return result
     except Exception as e:
-        logger_trakt.info(f'Error occurred: {str(e)}')
+        logger.error(f'Error occurred: {str(e)}')

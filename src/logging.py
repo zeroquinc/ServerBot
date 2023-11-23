@@ -1,26 +1,67 @@
 import logging
+from logging.config import dictConfig
 
-def setup_logger(logger_name, log_level=logging.INFO):
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(log_level)
-    
-    formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [{}] %(message)s".format(logger_name), datefmt="%Y-%m-%d %H:%M:%S")
-    
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    
-    if logger.hasHandlers():
-        logger.handlers.clear()
-    
-    logger.addHandler(console_handler)
-    
-    return logger
+LOGGING_CONFIG = {
+    "version": 1,
+    "disabled_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
+        },
+        "standard": {"format": "%(levelname)-10s - %(name)-15s : %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "console2": {
+            "level": "WARNING",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "logs/infos.log",
+            "mode": "w",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "bot": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "discord": {
+            "handlers": ["console2", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "sonarr": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "radarr": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "tautulli": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "trakt": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "plex": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}
 
-# Example usage for Discord, Trakt, and Plex loggers
-logger_discord = setup_logger("DISCORD")
-logger_trakt = setup_logger("TRAKT")
-logger_plex = setup_logger("PLEX")
-logger_sonarr = setup_logger("SONARR")
-logger_radarr = setup_logger("RADARR")
-logger_webhook = setup_logger("WEBHOOK")
-logger_tautulli = setup_logger("TAUTULLI")
+dictConfig(LOGGING_CONFIG)

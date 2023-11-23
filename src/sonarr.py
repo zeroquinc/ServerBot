@@ -4,7 +4,9 @@ import requests
 
 from src.globals import TMDB_API_KEY
 
-from src.logging import logger_sonarr
+import src.logging
+
+logger = src.logging.logging.getLogger("sonarr")
 
 def convert_bytes_to_human_readable(size_in_bytes):
     # Convert bytes to human-readable format
@@ -30,7 +32,7 @@ def get_tmdb_poster_path(tvdb_id):
         else:
             return None
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching data from TMDB: {str(e)}")
+        logger.error(f"Error fetching data from TMDB: {str(e)}")
         return None
 
 def create_sonarr_embed(json_data):
@@ -50,6 +52,7 @@ def create_sonarr_embed(json_data):
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
+        logger.info("Test event created successfully")
 
     elif event_type == "Grab":
         series_title = json_data['series'].get('title', 'N/A')
@@ -117,6 +120,7 @@ def create_sonarr_embed(json_data):
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
+        logger.info("Grab event created successfully")
 
     elif event_type == "EpisodeFileDelete":
         
@@ -151,6 +155,7 @@ def create_sonarr_embed(json_data):
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
+        logger.info("EpisodeFileDelete event created successfully")
         
     elif event_type == "ApplicationUpdate":
         old_version = json_data.get('previousVersion', 'N/A')
@@ -166,6 +171,7 @@ def create_sonarr_embed(json_data):
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
         
         embed_data = embed.to_dict()
+        logger.info("ApplicationUpdate event created successfully")
 
     else:
         embed = discord.Embed(
@@ -174,5 +180,6 @@ def create_sonarr_embed(json_data):
         )
         
         embed_data = embed.to_dict()
+        logger.warning(f"Unknown event type: {event_type}")
 
     return embed_data

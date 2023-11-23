@@ -14,7 +14,6 @@ load_dotenv()
 # Discord Globals
 DISCORD_SERVER_ID = os.getenv("DISCORD_SERVER_ID")
 TOKEN = os.environ["DISCORD_TOKEN"]
-TEST_TOKEN = os.environ["DISCORD_TOKEN_TEST"]
 allowed_roles = "Captain"
 
 # Channel Globals
