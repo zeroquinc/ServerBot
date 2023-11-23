@@ -1,6 +1,8 @@
 import logging
 from logging.config import dictConfig
 
+from datetime import datetime
+
 LOGGING_CONFIG = {
     "version": 1,
     "disabled_existing_loggers": False,
@@ -24,7 +26,7 @@ LOGGING_CONFIG = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "logs/infos.log",
+            "filename": f"logs/infos_{datetime.now():%Y-%m-%d}.log",
             "mode": "w",
             "formatter": "verbose",
         },
