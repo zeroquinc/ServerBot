@@ -24,7 +24,7 @@ LOGGING_CONFIG = {
             "formatter": "standard",
         },
         "file": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"logs/infos_{datetime.now():%Y-%m-%d}.log",
             "mode": "w",
