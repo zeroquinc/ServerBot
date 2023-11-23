@@ -24,7 +24,7 @@ LOGGING_CONFIG = {
             "formatter": "standard",
         },
         "file": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": f"logs/infos_{datetime.now():%Y-%m-%d}.log",
             "mode": "w",
@@ -32,7 +32,7 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "bot": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "bot": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "discord": {
             "handlers": ["console2", "file"],
             "level": "DEBUG",
@@ -50,7 +50,7 @@ LOGGING_CONFIG = {
         },
         "tautulli": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "trakt": {
