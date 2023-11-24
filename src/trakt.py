@@ -686,17 +686,16 @@ def process_ratings(ratings):
         save_rating_processed_embeds()
         return data
 
-    save_rating_processed_embeds()
     return None
 
 def trakt_ratings():
-    load_rating_processed_embeds()
     try:
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
 
         if result:
             logger.info('Rating Data found succesfully')
+            load_rating_processed_embeds()
             
         return result
     except Exception as e:
@@ -865,18 +864,17 @@ def process_favorites(favorites):
         save_favorite_processed_embeds()
         return data
     
-    save_favorite_processed_embeds()
     return None
 
 def trakt_favorites():
-    load_favorite_processed_embeds()
     try:
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
 
         if result:
             logger.info('Favorite data found successfully')
-            
+            load_favorite_processed_embeds()
+
         return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
