@@ -19,12 +19,12 @@ LOGGING_CONFIG = {
             "formatter": "standard",
         },
         "console2": {
-            "level": "WARNING",
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "standard",
         },
         "file": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"logs/infos_{datetime.now():%Y-%m-%d}.log",
             "mode": "w",
@@ -32,7 +32,11 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "bot": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
+        "bot": {
+            "handlers": ["console", "file"], 
+            "level": "DEBUG", 
+            "propagate": False
+        },
         "discord": {
             "handlers": ["console2", "file"],
             "level": "DEBUG",
