@@ -14,17 +14,17 @@ LOGGING_CONFIG = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "standard",
         },
         "console2": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "standard",
         },
         "file": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": f"logs/infos_{datetime.now():%Y-%m-%d}.log",
             "mode": "w",
@@ -34,22 +34,22 @@ LOGGING_CONFIG = {
     "loggers": {
         "bot": {
             "handlers": ["console", "file"], 
-            "level": "DEBUG", 
+            "level": "INFO", 
             "propagate": False
         },
         "discord": {
             "handlers": ["console2", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "sonarr": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "radarr": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "tautulli": {
@@ -59,12 +59,12 @@ LOGGING_CONFIG = {
         },
         "trakt": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "plex": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
     },
