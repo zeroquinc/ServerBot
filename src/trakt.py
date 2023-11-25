@@ -689,13 +689,13 @@ def process_ratings(ratings):
     return None
 
 def trakt_ratings():
+    load_rating_processed_embeds()
     try:
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
 
         if result:
             logger.info('Rating Data found succesfully')
-            load_rating_processed_embeds()
             
         return result
     except Exception as e:
