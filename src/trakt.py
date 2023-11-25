@@ -14,95 +14,63 @@ logger = src.logging.logging.getLogger("trakt")
 
 # START OF WEEKLY USER EMBED
 def create_weekly_user_embed():
-    # Calculate the date range for the last 7 days
     end_date = datetime.now()
     start_date = end_date - timedelta(days=7)
-
-    # Calculate the week number and year for the previous week
     previous_week = end_date - timedelta(days=7)
     week_number = previous_week.isocalendar()[1]
     year = previous_week.isocalendar()[0]
-
-    # Convert dates to ISO 8601 format
     start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
     end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
-
-    # Set up headers for API requests
+    
     headers = {
         "Content-Type": "application/json",
         "trakt-api-version": "2",
         "trakt-api-key": TRAKT_CLIENT_ID
     }
-
-    # Fetch all user's history from Trakt API for the last 7 days (with pagination)
+    
     page = 1
     all_history_data = []
-
     while True:
         history_url = f"https://api.trakt.tv/users/{TRAKT_USERNAME}/history"
         params = {
             "start_at": start_date_str,
             "end_at": end_date_str,
             "page": page,
-            "limit": 100  # Maximum items per page
+            "limit": 100
         }
-
         history_response = requests.get(history_url, headers=headers, params=params)
         history_data = json.loads(history_response.text)
-
         if not history_data:
             break
-
         all_history_data.extend(history_data)
         page += 1
-        
-
-    # Sort all history data by watched_at in ascending order
     sorted_history_data = sorted(all_history_data, key=lambda x: x['watched_at'])
-
-    # Process each item in the sorted history data
     movie_count = 0
-
-    # Process each item in the sorted history data
     for item in sorted_history_data:
         if item['type'] == 'movie':
             movie_count += 1
 
-    # Create embedded message for Movies
     movies_embed = discord.Embed(
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
         color=0xFEA232
     )
     movies_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
-
-# Set the author name and icon URL
     movies_embed.set_author(
         name=f"Trakt - Movies watched by {TRAKT_USERNAME} in Week {week_number}",
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
-
-    # Add timestamp with date range to the embed
     timestamp_start = start_date.strftime('%a %b %d %Y')
     timestamp_end = end_date.strftime('%a %b %d %Y')
     timestamp = f"{timestamp_start} to {timestamp_end}"
     movies_embed.timestamp = datetime.now()
     movies_embed.set_footer(text=timestamp)
-    
     movies_embed.set_image(url='https://imgur.com/a/D3MxSNM')
-
-    # Check if there are movies found
     if movie_count > 0:
-        # Add the movie information as fields
         for item in sorted_history_data:
             if item['type'] == 'movie':
-                # Get the movie title and year
                 movie_title = item['movie']['title']
                 year = item['movie']['year'] if item['movie'].get('year') else ""
-
-                # Get the date when it was watched
                 watched_date = datetime.strptime(item['watched_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-
-                # Search for the movie by title
                 search_url = "https://api.themoviedb.org/3/search/multi"
                 search_params = {
                     "api_key": TMDB_API_KEY,
@@ -110,8 +78,6 @@ def create_weekly_user_embed():
                 }
                 search_response = requests.get(search_url, params=search_params)
                 search_data = json.loads(search_response.text)
-
-                # Get the poster URL if available
                 if len(search_data["results"]) > 0:
                     poster_path = search_data["results"][0]["poster_path"]
                     if poster_path:
@@ -120,7 +86,6 @@ def create_weekly_user_embed():
                         poster_url = None
                 else:
                     poster_url = None
-
                 movies_embed.add_field(
                     name=f"{movie_title} ({year})",
                     value="",
@@ -129,55 +94,33 @@ def create_weekly_user_embed():
                 if poster_url:
                     movies_embed.set_thumbnail(url=poster_url)
     else:
-        # Add a description when no movies are found
         movies_embed.description = "No movies watched this week."
-
-    # Create a dictionary to store the episode count for each show and its corresponding year
     episode_counts = {}
-
-    # Process each item in the sorted history data for episodes
     for item in sorted_history_data:
         if item['type'] == 'episode':
-            # Get the show title
             show_title = item['show']['title']
             year = item['show']['year'] if item['show'].get('year') else ""
-
-            # Increment the episode count for the show
             episode_counts[show_title] = {
                 'count': episode_counts.get(show_title, {}).get('count', 0) + 1,
                 'year': year
             }
-
-    # Calculate the total episode count
     total_episode_count = sum(item['count'] for item in episode_counts.values())
-
-    # Create embedded message for Episodes with the total episode count in the title
     episodes_embed = discord.Embed(
         title=f"{total_episode_count} Episode{'s' if total_episode_count != 1 else ''} :tv:",
         color=0x328efe
     )
     episodes_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
-
-    # Set the author name and icon URL
     episodes_embed.set_author(
         name=f"Trakt - Episodes watched by {TRAKT_USERNAME} in Week {week_number}",
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
-
-    # Add timestamp with date range to the embed
     episodes_embed.timestamp = datetime.now()
     episodes_embed.set_footer(text=timestamp)
-    
     episodes_embed.set_image(url='https://imgur.com/a/D3MxSNM')
-
-    # Check if there are episodes found
     if total_episode_count > 0:
-        # Add the episode information as fields
         for show_title, data in episode_counts.items():
             episode_count = data['count']
             year = data['year']
-
-            # Search for the show by title
             search_url = "https://api.themoviedb.org/3/search/tv"
             search_params = {
                 "api_key": TMDB_API_KEY,
@@ -185,8 +128,6 @@ def create_weekly_user_embed():
             }
             search_response = requests.get(search_url, params=search_params)
             search_data = json.loads(search_response.text)
-
-            # Get the poster URL if available
             if len(search_data["results"]) > 0:
                 poster_path = search_data["results"][0]["poster_path"]
                 if poster_path:
@@ -204,30 +145,16 @@ def create_weekly_user_embed():
             if poster_url:
                 episodes_embed.set_thumbnail(url=poster_url)
     else:
-        # Add a description when no episodes are found
         episodes_embed.description = "No episodes watched this week."
-
-    # Sort the movie fields alphabetically by name
     sorted_movie_fields = sorted(movies_embed.fields, key=lambda field: field.name)
-
-    # Clear the existing fields in the movies_embed
     movies_embed.clear_fields()
-
-    # Add the sorted movie fields back to the movies_embed
     for field in sorted_movie_fields:
         movies_embed.add_field(name=field.name, value=field.value, inline=field.inline)
-
-    # Sort the episode fields by the number of episodes watched (in descending order)
     sorted_episode_fields = sorted(episodes_embed.fields, key=lambda field: int(field.value.split()[0]), reverse=True)
-
-    # Clear the existing fields in the episodes_embed
     episodes_embed.clear_fields()
-
-    # Add the sorted episode fields back to the episodes_embed
     for field in sorted_episode_fields:
         episodes_embed.add_field(name=field.name, value=field.value, inline=field.inline)
-
-    # Send the content message
+        
     data = {
         'embeds': [movies_embed.to_dict(), episodes_embed.to_dict()]
     }
@@ -235,33 +162,23 @@ def create_weekly_user_embed():
 
 # START OF WEEKLY GLOBAL EMBED
 def create_weekly_global_embed(): 
-    # Trakt API endpoints
     movie_url = 'https://api.trakt.tv/movies/watched/period=weekly'
     show_url = 'https://api.trakt.tv/shows/watched/period=weekly'
-
-    # Trakt API headers
     headers = {
         'Content-Type': 'application/json',
         'trakt-api-version': '2',
         "trakt-api-key": TRAKT_CLIENT_ID
     }
-
-    # Define a dictionary to map ranking numbers to emojis
     ranking_emojis = {
         1: ":first_place:",
         2: ":second_place:",
         3: ":third_place:"
     }
-
-    # Get top 10 most played movies and their play time
     movie_response = requests.get(movie_url, headers=headers)
     movies = sorted(movie_response.json(), key=lambda x: x['watcher_count'], reverse=True)
-
-    # Get top 10 most played shows and their play time
     show_response = requests.get(show_url, headers=headers)
     shows = sorted(show_response.json(), key=lambda x: x['watcher_count'], reverse=True)
 
-    # Fetch poster image from TMDB API
     def fetch_image(item_type, item_id):
         if item_type == 'movie':
             url = f'https://api.themoviedb.org/3/movie/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
@@ -276,17 +193,11 @@ def create_weekly_global_embed():
             if poster_path:
                 return f'https://image.tmdb.org/t/p/w500/{poster_path}'
         return ''
-
-    # Calculate dates for footer_text
     today = datetime.utcnow()
     previous_week_start = today - timedelta(days=7)
     previous_week_end = today - timedelta(days=1)
     footer_text = f"{previous_week_start.strftime('%a %b %d %Y')} to {previous_week_end.strftime('%a %b %d %Y')}"
-
-    # Calculate the ISO week number for the previous week
     _, iso_week, _ = previous_week_start.isocalendar()
-
-    # Create embed JSON for movies
     movie_embed = {
         "color": 0xFEA232,
         "fields": [],
@@ -302,14 +213,12 @@ def create_weekly_global_embed():
             "text": footer_text
         }
     }
-
-    # Add movies and their play count to movie embed JSON
     for i, movie in enumerate(movies[:9]):
         watcher_count = "{:,}".format(movie['watcher_count'])
         image_url = fetch_image('movie', movie['movie']['ids']['tmdb'])
         trakt_url = f"https://trakt.tv/movies/{movie['movie']['ids']['slug']}"
-        ranking_emoji = ranking_emojis.get(i + 1, "")  # Get the emoji for the ranking, or empty string if not in top 3
-        ranking_text = "" if i < 3 else f"{i+1}. "  # Remove ranking number for top 3 items
+        ranking_emoji = ranking_emojis.get(i + 1, "")
+        ranking_text = "" if i < 3 else f"{i+1}. "
         if not movie_embed["thumbnail"]["url"] and image_url:
             movie_embed["thumbnail"]["url"] = image_url
         movie_embed["fields"].append({
@@ -317,8 +226,6 @@ def create_weekly_global_embed():
             "value": f"[{watcher_count} watchers]({trakt_url})",
             "inline": True
         })
-
-    # Create embed JSON for shows
     show_embed = {
         "color": 0x328efe,
         "fields": [],
@@ -334,14 +241,12 @@ def create_weekly_global_embed():
             "text": footer_text
         }
     }
-
-    # Add shows and their play count to show embed JSON
     for i, show in enumerate(shows[:9]):
         watcher_count = "{:,}".format(show['watcher_count'])
         image_url = fetch_image('show', show['show']['ids']['tmdb'])
         trakt_url = f"https://trakt.tv/shows/{show['show']['ids']['slug']}"
-        ranking_emoji = ranking_emojis.get(i + 1, "")  # Get the emoji for the ranking, or empty string if not in top 3
-        ranking_text = f"{i+1}. " if i >= 3 else ""  # Display ranking number for non-top 3 items
+        ranking_emoji = ranking_emojis.get(i + 1, "")
+        ranking_text = f"{i+1}. " if i >= 3 else ""
         if not show_embed["thumbnail"]["url"] and image_url:
             show_embed["thumbnail"]["url"] = image_url
         show_embed["fields"].append({
@@ -349,11 +254,7 @@ def create_weekly_global_embed():
             "value": f"[{watcher_count} watchers]({trakt_url})",
             "inline": True
         })
-
-    # Combine the two embeds into one dictionary
     combined_embeds = [movie_embed, show_embed]
-
-    # Create a dictionary for the combined message
     data = {
         "embeds": combined_embeds
     }
@@ -378,24 +279,19 @@ def save_rating_processed_embeds():
     logger.info(f"Successfully saved data to {file_path}")
 
 def convert_spoiler_tags(comment):
-    # Replace various spoiler tag formats with Discord spoiler formatting
     spoiler_patterns = [
-        r'\[spoiler\](.*?)\[/spoiler\]',  # [spoiler]...[/spoiler]
-        r'\[spoiler\](.*?)\[\\/spoiler\]',  # [spoiler]...[\/spoiler]
-        r'\[spoiler\](.*?)\[\\/spoiler\]',  # [spoiler]...[/spoiler]
-        r'\[spoiler\](.*?)\[\/spoiler\]',  # [spoiler]...[\/spoiler]
-        r'\[spoiler\](.*?)\[\=\/spoiler\]',  # [spoiler]...[=/spoiler]
+        r'\[spoiler\](.*?)\[/spoiler\]',
+        r'\[spoiler\](.*?)\[\\/spoiler\]',
+        r'\[spoiler\](.*?)\[\\/spoiler\]',
+        r'\[spoiler\](.*?)\[\/spoiler\]',
+        r'\[spoiler\](.*?)\[\=\/spoiler\]',
     ]
 
     def spoiler_replacement(match):
         return f'||{match.group(1)}||'
-
-    # Apply each spoiler pattern and replacement
     for pattern in spoiler_patterns:
         comment = re.sub(pattern, spoiler_replacement, comment)
-
     return comment
-
 
 def format_rating_show_embed(show):
     trakt_link = f'[Trakt](https://trakt.tv/shows/{show["show"]["ids"]["trakt"]})'
@@ -408,18 +304,15 @@ def format_rating_show_embed(show):
     rating = show["rating"]
     color = get_color_from_rating(rating)
     timestamp = datetime.utcnow().isoformat()
-
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
         {'name': 'User', 'value': user_link, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
-    
     user_comment = get_user_comment(TRAKT_USERNAME, show["show"]["ids"]["trakt"], 'show')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
-    
     return {
         'title': f'{show["show"]["title"]}',
         'thumbnail': {'url': thumbnail},
@@ -448,18 +341,15 @@ def format_rating_episode_embed(episode):
     rating = episode["rating"]
     color = get_color_from_rating(rating)
     timestamp = datetime.utcnow().isoformat()
-
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
         {'name': 'User', 'value': user_link, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}' if imdb_link else trakt_link, 'inline': True}
     ]
-
     user_comment = get_user_comment(TRAKT_USERNAME, episode["episode"]["ids"]["trakt"], 'episode')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
-
     return {
         'title': f'{episode["show"]["title"]} - {episode["episode"]["title"]} (S{season_number:02d}E{episode_number:02d})',
         'author': {
@@ -492,18 +382,15 @@ def format_rating_season_embed(season):
     rating = season["rating"]
     color = get_color_from_rating(rating)
     timestamp = datetime.utcnow().isoformat()
-
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
         {'name': 'User', 'value': user_link, 'inline': True},
         {'name': 'Links', 'value': trakt_link, 'inline': True}
     ]
-
     user_comment = get_user_comment(TRAKT_USERNAME, season["season"]["ids"]["trakt"], 'season')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
-
     return {
         'title': f'{season["show"]["title"]} - Season {season["season"]["number"]}',
         'author': {
@@ -528,18 +415,15 @@ def format_rating_movie_embed(movie):
     rating = movie["rating"]
     color = get_color_from_rating(rating)
     timestamp = datetime.utcnow().isoformat()
-
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
         {'name': 'User', 'value': user_link, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
-
     user_comment = get_user_comment(TRAKT_USERNAME, movie["movie"]["ids"]["trakt"], 'movie')
     if user_comment:
         converted_comment = convert_spoiler_tags(user_comment['comment'])
         fields.append({'name': 'Comment', 'value': converted_comment, 'inline': False})
-
     return {
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
         'author': {
@@ -552,7 +436,6 @@ def format_rating_movie_embed(movie):
         'image': {'url': 'https://imgur.com/a/D3MxSNM'},
         'timestamp': timestamp
     }
-
     
 def get_user_comment(username, content_id, content_type):
     comments_url = f'https://api.trakt.tv/users/{username}/comments'
@@ -594,7 +477,6 @@ def get_color_from_rating(rating):
         return 0xFFD700  # Gold
     else:
         return 0x808080  # Default color
-
 
 def fetch_trakt_ratings():
     headers = {
@@ -641,22 +523,17 @@ def process_ratings(ratings):
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(minutes=60)
     sorted_ratings = sorted(ratings, key=lambda x: x['rated_at'])
-
     for rating in reversed(sorted_ratings):
         rated_at = datetime.strptime(rating['rated_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-
         if rated_at < time_limit:
             break
-
         if len(embeds) >= 10:
-            # Maximum number of embeds reached, send the current embeds and reset the list
-            embeds = embeds[::-1]  # Reverse the order of embeds
+            embeds = embeds[::-1]
             data = {
                 'embeds': embeds
             }
             save_rating_processed_embeds()
             return data
-
         if rating['type'] == 'show':
             if rating['show']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_show_embed(rating)
@@ -677,7 +554,6 @@ def process_ratings(ratings):
                 embed = format_rating_movie_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['movie']['ids']['trakt'])
-
     if embeds:
         embeds = embeds[::-1]  # Reverse the order of embeds
         data = {
@@ -685,7 +561,6 @@ def process_ratings(ratings):
         }
         save_rating_processed_embeds()
         return data
-
     return None
 
 def trakt_ratings():
@@ -693,10 +568,8 @@ def trakt_ratings():
     try:
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
-
         if result:
             logger.info('Rating Data found succesfully')
-            
         return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
@@ -729,7 +602,6 @@ def format_favorite_show_embed(show):
         thumbnail = ''
     notes = show["notes"]
     timestamp = datetime.utcnow().isoformat()
-    
     fields = [
         {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} / {imdb_link}', 'inline': True}
@@ -759,7 +631,6 @@ def format_favorite_movie_embed(movie):
         thumbnail = ''
     notes = movie["notes"]
     timestamp = datetime.utcnow().isoformat()
-    
     fields = [
         {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} / {imdb_link}', 'inline': True}
@@ -827,24 +698,18 @@ def process_favorites(favorites):
     embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(hours=24)
-
     sorted_favorites = sorted(favorites, key=lambda x: x['listed_at'])
-
     for favorite in reversed(sorted_favorites):
         listed_at = datetime.strptime(favorite['listed_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-
         if listed_at < time_limit:
             break
-
         if len(embeds) >= 10:
-            # Maximum number of embeds reached, send the current embeds and reset the list
-            embeds = embeds[::-1]  # Reverse the order of embeds
+            embeds = embeds[::-1]
             data = {
                 'embeds': embeds
             }
             save_favorite_processed_embeds()
             return data
-
         if favorite['type'] == 'show':
             if favorite['show']['ids']['trakt'] not in processed_favorite_embeds:
                 embed = format_favorite_show_embed(favorite)
@@ -855,15 +720,13 @@ def process_favorites(favorites):
                 embed = format_favorite_movie_embed(favorite)
                 embeds.append(embed)
                 processed_favorite_embeds.add(favorite['movie']['ids']['trakt'])
-
     if embeds:
-        embeds = embeds[::-1]  # Reverse the order of embeds
+        embeds = embeds[::-1]
         data = {
             'embeds': embeds
         }
         save_favorite_processed_embeds()
         return data
-    
     return None
 
 def trakt_favorites():
@@ -871,10 +734,8 @@ def trakt_favorites():
     try:
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
-
         if result:
             logger.info('Favorite data found successfully')
-
         return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
