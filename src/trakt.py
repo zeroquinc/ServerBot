@@ -867,13 +867,13 @@ def process_favorites(favorites):
     return None
 
 def trakt_favorites():
+    load_favorite_processed_embeds()
     try:
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
 
         if result:
             logger.info('Favorite data found successfully')
-            load_favorite_processed_embeds()
 
         return result
     except Exception as e:
