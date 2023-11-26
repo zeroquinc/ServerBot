@@ -2,6 +2,7 @@ import discord
 from discord.ext import tasks, commands
 from aiohttp import web
 import asyncio
+from queue import Queue
 
 import src.logging
 
@@ -92,13 +93,23 @@ async def trakt_favorites_task():
 # Webhook setup for Sonarr
 async def handle_sonarr(request):
     try:
+        embed_queue = Queue()
         data = await request.json()
         embed_data = create_sonarr_embed(data)
+        embed_queue.put(embed_data)
+        logger.info("Sonarr webhook received and processed successfully.")
+        await asyncio.sleep(20)
+        combined_embeds = []
+        while not embed_queue.empty():
+            combined_embeds.append(embed_queue.get())
         channel_id = CHANNEL_SONARR_GRABS
         channel = bot.get_channel(channel_id)
-        embed = discord.Embed.from_dict(embed_data)
-        await channel.send(embed=embed)
-        logger.info("Sonarr webhook received and processed successfully.")
+        for i in range(0, len(combined_embeds), 10):
+            chunk = combined_embeds[i:i+10]
+            for embed_data in chunk:
+                embed = discord.Embed.from_dict(embed_data)
+                await channel.send(embed=embed)
+        logger.info("Sent combined embeds for Sonarr events.")
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Sonarr webhook: {e}")
