@@ -105,12 +105,9 @@ async def handle_sonarr(request):
         channel_id = CHANNEL_SONARR_GRABS
         channel = bot.get_channel(channel_id)
         embed_objects = [discord.Embed.from_dict(embed_data) for embed_data in combined_embeds]
-        if len(embed_objects) == 1:
-            await channel.send(embed=embed_objects[0])
-        else:
-            for i in range(0, len(embed_objects), 10):
-                chunk = embed_objects[i:i + 10]
-                await channel.send(embeds=chunk)
+        for i in range(0, len(embed_objects), 10):
+            chunk = embed_objects[i:i + 10]
+            await channel.send(embeds=chunk)
         logger.info("Sent combined embeds for Sonarr events.")
         return web.Response()
     except Exception as e:
