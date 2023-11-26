@@ -197,6 +197,7 @@ async def cleanup():
     await uvicorn_server.cleanup()
 
 async def run_bot():
+    bot.loop.create_task(send_embeds())
     await bot.start(TOKEN)
 
 if __name__ == "__main__":
