@@ -101,6 +101,7 @@ async def handle_sonarr(request):
             embed_queues['sonarr'] = Queue()
         embed_queues['sonarr'].put(embed_data)
         logger.info("Sonarr webhook received and processed successfully.")
+        await send_embeds()
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Sonarr webhook: {e}")
@@ -197,7 +198,6 @@ async def cleanup():
     await uvicorn_server.cleanup()
 
 async def run_bot():
-    bot.loop.create_task(send_embeds())
     await bot.start(TOKEN)
 
 if __name__ == "__main__":
