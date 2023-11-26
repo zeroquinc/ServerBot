@@ -2,7 +2,6 @@ import discord
 from discord.ext import tasks, commands
 from aiohttp import web
 import asyncio
-from queue import Queue
 
 import src.logging
 
@@ -14,8 +13,6 @@ from src.trakt import create_weekly_global_embed, create_weekly_user_embed, trak
 from src.tautulli import tautulli_discord_presence
 
 logger = src.logging.logging.getLogger("bot")
-
-embed_queues = {}
 
 @bot.event
 async def on_ready():
@@ -97,11 +94,11 @@ async def handle_sonarr(request):
     try:
         data = await request.json()
         embed_data = create_sonarr_embed(data)
-        if 'sonarr' not in embed_queues:
-            embed_queues['sonarr'] = Queue()
-        embed_queues['sonarr'].put(embed_data)
+        channel_id = CHANNEL_SONARR_GRABS
+        channel = bot.get_channel(channel_id)
+        embed = discord.Embed.from_dict(embed_data)
+        await channel.send(embed=embed)
         logger.info("Sonarr webhook received and processed successfully.")
-        await send_embeds()
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Sonarr webhook: {e}")
@@ -152,25 +149,6 @@ async def handle_plex(request):
     except Exception as e:
         logger.error(f"Error processing Plex webhook: {e}")
         return web.Response(status=500)
-    
-# Function to send embeds
-async def send_embeds():
-    while True:
-        await asyncio.sleep(20)
-        for queue_name, queue in embed_queues.items():
-            combined_embeds = []
-            while not queue.empty():
-                combined_embeds.append(queue.get())
-            channel_id = CHANNEL_SONARR_GRABS if queue_name == 'sonarr' else CHANNEL_RADARR_GRABS
-            channel = bot.get_channel(channel_id)
-            embed_objects = [discord.Embed.from_dict(embed_data) for embed_data in combined_embeds]
-            for i in range(0, len(embed_objects), 10):
-                chunk = embed_objects[i:i + 10]
-                await channel.send(embeds=chunk)
-            if len(embed_objects) == 1:
-                logger.info(f"Sent 1 embed for {queue_name} events.")
-            else:
-                logger.info(f"Sent combined embeds for {queue_name} events.")
 
 app = web.Application()
 app.router.add_post('/sonarr', handle_sonarr)
