@@ -17,7 +17,6 @@ logger = src.logging.logging.getLogger("bot")
 @bot.event
 async def on_ready():
     logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
-    
     # Load Tasks
     try:
         trakt_ratings_task.start()

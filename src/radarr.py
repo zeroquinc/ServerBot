@@ -8,7 +8,6 @@ from src.globals import TMDB_API_KEY
 logger = src.logging.logging.getLogger("radarr")
 
 def convert_bytes_to_human_readable(size_in_bytes):
-    # Convert bytes to human-readable format
     if size_in_bytes == 0:
         return "Empty folder"
     elif size_in_bytes < 1024 ** 3:  # Less than 1 GB
@@ -21,25 +20,21 @@ def convert_bytes_to_human_readable(size_in_bytes):
 def get_tmdb_poster_path(tmdb_id):
     tmdb_api_key = TMDB_API_KEY
     tmdb_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}?api_key={tmdb_api_key}&language=en-US"
-
     try:
         response = requests.get(tmdb_url)
         response.raise_for_status()
-
         tmdb_data = response.json()
-
-        # Extract the poster path from the response
         poster_path = tmdb_data.get("poster_path")
         return poster_path
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching data from TMDB: {str(e)}")
+        logger.info(f"Error fetching data from TMDB: {str(e)}")
         return None
 
 def create_radarr_embed(json_data):
     event_type = json_data.get('eventType', 'N/A')
     instance_name = json_data.get('instanceName', 'N/A')
     embed_data = {}
-
+    
     if event_type == "Test":
         embed = discord.Embed(
             description=f"This is a test event from Radarr, it was a success!",
@@ -49,7 +44,6 @@ def create_radarr_embed(json_data):
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
 
     elif event_type == "Grab":
@@ -66,23 +60,17 @@ def create_radarr_embed(json_data):
         custom_format_score = release_data.get('customFormatScore', 'N/A')
         custom_formats = release_data.get('customFormats', [])
         tmdb_id = json_data['movie'].get('tmdbId', 'N/A')
-
         poster_path = get_tmdb_poster_path(tmdb_id)
-
         embed = discord.Embed(
             title=f"{movie_title} ({movie_year})",
             color=0xffa500
         )
-        
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/6U4aXO0.png")
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
-
-        # Process the "Release" field to split lines after hyphen (-) or period (.)
         release_lines = []
         current_line = ""
         count = 0
@@ -93,28 +81,23 @@ def create_radarr_embed(json_data):
                 release_lines.append(current_line.rstrip('-').rstrip('.'))
                 current_line = ""
                 count = 0
-                
         if current_line:
             release_lines.append(current_line)
-
         release_value = "\n".join(release_lines)
         embed.add_field(name='Release', value=release_value, inline=False)
-        
         if custom_formats:
             embed.add_field(
                 name="Custom Formats",
                 value=f"```Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}```",
                 inline=False
             )
-
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
+        logger.info(f"Created embed for {event_type} event")
 
     elif event_type == "MovieDelete":
-        
         movie_title = json_data['movie'].get('title', 'N/A')
         movie_year = json_data['movie'].get('year', 'N/A')
         folder_path = json_data['movie'].get('folderPath', 'N/A')
@@ -122,23 +105,20 @@ def create_radarr_embed(json_data):
         folder_size_human_readable = convert_bytes_to_human_readable(folder_size)
         tmdb_id = json_data['movie'].get('tmdbId', 'N/A')
         poster_path = get_tmdb_poster_path(tmdb_id)
-        
         embed = discord.Embed(
             title=f"{movie_title} ({movie_year})",
             color=0xFF0000
         )
-        
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-
         embed.set_author(name=f"{instance_name} - Movie Deleted", icon_url="https://i.imgur.com/6U4aXO0.png")
         embed.add_field(name="Size", value=folder_size_human_readable, inline=False)
         embed.add_field(name="Path", value=folder_path, inline=False)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
+        logger.info(f"Created embed for {event_type} event")
         
     elif event_type == "ApplicationUpdate":
         old_version = json_data.get('previousVersion', 'N/A')
@@ -152,15 +132,15 @@ def create_radarr_embed(json_data):
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
+        logger.info(f"Created embed for {event_type} event")
     
     else:
         embed = discord.Embed(
             title=f"Unknown Event Type: {event_type}",
             color=0xff0000
         )
-        
         embed_data = embed.to_dict()
+        logger.warning(f"Unknown event type: {event_type}")
 
     return embed_data

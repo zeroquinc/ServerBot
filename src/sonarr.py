@@ -9,7 +9,6 @@ import src.logging
 logger = src.logging.logging.getLogger("sonarr")
 
 def convert_bytes_to_human_readable(size_in_bytes):
-    # Convert bytes to human-readable format
     if size_in_bytes < 1024 ** 3:  # Less than 1 GB
         result = size_in_bytes / (1024 ** 2)
         return "{:.2f}MB".format(result)
@@ -20,7 +19,6 @@ def convert_bytes_to_human_readable(size_in_bytes):
 def get_tmdb_poster_path(tvdb_id):
     tmdb_api_key = TMDB_API_KEY
     tmdb_url = f"https://api.themoviedb.org/3/find/{tvdb_id}?api_key={tmdb_api_key}&language=en-US&external_source=tvdb_id"
-    
     try:
         response = requests.get(tmdb_url)
         response.raise_for_status()
@@ -49,10 +47,9 @@ def create_sonarr_embed(json_data):
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         timestamp = utcnow()
         embed.timestamp = timestamp
-        embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
+        embed.set_image(url='https://imgur.com/a/D3MxSNM') 
         embed_data = embed.to_dict()
-        logger.info("Test event created successfully")
+        logger.info(f"Created embed for {event_type} event")
 
     elif event_type == "Grab":
         series_title = json_data['series'].get('title', 'N/A')
@@ -70,27 +67,20 @@ def create_sonarr_embed(json_data):
         custom_format_score = release_data.get('customFormatScore', 'N/A')
         custom_formats = release_data.get('customFormats', [])
         tvdb_id = json_data['series'].get('tvdbId', 'N/A')
-
         poster_path = get_tmdb_poster_path(tvdb_id)
-
         formatted_episode_number = f"{episode_number:02d}"
         formatted_season_number = f"{season_number:02d}"
-
         embed = discord.Embed(
             title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
             color=0x67B7D1
         )
-        
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-
         embed.set_author(name=f"{instance_name} - {event_type}", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Episode", value=episode_title, inline=False)
         embed.add_field(name="Size", value=release_size_human_readable, inline=True)
         embed.add_field(name="Quality", value=release_quality, inline=True)
         embed.add_field(name="Indexer", value=indexer_value, inline=True)
-
-        # Process the "Release" field to split lines after hyphen (-) or period (.)
         release_lines = []
         current_line = ""
         count = 0
@@ -101,29 +91,23 @@ def create_sonarr_embed(json_data):
                 release_lines.append(current_line.rstrip('-').rstrip('.'))
                 current_line = ""
                 count = 0
-                
         if current_line:
             release_lines.append(current_line)
-
         release_value = "\n".join(release_lines)
         embed.add_field(name='Release', value=release_value, inline=False)
-        
         if custom_formats:
             embed.add_field(
                 name="Custom Formats",
                 value=f"```Score: {custom_format_score}\nFormat: {', '.join(custom_formats)}```",
                 inline=False
             )
-
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
-        logger.info("Grab event created successfully")
+        logger.info(f"Created embed for {event_type} event")
 
     elif event_type == "EpisodeFileDelete":
-        
         series_title = json_data['series'].get('title', 'N/A')
         episode_title = json_data['episodes'][0].get('title', 'N/A')
         episode_number = json_data['episodes'][0].get('episodeNumber', 'N/A')
@@ -133,29 +117,23 @@ def create_sonarr_embed(json_data):
         episode_size_bytes = episode_data.get('size', 'N/A')
         episode_size_human_readable = convert_bytes_to_human_readable(episode_size_bytes)
         tvdb_id = json_data['series'].get('tvdbId', 'N/A')
-
         poster_path = get_tmdb_poster_path(tvdb_id)
-
         formatted_episode_number = f"{episode_number:02d}"
         formatted_season_number = f"{season_number:02d}"
-        
         embed = discord.Embed(
             title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
             color=0xFF0000
         )
-        
         if poster_path:
             embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-
         embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url="https://i.imgur.com/dZSIKZE.png")
         embed.add_field(name="Size", value=episode_size_human_readable, inline=False)
         embed.add_field(name="Path", value=episode_path, inline=False)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
-        logger.info("EpisodeFileDelete event created successfully")
+        logger.info(f"Created embed for {event_type} event")
         
     elif event_type == "ApplicationUpdate":
         old_version = json_data.get('previousVersion', 'N/A')
@@ -169,16 +147,14 @@ def create_sonarr_embed(json_data):
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url='https://imgur.com/a/D3MxSNM')
-        
         embed_data = embed.to_dict()
-        logger.info("ApplicationUpdate event created successfully")
+        logger.info(f"Created embed for {event_type} event")
 
     else:
         embed = discord.Embed(
             title=f"Unknown Event Type: {event_type}",
             color=0xff0000
         )
-        
         embed_data = embed.to_dict()
         logger.warning(f"Unknown event type: {event_type}")
 

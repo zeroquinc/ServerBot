@@ -21,13 +21,11 @@ def create_weekly_user_embed():
     year = previous_week.isocalendar()[0]
     start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
     end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    
     headers = {
         "Content-Type": "application/json",
         "trakt-api-version": "2",
         "trakt-api-key": TRAKT_CLIENT_ID
     }
-    
     page = 1
     all_history_data = []
     while True:
@@ -49,7 +47,6 @@ def create_weekly_user_embed():
     for item in sorted_history_data:
         if item['type'] == 'movie':
             movie_count += 1
-
     movies_embed = discord.Embed(
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
         color=0xFEA232
@@ -136,7 +133,6 @@ def create_weekly_user_embed():
                     poster_url = None
             else:
                 poster_url = None
-
             episodes_embed.add_field(
                 name=f"{show_title} ({year})",
                 value=f"{episode_count} episode{'s' if episode_count != 1 else ''}",
@@ -154,10 +150,10 @@ def create_weekly_user_embed():
     episodes_embed.clear_fields()
     for field in sorted_episode_fields:
         episodes_embed.add_field(name=field.name, value=field.value, inline=field.inline)
-        
     data = {
         'embeds': [movies_embed.to_dict(), episodes_embed.to_dict()]
     }
+    logger.info(f"Created embed for {TRAKT_USERNAME} weekly event")
     return data
 
 # START OF WEEKLY GLOBAL EMBED
@@ -258,6 +254,7 @@ def create_weekly_global_embed():
     data = {
         "embeds": combined_embeds
     }
+    logger.info(f"Created embed for global weekly event")
     return data
 
 # START OF TRAKT RATINGS
@@ -569,7 +566,7 @@ def trakt_ratings():
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
         if result:
-            logger.info('Rating Data found succesfully')
+            logger.info(f'Found {len(result["embeds"])} new ratings')
         return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
@@ -735,7 +732,7 @@ def trakt_favorites():
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
         if result:
-            logger.info('Favorite data found successfully')
+            logger.info(f'Found {len(result["embeds"])} new favorites')
         return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
