@@ -44,25 +44,9 @@ def create_weekly_user_embed():
         page += 1
     sorted_history_data = sorted(all_history_data, key=lambda x: x['watched_at'])
     movie_count = 0
-    episode_counts = {}
     for item in sorted_history_data:
         if item['type'] == 'movie':
             movie_count += 1
-        elif item['type'] == 'episode':
-            show_title = item['show']['title']
-            year = item['show']['year'] if item['show'].get('year') else ""
-            episode_counts[show_title] = episode_counts.get(show_title, 0) + 1
-
-    movies_embed = create_movies_embed(movie_count, start_date_str, end_date_str, week_number)
-    episodes_embed = create_episodes_embed(episode_counts, start_date_str, end_date_str, week_number)
-
-    data = {
-        'embeds': [movies_embed.to_dict(), episodes_embed.to_dict()]
-    }
-    logger.info(f"Created embed for {TRAKT_USERNAME} weekly event")
-    return data
-
-def create_movies_embed(movie_count, start_date_str, end_date_str, week_number):
     movies_embed = discord.Embed(
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
         color=0xFEA232
@@ -72,52 +56,52 @@ def create_movies_embed(movie_count, start_date_str, end_date_str, week_number):
         name=f"Trakt - Movies watched by {TRAKT_USERNAME} in Week {week_number}",
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
-    timestamp_start = start_date_str.strftime('%a %b %d %Y')
-    timestamp_end = datetime.now().strftime('%a %b %d %Y')
+    timestamp_start = start_date.strftime('%a %b %d %Y')
+    timestamp_end = end_date.strftime('%a %b %d %Y')
     timestamp = f"{timestamp_start} to {timestamp_end}"
     movies_embed.timestamp = datetime.now()
     movies_embed.set_footer(text=timestamp)
     movies_embed.set_image(url='https://imgur.com/a/D3MxSNM')
-
     if movie_count > 0:
-        all_history_data = sorted(all_history_data, key=lambda x: x['watched_at'])
-        for item in all_history_data:
+        for item in sorted_history_data:
             if item['type'] == 'movie':
                 movie_title = item['movie']['title']
                 year = item['movie']['year'] if item['movie'].get('year') else ""
                 watched_date = datetime.strptime(item['watched_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                search_movie(movie_title, year, movies_embed)
+                search_url = "https://api.themoviedb.org/3/search/multi"
+                search_params = {
+                    "api_key": TMDB_API_KEY,
+                    "query": movie_title
+                }
+                search_response = requests.get(search_url, params=search_params)
+                search_data = json.loads(search_response.text)
+                if len(search_data["results"]) > 0:
+                    poster_path = search_data["results"][0]["poster_path"]
+                    if poster_path:
+                        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                    else:
+                        poster_url = None
+                else:
+                    poster_url = None
+                movies_embed.add_field(
+                    name=f"{movie_title} ({year})",
+                    value="",
+                    inline=False
+                )
+                if poster_url:
+                    movies_embed.set_thumbnail(url=poster_url)
     else:
         movies_embed.description = "No movies watched this week."
-
-    return movies_embed
-
-def search_movie(movie_title, year, movies_embed):
-    search_url = "https://api.themoviedb.org/3/search/multi"
-    search_params = {
-        "api_key": TMDB_API_KEY,
-        "query": movie_title
-    }
-    search_response = requests.get(search_url, params=search_params)
-    search_data = json.loads(search_response.text)
-    if len(search_data["results"]) > 0:
-        poster_path = search_data["results"][0]["poster_path"]
-        if poster_path:
-            poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
-        else:
-            poster_url = None
-    else:
-        poster_url = None
-    movies_embed.add_field(
-        name=f"{movie_title} ({year})",
-        value="",
-        inline=False
-    )
-    if poster_url:
-        movies_embed.set_thumbnail(url=poster_url)
-
-def create_episodes_embed(episode_counts, start_date_str, end_date_str, week_number):
-    total_episode_count = sum(episode_counts.values())
+    episode_counts = {}
+    for item in sorted_history_data:
+        if item['type'] == 'episode':
+            show_title = item['show']['title']
+            year = item['show']['year'] if item['show'].get('year') else ""
+            episode_counts[show_title] = {
+                'count': episode_counts.get(show_title, {}).get('count', 0) + 1,
+                'year': year
+            }
+    total_episode_count = sum(item['count'] for item in episode_counts.values())
     episodes_embed = discord.Embed(
         title=f"{total_episode_count} Episode{'s' if total_episode_count != 1 else ''} :tv:",
         color=0x328efe
@@ -128,13 +112,27 @@ def create_episodes_embed(episode_counts, start_date_str, end_date_str, week_num
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
     episodes_embed.timestamp = datetime.now()
-    episodes_embed.set_footer(text=datetime.now().strftime('%a %b %d %Y'))
+    episodes_embed.set_footer(text=timestamp)
     episodes_embed.set_image(url='https://imgur.com/a/D3MxSNM')
-
     if total_episode_count > 0:
-        for show_title, episode_count in episode_counts.items():
-            year = episode_counts[show_title]['year']
-            poster_url = fetch_poster_url(show_title)
+        for show_title, data in episode_counts.items():
+            episode_count = data['count']
+            year = data['year']
+            search_url = "https://api.themoviedb.org/3/search/tv"
+            search_params = {
+                "api_key": TMDB_API_KEY,
+                "query": show_title
+            }
+            search_response = requests.get(search_url, params=search_params)
+            search_data = json.loads(search_response.text)
+            if len(search_data["results"]) > 0:
+                poster_path = search_data["results"][0]["poster_path"]
+                if poster_path:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                else:
+                    poster_url = None
+            else:
+                poster_url = None
             episodes_embed.add_field(
                 name=f"{show_title} ({year})",
                 value=f"{episode_count} episode{'s' if episode_count != 1 else ''}",
@@ -144,22 +142,19 @@ def create_episodes_embed(episode_counts, start_date_str, end_date_str, week_num
                 episodes_embed.set_thumbnail(url=poster_url)
     else:
         episodes_embed.description = "No episodes watched this week."
-
-    return episodes_embed
-
-def fetch_poster_url(show_title):
-    search_url = "https://api.themoviedb.org/3/search/tv"
-    search_params = {
-        "api_key": TMDB_API_KEY,
-        "query": show_title
+    sorted_movie_fields = sorted(movies_embed.fields, key=lambda field: field.name)
+    movies_embed.clear_fields()
+    for field in sorted_movie_fields:
+        movies_embed.add_field(name=field.name, value=field.value, inline=field.inline)
+    sorted_episode_fields = sorted(episodes_embed.fields, key=lambda field: int(field.value.split()[0]), reverse=True)
+    episodes_embed.clear_fields()
+    for field in sorted_episode_fields:
+        episodes_embed.add_field(name=field.name, value=field.value, inline=field.inline)
+    data = {
+        'embeds': [movies_embed.to_dict(), episodes_embed.to_dict()]
     }
-    search_response = requests.get(search_url, params=search_params)
-    search_data = json.loads(search_response.text)
-    if len(search_data["results"]) > 0:
-        poster_path = search_data["results"][0]["poster_path"]
-        if poster_path:
-            return f"https://image.tmdb.org/t/p/w500{poster_path}"
-    return None
+    logger.info(f"Created embed for {TRAKT_USERNAME} weekly event")
+    return data
 
 # START OF WEEKLY GLOBAL EMBED
 def create_weekly_global_embed(): 
