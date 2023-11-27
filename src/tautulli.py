@@ -33,10 +33,8 @@ def home_stats():
                 logger.error("Invalid JSON response or missing data from the API.")
                 return
 
-            episodes_watched = 0
-            movies_watched = 0
-            grandparent_titles = {}
-            movie_titles = {}
+            episodes_watched, movies_watched = 0, 0
+            grandparent_titles, movie_titles = {}, {}
 
             for item in data:
                 media_type = item.get('media_type')
@@ -46,35 +44,28 @@ def home_stats():
 
                 if media_type == 'episode':
                     episodes_watched += 1
-                    if grandparent_title:
-                        if grandparent_title not in grandparent_titles:
-                            grandparent_titles[grandparent_title] = {'years': set(), 'count': 0}
-                        grandparent_titles[grandparent_title]['years'].add(year)
-                        grandparent_titles[grandparent_title]['count'] += 1
+                    grandparent_titles.setdefault(grandparent_title, {'years': set(), 'count': 0})
+                    grandparent_titles[grandparent_title]['years'].add(year)
+                    grandparent_titles[grandparent_title]['count'] += 1
                 elif media_type == 'movie':
                     movies_watched += 1
-                    if title:
-                        if title not in movie_titles:
-                            movie_titles[title] = {'year': None, 'count': 0}
-                        if movie_titles[title]['year'] is None:
-                            movie_titles[title]['year'] = year
-                        movie_titles[title]['count'] += 1
+                    movie_titles.setdefault(title, {'year': None, 'count': 0})
+                    if movie_titles[title]['year'] is None:
+                        movie_titles[title]['year'] = year
+                    movie_titles[title]['count'] += 1
 
-            # Sort the grandparent_titles by count in descending order
             sorted_grandparent_titles = sorted(
                 grandparent_titles.items(),
                 key=lambda x: x[1]['count'],
                 reverse=True
             )
 
-            # Sort the movie_titles by count in descending order
             sorted_movie_titles = sorted(
                 movie_titles.items(),
                 key=lambda x: x[1]['count'],
                 reverse=True
             )
 
-            # Modify the log message to handle "episode" or "episodes" based on count
             episodes_label = "episode" if episodes_watched == 1 else "episodes"
             logger.info(f"Episodes - {episodes_watched} {episodes_label} watched")
 
@@ -128,36 +119,33 @@ async def tautulli_discord_presence(bot):
         if tautulli_data:
             stream_count = int(tautulli_data.get('stream_count', 0))
             if stream_count > 0:
-                sessions = tautulli_data.get('sessions', [])
-                if sessions:
-                    activity = sessions[0]
-                    media_type = activity.get('media_type', 'Unknown Media Type')
-                    if media_type == 'movie':
-                        title = activity.get('title', 'Unknown Movie Title')
-                    elif media_type == 'episode':
-                        title = activity.get('grandparent_title', 'Unknown Show Title')
-                    else:
-                        title = 'Unknown Title'
-                    activity_name = f'{title}'
-                    if activity_name != previous_activity:
-                        logger.info(f"Discord presence updated: {activity_name}")
-                        activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
-                        await bot.change_presence(activity=activity)
-                        previous_activity = activity_name
-                    else:
-                        logger.debug("Discord presence is the same as before, not updating.")
+                await update_discord_presence(bot, tautulli_data)
             elif previous_activity != '127.0.0.1':
-                activity_name = '127.0.0.1'
-                logger.info("No Tautulli activity, setting Discord presence to '127.0.0.1'")
-                activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
-                await bot.change_presence(activity=activity)
-                previous_activity = activity_name
+                await set_discord_presence(bot, '127.0.0.1')
         else:
             if previous_activity != '127.0.0.1':
-                activity_name = '127.0.0.1'
-                logger.info("No Tautulli data, setting Discord presence to '127.0.0.1'")
-                activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
-                await bot.change_presence(activity=activity)
-                previous_activity = activity_name
+                await set_discord_presence(bot, '127.0.0.1')
     except Exception as e:
         logger.error(f"An error occurred: {e}")
+
+async def update_discord_presence(bot, tautulli_data):
+    sessions = tautulli_data.get('sessions', [])
+    if sessions:
+        activity = sessions[0]
+        media_type = activity.get('media_type', 'Unknown Media Type')
+        if media_type == 'movie':
+            title = activity.get('title', 'Unknown Movie Title')
+        elif media_type == 'episode':
+            title = activity.get('grandparent_title', 'Unknown Show Title')
+        else:
+            title = 'Unknown Title'
+        activity_name = f'{title}'
+        logger.info(f"Discord presence updated: {activity_name}")
+        await set_discord_presence(bot, activity_name)
+    else:
+        logger.debug("Discord presence is the same as before, not updating.")
+
+async def set_discord_presence(bot, activity_name):
+    logger.info(f"No Tautulli activity, setting Discord presence to '{activity_name}'")
+    activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
+    await bot.change_presence(activity=activity)

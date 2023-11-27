@@ -2,14 +2,11 @@ import discord
 from discord.utils import utcnow
 import requests
 
-from src.globals import TMDB_API_KEY
+from src.globals import TMDB_API_KEY, SONARR_ICON_URL, SONARR_IMAGE_URL
 
 import src.logging
 
 logger = src.logging.logging.getLogger("sonarr")
-
-ICON_URL = "https://i.imgur.com/dZSIKZE.png"
-THUMBNAIL_URL = 'https://imgur.com/a/D3MxSNM'
 
 def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes < 1024 ** 3:  # Less than 1 GB
@@ -60,10 +57,10 @@ def create_test_event_embed(instance_name):
         description="This is a test event from Sonarr, it was a success!",
         color=0x00ff00
     )
-    embed.set_author(name=f"{instance_name} - Test", icon_url=ICON_URL)
+    embed.set_author(name=f"{instance_name} - Test", icon_url=SONARR_ICON_URL)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=THUMBNAIL_URL)
+    embed.set_image(url=SONARR_IMAGE_URL)
     return embed.to_dict()
 
 def create_grab_event_embed(json_data, instance_name):
@@ -90,7 +87,7 @@ def create_grab_event_embed(json_data, instance_name):
     )
     if poster_path:
         embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-    embed.set_author(name=f"{instance_name} - Grab", icon_url=ICON_URL)
+    embed.set_author(name=f"{instance_name} - Grab", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Episode", value=episode_title, inline=False)
     embed.add_field(name="Size", value=release_size_human_readable, inline=True)
     embed.add_field(name="Quality", value=release_quality, inline=True)
@@ -102,7 +99,7 @@ def create_grab_event_embed(json_data, instance_name):
         embed.add_field(name="Custom Formats", value=custom_formats_value, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=THUMBNAIL_URL)
+    embed.set_image(url=SONARR_IMAGE_URL)
     return embed.to_dict()
 
 def create_episode_delete_event_embed(json_data, instance_name):
@@ -123,12 +120,12 @@ def create_episode_delete_event_embed(json_data, instance_name):
     )
     if poster_path:
         embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-    embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url=ICON_URL)
+    embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Size", value=episode_size_human_readable, inline=False)
     embed.add_field(name="Path", value=episode_path, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=THUMBNAIL_URL)
+    embed.set_image(url=SONARR_IMAGE_URL)
     return embed.to_dict()
 
 def create_update_event_embed(json_data, instance_name):
@@ -137,12 +134,12 @@ def create_update_event_embed(json_data, instance_name):
     embed = discord.Embed(
         color=0x00ff00
     )
-    embed.set_author(name=f"{instance_name} - ApplicationUpdate", icon_url=ICON_URL)
+    embed.set_author(name=f"{instance_name} - ApplicationUpdate", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Old Version", value=old_version, inline=True)
     embed.add_field(name="New Version", value=new_version, inline=True)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=THUMBNAIL_URL)
+    embed.set_image(url=SONARR_IMAGE_URL)
     return embed.to_dict()
 
 def create_unknown_event_embed(event_type):

@@ -34,3 +34,11 @@ user_link = f'[{TRAKT_USERNAME}](https://trakt.tv/users/{TRAKT_USERNAME})'
 TAUTULLI_API_URL = os.getenv("TAUTULLI_API_URL")
 TAUTULLI_API_KEY = os.getenv("TAUTULLI_API_KEY")
 TAUTULLI_USER_ID = os.getenv("TAUTULLI_USER_ID")
+
+# Radarr Globals
+RADARR_ICON_URL = os.getenv("RADARR_ICON_URL")
+RADARR_IMAGE_URL = os.getenv("RADARR_IMAGE_URL")
+
+# Sonarr Globals
+SONARR_ICON_URL = os.getenv("SONARR_ICON_URL")
+SONARR_IMAGE_URL = os.getenv("SONARR_IMAGE_URL")

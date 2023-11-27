@@ -12,7 +12,7 @@ def create_plex_embed(data):
                 logger.info(f"Created embed for {embed['title']} event")
             return {'embeds': embeds_list}, 200
         else:
-            logger.info(f"Webhook received, but no events found. Data not saved.")
+            logger.info("Webhook received, but no events found. Data not saved.")
             return {'message': "Webhook received, but no events found. Data not saved."}, 200
     except Exception as e:
         logger.error(f"Error while processing JSON payload: {str(e)}")
