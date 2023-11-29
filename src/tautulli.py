@@ -146,6 +146,11 @@ async def update_discord_presence(bot, tautulli_data):
         logger.debug("Discord presence is the same as before, not updating.")
 
 async def set_discord_presence(bot, activity_name):
-    logger.info(f"No Tautulli activity, setting Discord presence to '{activity_name}'")
-    activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
-    await bot.change_presence(activity=activity)
+    global previous_activity
+    if activity_name != previous_activity:
+        logger.info(f"Setting Discord presence to '{activity_name}'")
+        activity = discord.Activity(name=activity_name, type=discord.ActivityType.watching)
+        await bot.change_presence(activity=activity)
+        previous_activity = activity_name
+    else:
+        logger.debug(f"Discord presence is the same as before ('{activity_name}'), not updating.")
