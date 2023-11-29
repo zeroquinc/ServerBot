@@ -13,7 +13,7 @@ import src.logging
 logger = src.logging.logging.getLogger("trakt")
 
 # START OF WEEKLY USER EMBED
-def create_weekly_user_embed():
+def get_dates():
     end_date = datetime.now()
     start_date = end_date - timedelta(days=7)
     previous_week = end_date - timedelta(days=7)
@@ -21,11 +21,9 @@ def create_weekly_user_embed():
     year = previous_week.isocalendar()[0]
     start_date_str = start_date.strftime('%Y-%m-%dT%H:%M:%SZ')
     end_date_str = end_date.strftime('%Y-%m-%dT%H:%M:%SZ')
-    headers = {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": TRAKT_CLIENT_ID
-    }
+    return start_date, end_date, week_number, year, start_date_str, end_date_str
+
+def get_history_data(headers, start_date_str, end_date_str):
     page = 1
     all_history_data = []
     while True:
@@ -42,7 +40,9 @@ def create_weekly_user_embed():
             break
         all_history_data.extend(history_data)
         page += 1
-    sorted_history_data = sorted(all_history_data, key=lambda x: x['watched_at'])
+    return sorted(all_history_data, key=lambda x: x['watched_at'])
+
+def create_movie_embed(sorted_history_data, start_date_str, end_date_str, week_number):
     movie_count = 0
     for item in sorted_history_data:
         if item['type'] == 'movie':
@@ -56,10 +56,11 @@ def create_weekly_user_embed():
         name=f"Trakt - Movies watched by {TRAKT_USERNAME} in Week {week_number}",
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M:%SZ')
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%SZ')
     timestamp_start = start_date.strftime('%a %b %d %Y')
     timestamp_end = end_date.strftime('%a %b %d %Y')
     timestamp = f"{timestamp_start} to {timestamp_end}"
-    movies_embed.timestamp = datetime.now()
     movies_embed.set_footer(text=timestamp)
     movies_embed.set_image(url='https://imgur.com/a/D3MxSNM')
     if movie_count > 0:
@@ -92,6 +93,9 @@ def create_weekly_user_embed():
                     movies_embed.set_thumbnail(url=poster_url)
     else:
         movies_embed.description = "No movies watched this week."
+    return movies_embed
+
+def create_episode_embed(sorted_history_data, start_date_str, end_date_str, week_number):
     episode_counts = {}
     for item in sorted_history_data:
         if item['type'] == 'episode':
@@ -111,7 +115,11 @@ def create_weekly_user_embed():
         name=f"Trakt - Episodes watched by {TRAKT_USERNAME} in Week {week_number}",
         icon_url='https://i.imgur.com/tvnkxAY.png'
     )
-    episodes_embed.timestamp = datetime.now()
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M:%SZ')
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%SZ')
+    timestamp_start = start_date.strftime('%a %b %d %Y')
+    timestamp_end = end_date.strftime('%a %b %d %Y')
+    timestamp = f"{timestamp_start} to {timestamp_end}"
     episodes_embed.set_footer(text=timestamp)
     episodes_embed.set_image(url='https://imgur.com/a/D3MxSNM')
     if total_episode_count > 0:
@@ -142,14 +150,18 @@ def create_weekly_user_embed():
                 episodes_embed.set_thumbnail(url=poster_url)
     else:
         episodes_embed.description = "No episodes watched this week."
-    sorted_movie_fields = sorted(movies_embed.fields, key=lambda field: field.name)
-    movies_embed.clear_fields()
-    for field in sorted_movie_fields:
-        movies_embed.add_field(name=field.name, value=field.value, inline=field.inline)
-    sorted_episode_fields = sorted(episodes_embed.fields, key=lambda field: int(field.value.split()[0]), reverse=True)
-    episodes_embed.clear_fields()
-    for field in sorted_episode_fields:
-        episodes_embed.add_field(name=field.name, value=field.value, inline=field.inline)
+    return episodes_embed
+
+def create_weekly_user_embed():
+    start_date_str, end_date_str, week_number, year, start_date_str, end_date_str = get_dates()
+    headers = {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": TRAKT_CLIENT_ID
+    }
+    sorted_history_data = get_history_data(headers, start_date_str, end_date_str)
+    movies_embed = create_movie_embed(sorted_history_data, start_date_str, end_date_str, week_number)
+    episodes_embed = create_episode_embed(sorted_history_data, start_date_str, end_date_str, week_number)
     data = {
         'embeds': [movies_embed.to_dict(), episodes_embed.to_dict()]
     }
