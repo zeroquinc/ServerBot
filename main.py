@@ -13,7 +13,7 @@ from src.trakt_favorites import trakt_favorites
 from src.trakt_ratings import trakt_ratings
 from src.trakt_user_weekly import create_weekly_user_embed
 from src.trakt_global_weekly import create_weekly_global_embed
-from src.tautulli import tautulli_discord_presence
+from src.tautulli_presence import tautulli_discord_presence
 
 logger = src.logging.logging.getLogger("bot")
 
