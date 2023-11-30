@@ -36,6 +36,14 @@ CHANNEL_PLEX_CONTENT =
 CHANNEL_PLEX_PLAYING =
 CHANNEL_RADARR_GRABS =
 CHANNEL_SONARR_GRABS =
+
+# Icon URLS
+RADARR_ICON_URL = "https://i.imgur.com/6U4aXO0.png"
+SONARR_ICON_URL = "https://i.imgur.com/dZSIKZE.png"
+TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
+
+# Discord Thumbnail
+DISCORD_THUMBNAIL = "https://imgur.com/a/D3MxSNM"
 ```
 
 Make a bash script like this and then run the file
