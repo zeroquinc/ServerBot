@@ -2,7 +2,7 @@ from calendar import weekday
 import requests
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TMDB_API_KEY
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TMDB_API_KEY, TRAKT_ICON_URL
 
 import src.logging
 
@@ -36,7 +36,7 @@ def create_embed(color, author_name, footer_text):
         },
         "author": {
             "name": author_name,
-            "icon_url": "https://i.imgur.com/tvnkxAY.png"
+            "icon_url": TRAKT_ICON_URL
         },
         "footer": {
             "text": footer_text

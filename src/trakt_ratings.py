@@ -5,13 +5,11 @@ import re
 import os
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TMDB_API_KEY, user_link
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TMDB_API_KEY, user_link, TRAKT_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
 logger = src.logging.logging.getLogger("trakt")
-
-# START OF TRAKT RATINGS
 processed_rating_embeds = set()
 
 def load_rating_processed_embeds():
@@ -69,11 +67,11 @@ def format_rating_show_embed(show):
         'thumbnail': {'url': thumbnail},
         'author': {
             'name': 'Trakt - Show Rated',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'icon_url': TRAKT_ICON_URL
         },
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'timestamp': timestamp
     }
 
@@ -105,12 +103,12 @@ def format_rating_episode_embed(episode):
         'title': f'{episode["show"]["title"]} - {episode["episode"]["title"]} (S{season_number:02d}E{episode_number:02d})',
         'author': {
             'name': 'Trakt - Episode Rated',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'icon_url': TRAKT_ICON_URL
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'timestamp': timestamp
     }
 
@@ -146,12 +144,12 @@ def format_rating_season_embed(season):
         'title': f'{season["show"]["title"]} - Season {season["season"]["number"]}',
         'author': {
             'name': 'Trakt - Season Rated',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'icon_url': TRAKT_ICON_URL
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'timestamp': timestamp
     }
 
@@ -179,12 +177,12 @@ def format_rating_movie_embed(movie):
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
         'author': {
             'name': 'Trakt - Movie Rated',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'icon_url': TRAKT_ICON_URL
         },
         'thumbnail': {'url': thumbnail},
         'color': color,
         'fields': fields,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'timestamp': timestamp
     }
     
@@ -306,7 +304,7 @@ def process_ratings(ratings):
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['movie']['ids']['trakt'])
     if embeds:
-        embeds = embeds[::-1]  # Reverse the order of embeds
+        embeds = embeds[::-1]
         data = {
             'embeds': embeds
         }

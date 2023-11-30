@@ -2,7 +2,7 @@ import discord
 from discord.utils import utcnow
 import requests
 
-from src.globals import TMDB_API_KEY, SONARR_ICON_URL, SONARR_IMAGE_URL
+from src.globals import TMDB_API_KEY, SONARR_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
@@ -60,7 +60,7 @@ def create_test_event_embed(instance_name):
     embed.set_author(name=f"{instance_name} - Test", icon_url=SONARR_ICON_URL)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=SONARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_grab_event_embed(json_data, instance_name):
@@ -99,7 +99,7 @@ def create_grab_event_embed(json_data, instance_name):
         embed.add_field(name="Custom Formats", value=custom_formats_value, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=SONARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_episode_delete_event_embed(json_data, instance_name):
@@ -125,7 +125,7 @@ def create_episode_delete_event_embed(json_data, instance_name):
     embed.add_field(name="Path", value=episode_path, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=SONARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_update_event_embed(json_data, instance_name):
@@ -139,7 +139,7 @@ def create_update_event_embed(json_data, instance_name):
     embed.add_field(name="New Version", value=new_version, inline=True)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=SONARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_unknown_event_embed(event_type):

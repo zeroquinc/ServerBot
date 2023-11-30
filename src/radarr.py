@@ -3,7 +3,7 @@ from discord.utils import utcnow
 import requests
 import src.logging
 
-from src.globals import TMDB_API_KEY, RADARR_ICON_URL, RADARR_IMAGE_URL
+from src.globals import TMDB_API_KEY, RADARR_ICON_URL, DISCORD_THUMBNAIL
 
 logger = src.logging.logging.getLogger("radarr")
 
@@ -58,7 +58,7 @@ def create_test_embed(instance_name):
     embed.set_author(name=f"{instance_name} - Test", icon_url=RADARR_ICON_URL)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=RADARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_grab_embed(json_data, instance_name):
@@ -93,7 +93,7 @@ def create_grab_embed(json_data, instance_name):
         embed.add_field(name="Custom Formats", value=custom_formats_value, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=RADARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_movie_delete_embed(json_data, instance_name):
@@ -115,7 +115,7 @@ def create_movie_delete_embed(json_data, instance_name):
     embed.add_field(name="Path", value=folder_path, inline=False)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=RADARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_application_update_embed(json_data, instance_name):
@@ -129,7 +129,7 @@ def create_application_update_embed(json_data, instance_name):
     embed.add_field(name="New Version", value=new_version, inline=True)
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.set_image(url=RADARR_IMAGE_URL)
+    embed.set_image(url=DISCORD_THUMBNAIL)
     return embed.to_dict()
 
 def create_unknown_event_embed(event_type):

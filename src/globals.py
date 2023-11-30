@@ -35,10 +35,10 @@ TAUTULLI_API_URL = os.getenv("TAUTULLI_API_URL")
 TAUTULLI_API_KEY = os.getenv("TAUTULLI_API_KEY")
 TAUTULLI_USER_ID = os.getenv("TAUTULLI_USER_ID")
 
-# Radarr Globals
+# Icon URLS
 RADARR_ICON_URL = os.getenv("RADARR_ICON_URL")
-RADARR_IMAGE_URL = os.getenv("RADARR_IMAGE_URL")
-
-# Sonarr Globals
 SONARR_ICON_URL = os.getenv("SONARR_ICON_URL")
-SONARR_IMAGE_URL = os.getenv("SONARR_IMAGE_URL")
+TRAKT_ICON_URL = os.getenv("TRAKT_ICON_URL")
+
+# Discord Thumbnail
+DISCORD_THUMBNAIL = os.getenv("DISCORD_THUMBNAIL")

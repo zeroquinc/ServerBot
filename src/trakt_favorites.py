@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_FAVORITES, TMDB_API_KEY
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_FAVORITES, TMDB_API_KEY, TRAKT_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
@@ -49,10 +49,10 @@ def format_favorite_show_embed(show):
         'thumbnail': {'url': thumbnail},
         'fields': fields,
         'timestamp': timestamp,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'author': {
-            'name': f'Trakt - Show Favorited',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'name': 'Trakt - Show Favorited',
+            'icon_url': TRAKT_ICON_URL
         }
     }
 
@@ -78,10 +78,10 @@ def format_favorite_movie_embed(movie):
         'thumbnail': {'url': thumbnail},
         'fields': fields,
         'timestamp': timestamp,
-        'image': {'url': 'https://imgur.com/a/D3MxSNM'},
+        'image': {'url': DISCORD_THUMBNAIL},
         'author': {
-            'name': f'Trakt - Movie Favorited',
-            'icon_url': 'https://i.imgur.com/tvnkxAY.png'
+            'name': 'Trakt - Movie Favorited',
+            'icon_url': TRAKT_ICON_URL
         }
     }
 
