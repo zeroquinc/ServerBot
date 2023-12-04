@@ -92,6 +92,9 @@ async def trakt_favorites_task():
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
 
+# Create a queue for the messages
+message_queue = asyncio.Queue()
+
 # Webhook setup for Sonarr
 async def handle_sonarr(request):
     try:
@@ -100,7 +103,7 @@ async def handle_sonarr(request):
         channel_id = CHANNEL_SONARR_GRABS
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
-        await channel.send(embed=embed)
+        await message_queue.put((channel, embed))
         logger.info("Sonarr webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
@@ -115,12 +118,19 @@ async def handle_radarr(request):
         channel_id = CHANNEL_RADARR_GRABS
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
-        await channel.send(embed=embed)
+        await message_queue.put((channel, embed))
         logger.info("Radarr webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Radarr webhook: {e}")
         return web.Response(status=500)
+
+# Task for sending the messages
+async def send_messages():
+    while True:
+        channel, embed = await message_queue.get()
+        await channel.send(embed=embed)
+        await asyncio.sleep(1)
 
 # Webhook setup for Plex/Tautulli
 async def handle_plex(request):
@@ -173,6 +183,7 @@ uvicorn_server = web.AppRunner(uvicorn_app)
 
 async def start():
     await uvicorn_server.setup()
+    asyncio.create_task(send_messages())
     await web._run_app(uvicorn_app, **uvicorn_params)
 
 async def cleanup():
