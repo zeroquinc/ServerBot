@@ -23,13 +23,13 @@ def fetch_tautulli_activity():
         if response.status_code == 200:
             data = response.json()
             logger.debug("Tautulli JSON data: %s", data)
-            return data.get('response', {}).get('data', [])
+            return data.get('response', {}).get('data', {})
         else:
             logger.error(f"Failed to fetch Tautulli data. Status code: {response.status_code}")
-            return []
+            return {}
     except Exception as e:
         logger.error(f"An error occurred while fetching Tautulli data: {e}")
-        return []
+        return {}
 
 async def tautulli_discord_presence(bot):
     global previous_activity
@@ -37,13 +37,17 @@ async def tautulli_discord_presence(bot):
         tautulli_data = fetch_tautulli_activity()
         if tautulli_data:
             stream_count = int(tautulli_data.get('stream_count', 0))
-            if stream_count > 0:
+            current_activity = tautulli_data.get('sessions', [{}])[0].get('title', '')
+            if stream_count > 0 and current_activity != previous_activity:
                 await update_discord_presence(bot, tautulli_data)
+                previous_activity = current_activity
             elif previous_activity != '127.0.0.1':
                 await set_discord_presence(bot, '127.0.0.1')
+                previous_activity = '127.0.0.1'
         else:
             if previous_activity != '127.0.0.1':
                 await set_discord_presence(bot, '127.0.0.1')
+                previous_activity = '127.0.0.1'
     except Exception as e:
         logger.error(f"An error occurred: {e}")
 
@@ -61,8 +65,6 @@ async def update_discord_presence(bot, tautulli_data):
         activity_name = f'{title}'
         logger.info(f"Discord presence updated: {activity_name}")
         await set_discord_presence(bot, activity_name)
-    else:
-        logger.debug("Discord presence is the same as before, not updating.")
 
 async def set_discord_presence(bot, activity_name):
     global previous_activity
