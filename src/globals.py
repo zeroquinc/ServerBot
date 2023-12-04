@@ -36,9 +36,14 @@ TAUTULLI_API_KEY = os.getenv("TAUTULLI_API_KEY")
 TAUTULLI_USER_ID = os.getenv("TAUTULLI_USER_ID")
 
 # Icon URLS
-RADARR_ICON_URL = os.getenv("RADARR_ICON_URL")
-SONARR_ICON_URL = os.getenv("SONARR_ICON_URL")
-TRAKT_ICON_URL = os.getenv("TRAKT_ICON_URL")
+RADARR_ICON_URL = "https://i.imgur.com/6U4aXO0.png"
+SONARR_ICON_URL = "https://i.imgur.com/dZSIKZE.png"
+TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
 
 # Discord Thumbnail
-DISCORD_THUMBNAIL = os.getenv("DISCORD_THUMBNAIL")
+DISCORD_THUMBNAIL = "https://imgur.com/a/D3MxSNM"
+
+# TMDB Globals
+TMDB_MOVIE_URL = 'https://api.themoviedb.org/3/movie/'
+TMDB_SHOW_URL = 'https://api.themoviedb.org/3/tv/'
+TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'

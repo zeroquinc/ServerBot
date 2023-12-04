@@ -2,16 +2,23 @@ from calendar import weekday
 import requests
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TMDB_API_KEY, TRAKT_ICON_URL
-
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_ICON_URL, TMDB_IMAGE_URL, TMDB_MOVIE_URL, TMDB_SHOW_URL
 import src.logging
 
 logger = src.logging.logging.getLogger("trakt")
 
 image_cache = {}
 
+EMBED_COLOR_MOVIE = 0xFEA232
+EMBED_COLOR_SHOW = 0x328efe
+
 def get_data_from_url(url, headers):
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed: {e}")
+        return []
     return sorted(response.json(), key=lambda x: x['watcher_count'], reverse=True)
 
 def fetch_image(item_type, item_id):
@@ -19,20 +26,21 @@ def fetch_image(item_type, item_id):
         image_cache[item_type] = {}
     if item_id in image_cache[item_type]:
         return image_cache[item_type][item_id]
-    if item_type == 'movie':
-        url = f'https://api.themoviedb.org/3/movie/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
-    elif item_type == 'show':
-        url = f'https://api.themoviedb.org/3/tv/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
-    else:
+    
+    url = f'{TMDB_MOVIE_URL if item_type == "movie" else TMDB_SHOW_URL}{item_id}?api_key={TMDB_API_KEY}&language=en-US'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed: {e}")
         return ''
-    response = requests.get(url)
-    if response.ok:
-        data = response.json()
-        poster_path = data.get('poster_path', '')
-        if poster_path:
-            image_url = f'https://image.tmdb.org/t/p/w500/{poster_path}'
-            image_cache[item_type][item_id] = image_url
-            return image_url
+    
+    data = response.json()
+    poster_path = data.get('poster_path', '')
+    if poster_path:
+        image_url = f'{TMDB_IMAGE_URL}{poster_path}'
+        image_cache[item_type][item_id] = image_url
+        return image_url
     return ''
 
 def create_embed(color, author_name, footer_text):
@@ -89,10 +97,10 @@ def create_weekly_global_embed():
     footer_text = f"{previous_week_start.strftime('%a %b %d %Y')} to {previous_week_end.strftime('%a %b %d %Y')}"
     _, iso_week, _ = previous_week_start.isocalendar()
 
-    movie_embed = create_embed(0xFEA232, f"Trakt - Top Movies in Week {iso_week}", footer_text)
+    movie_embed = create_embed(EMBED_COLOR_MOVIE, f"Trakt - Top Movies in Week {iso_week}", footer_text)
     movie_embed = add_fields_to_embed(movie_embed, movies, 'movie', ranking_emojis)
 
-    show_embed = create_embed(0x328efe, f"Trakt - Top Shows in Week {iso_week}", footer_text)
+    show_embed = create_embed(EMBED_COLOR_SHOW, f"Trakt - Top Shows in Week {iso_week}", footer_text)
     show_embed = add_fields_to_embed(show_embed, shows, 'show', ranking_emojis)
 
     combined_embeds = [movie_embed, show_embed]
