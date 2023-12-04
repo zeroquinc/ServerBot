@@ -268,6 +268,8 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_ratings(ratings):
+    load_rating_processed_embeds()
+
     embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(minutes=60)
@@ -317,8 +319,7 @@ def trakt_ratings():
         ratings = fetch_trakt_ratings()
         result = process_ratings(ratings)
         if result:
-            load_rating_processed_embeds()
             logger.info(f'Found {len(result["embeds"])} new ratings')
-            return result
+        return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')

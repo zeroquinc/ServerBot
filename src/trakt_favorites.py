@@ -130,6 +130,7 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_favorites(favorites):
+    load_favorite_processed_embeds()
     embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(hours=24)
@@ -169,8 +170,7 @@ def trakt_favorites():
         favorites = fetch_trakt_favorites()
         result = process_favorites(favorites)
         if result:
-            load_favorite_processed_embeds()
             logger.info(f'Found {len(result["embeds"])} new favorites')
-            return result
+        return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
