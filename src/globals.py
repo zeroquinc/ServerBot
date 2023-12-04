@@ -27,7 +27,6 @@ TRAKT_USERNAME = os.getenv("TRAKT_USERNAME")
 TRAKT_URL_FAVORITES = f'https://api.trakt.tv/users/{TRAKT_USERNAME}/favorites'
 TRAKT_URL_RATINGS = f'https://api.trakt.tv/users/{TRAKT_USERNAME}/ratings'
 TRAKT_CLIENT_ID = os.getenv("TRAKT_CLIENT_ID")
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 user_link = f'[{TRAKT_USERNAME}](https://trakt.tv/users/{TRAKT_USERNAME})'
 
 # Tautulli Globals
@@ -44,6 +43,7 @@ TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
 DISCORD_THUMBNAIL = "https://imgur.com/a/D3MxSNM"
 
 # TMDB Globals
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_MOVIE_URL = 'https://api.themoviedb.org/3/movie/'
 TMDB_SHOW_URL = 'https://api.themoviedb.org/3/tv/'
 TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'
