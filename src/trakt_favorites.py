@@ -130,29 +130,28 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_favorites(favorites):
-    embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(hours=24)
     sorted_favorites = sorted(favorites, key=lambda x: x['listed_at'])
-    for favorite in reversed(sorted_favorites):
-        listed_at = datetime.strptime(favorite['listed_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        if listed_at < time_limit:
-            break
+
+    # Check if there are any new favorites
+    new_favorites = [favorite for favorite in reversed(sorted_favorites) if datetime.strptime(favorite['listed_at'], '%Y-%m-%dT%H:%M:%S.%fZ') >= time_limit]
+    if not new_favorites:
+        return None  # No new favorites, so return None
+
+    # There are new favorites, so load the processed embeds
+    load_favorite_processed_embeds()
+
+    embeds = []
+    for favorite in new_favorites:
         if len(embeds) >= 10:
-            embeds = embeds[::-1]
-            data = {
-                'embeds': embeds
-            }
-            save_favorite_processed_embeds()
-            return data
+            break
         if favorite['type'] == 'show':
-            load_favorite_processed_embeds()
             if favorite['show']['ids']['trakt'] not in processed_favorite_embeds:
                 embed = format_favorite_show_embed(favorite)
                 embeds.append(embed)
                 processed_favorite_embeds.add(favorite['show']['ids']['trakt'])
         elif favorite['type'] == 'movie':
-            load_favorite_processed_embeds()
             if favorite['movie']['ids']['trakt'] not in processed_favorite_embeds:
                 embed = format_favorite_movie_embed(favorite)
                 embeds.append(embed)
