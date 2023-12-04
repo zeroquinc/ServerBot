@@ -8,11 +8,17 @@ import src.logging
 
 logger = src.logging.logging.getLogger("trakt")
 
+image_cache = {}
+
 def get_data_from_url(url, headers):
     response = requests.get(url, headers=headers)
     return sorted(response.json(), key=lambda x: x['watcher_count'], reverse=True)
 
 def fetch_image(item_type, item_id):
+    if item_type not in image_cache:
+        image_cache[item_type] = {}
+    if item_id in image_cache[item_type]:
+        return image_cache[item_type][item_id]
     if item_type == 'movie':
         url = f'https://api.themoviedb.org/3/movie/{item_id}?api_key={TMDB_API_KEY}&language=en-US'
     elif item_type == 'show':
@@ -24,7 +30,9 @@ def fetch_image(item_type, item_id):
         data = response.json()
         poster_path = data.get('poster_path', '')
         if poster_path:
-            return f'https://image.tmdb.org/t/p/w500/{poster_path}'
+            image_url = f'https://image.tmdb.org/t/p/w500/{poster_path}'
+            image_cache[item_type][item_id] = image_url
+            return image_url
     return ''
 
 def create_embed(color, author_name, footer_text):
