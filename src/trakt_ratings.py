@@ -315,11 +315,10 @@ def process_ratings(ratings):
 def trakt_ratings():
     try:
         ratings = fetch_trakt_ratings()
-        if ratings:
+        result = process_ratings(ratings)
+        if result:
             load_rating_processed_embeds()
-            result = process_ratings(ratings)
-            if result:
-                logger.info(f'Found {len(result["embeds"])} new ratings')
+            logger.info(f'Found {len(result["embeds"])} new ratings')
             return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
