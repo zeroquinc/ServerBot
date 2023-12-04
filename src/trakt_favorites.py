@@ -130,7 +130,6 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_favorites(favorites):
-    load_favorite_processed_embeds()
     embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(hours=24)
@@ -147,11 +146,13 @@ def process_favorites(favorites):
             save_favorite_processed_embeds()
             return data
         if favorite['type'] == 'show':
+            load_favorite_processed_embeds()
             if favorite['show']['ids']['trakt'] not in processed_favorite_embeds:
                 embed = format_favorite_show_embed(favorite)
                 embeds.append(embed)
                 processed_favorite_embeds.add(favorite['show']['ids']['trakt'])
         elif favorite['type'] == 'movie':
+            load_favorite_processed_embeds()
             if favorite['movie']['ids']['trakt'] not in processed_favorite_embeds:
                 embed = format_favorite_movie_embed(favorite)
                 embeds.append(embed)

@@ -268,8 +268,6 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_ratings(ratings):
-    load_rating_processed_embeds()
-
     embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(minutes=60)
@@ -286,21 +284,25 @@ def process_ratings(ratings):
             save_rating_processed_embeds()
             return data
         if rating['type'] == 'show':
+            load_rating_processed_embeds()
             if rating['show']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_show_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['show']['ids']['trakt'])
         elif rating['type'] == 'episode':
+            load_rating_processed_embeds()
             if rating['episode']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_episode_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['episode']['ids']['trakt'])
         elif rating['type'] == 'season':
+            load_rating_processed_embeds()
             if rating['season']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_season_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['season']['ids']['trakt'])
         elif rating['type'] == 'movie':
+            load_rating_processed_embeds()
             if rating['movie']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_movie_embed(rating)
                 embeds.append(embed)
