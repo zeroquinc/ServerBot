@@ -5,7 +5,7 @@ import re
 import os
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TMDB_API_KEY, TRAKT_URL_USER, TRAKT_ICON_URL, DISCORD_THUMBNAIL
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TRAKT_URL_USER, TRAKT_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
