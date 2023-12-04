@@ -165,12 +165,13 @@ def process_favorites(favorites):
     return None
 
 def trakt_favorites():
-    load_favorite_processed_embeds()
     try:
         favorites = fetch_trakt_favorites()
-        result = process_favorites(favorites)
-        if result:
-            logger.info(f'Found {len(result["embeds"])} new favorites')
-        return result
+        if favorites:
+            load_favorite_processed_embeds()
+            result = process_favorites(favorites)
+            if result:
+                logger.info(f'Found {len(result["embeds"])} new favorites')
+            return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')

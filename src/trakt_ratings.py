@@ -5,7 +5,7 @@ import re
 import os
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TMDB_API_KEY, user_link, TRAKT_ICON_URL, DISCORD_THUMBNAIL
+from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TMDB_API_KEY, TRAKT_URL_USER, TRAKT_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
@@ -55,7 +55,7 @@ def format_rating_show_embed(show):
     timestamp = datetime.utcnow().isoformat()
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
-        {'name': 'User', 'value': user_link, 'inline': True},
+        {'name': 'User', 'value': TRAKT_URL_USER, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
     user_comment = get_user_comment(TRAKT_USERNAME, show["show"]["ids"]["trakt"], 'show')
@@ -92,7 +92,7 @@ def format_rating_episode_embed(episode):
     timestamp = datetime.utcnow().isoformat()
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
-        {'name': 'User', 'value': user_link, 'inline': True},
+        {'name': 'User', 'value': TRAKT_URL_USER, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}' if imdb_link else trakt_link, 'inline': True}
     ]
     user_comment = get_user_comment(TRAKT_USERNAME, episode["episode"]["ids"]["trakt"], 'episode')
@@ -133,7 +133,7 @@ def format_rating_season_embed(season):
     timestamp = datetime.utcnow().isoformat()
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
-        {'name': 'User', 'value': user_link, 'inline': True},
+        {'name': 'User', 'value': TRAKT_URL_USER, 'inline': True},
         {'name': 'Links', 'value': trakt_link, 'inline': True}
     ]
     user_comment = get_user_comment(TRAKT_USERNAME, season["season"]["ids"]["trakt"], 'season')
@@ -166,7 +166,7 @@ def format_rating_movie_embed(movie):
     timestamp = datetime.utcnow().isoformat()
     fields = [
         {'name': 'Rating', 'value': f'{rating} :star:', 'inline': True},
-        {'name': 'User', 'value': user_link, 'inline': True},
+        {'name': 'User', 'value': TRAKT_URL_USER, 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
     user_comment = get_user_comment(TRAKT_USERNAME, movie["movie"]["ids"]["trakt"], 'movie')
@@ -313,12 +313,13 @@ def process_ratings(ratings):
     return None
 
 def trakt_ratings():
-    load_rating_processed_embeds()
     try:
         ratings = fetch_trakt_ratings()
-        result = process_ratings(ratings)
-        if result:
-            logger.info(f'Found {len(result["embeds"])} new ratings')
-        return result
+        if ratings:
+            load_rating_processed_embeds()
+            result = process_ratings(ratings)
+            if result:
+                logger.info(f'Found {len(result["embeds"])} new ratings')
+            return result
     except Exception as e:
         logger.error(f'Error occurred: {str(e)}')
