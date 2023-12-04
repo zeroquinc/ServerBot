@@ -268,41 +268,38 @@ def get_tmdb_episode_details(tmdb_id, season_number, episode_number):
         return None
 
 def process_ratings(ratings):
-    embeds = []
     current_time = datetime.utcnow()
     time_limit = current_time - timedelta(minutes=60)
     sorted_ratings = sorted(ratings, key=lambda x: x['rated_at'])
-    for rating in reversed(sorted_ratings):
-        rated_at = datetime.strptime(rating['rated_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        if rated_at < time_limit:
-            break
+
+    # Check if there are any new ratings
+    new_ratings = [rating for rating in reversed(sorted_ratings) if datetime.strptime(rating['rated_at'], '%Y-%m-%dT%H:%M:%S.%fZ') >= time_limit]
+    if not new_ratings:
+        return None  # No new ratings, so return None
+
+    # There are new ratings, so load the processed embeds
+    load_rating_processed_embeds()
+
+    embeds = []
+    for rating in new_ratings:
         if len(embeds) >= 10:
-            embeds = embeds[::-1]
-            data = {
-                'embeds': embeds
-            }
-            save_rating_processed_embeds()
-            return data
+            break
         if rating['type'] == 'show':
-            load_rating_processed_embeds()
             if rating['show']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_show_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['show']['ids']['trakt'])
         elif rating['type'] == 'episode':
-            load_rating_processed_embeds()
             if rating['episode']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_episode_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['episode']['ids']['trakt'])
         elif rating['type'] == 'season':
-            load_rating_processed_embeds()
             if rating['season']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_season_embed(rating)
                 embeds.append(embed)
                 processed_rating_embeds.add(rating['season']['ids']['trakt'])
         elif rating['type'] == 'movie':
-            load_rating_processed_embeds()
             if rating['movie']['ids']['trakt'] not in processed_rating_embeds:
                 embed = format_rating_movie_embed(rating)
                 embeds.append(embed)
