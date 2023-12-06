@@ -6,6 +6,7 @@ from src.globals import TAUTULLI_API_URL, TAUTULLI_API_KEY
 import src.logging
 
 logger = src.logging.logging.getLogger("tautulli")
+
 previous_activity = None
 
 def fetch_tautulli_activity():
@@ -37,7 +38,8 @@ async def tautulli_discord_presence(bot):
         tautulli_data = fetch_tautulli_activity()
         if tautulli_data:
             stream_count = int(tautulli_data.get('stream_count', 0))
-            current_activity = tautulli_data.get('sessions', [{}])[0].get('title', '')
+            sessions = tautulli_data.get('sessions', [])
+            current_activity = sessions[0].get('title', '') if sessions else ''
             if stream_count > 0 and current_activity != previous_activity:
                 await update_discord_presence(bot, tautulli_data)
                 previous_activity = current_activity
