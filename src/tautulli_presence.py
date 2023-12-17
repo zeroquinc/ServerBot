@@ -54,6 +54,7 @@ async def tautulli_discord_presence(bot):
         logger.error(f"An error occurred: {e}")
 
 async def update_discord_presence(bot, tautulli_data):
+    global previous_activity
     sessions = tautulli_data.get('sessions', [])
     if sessions:
         activity = sessions[0]
@@ -67,8 +68,10 @@ async def update_discord_presence(bot, tautulli_data):
         else:
             title = 'Unknown Title'
         activity_name = f'{title}'
-        logger.info(f"Discord presence updated: {activity_name}")
-        await set_discord_presence(bot, activity_name)
+        if activity_name != previous_activity:
+            logger.info(f"Discord presence updated: {activity_name}")
+            await set_discord_presence(bot, activity_name)
+            previous_activity = activity_name
 
 async def set_discord_presence(bot, activity_name):
     global previous_activity
