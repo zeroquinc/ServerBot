@@ -43,7 +43,7 @@ async def tautulli_discord_presence(bot):
             if stream_count > 0 and current_activity != previous_activity:
                 await update_discord_presence(bot, tautulli_data)
                 previous_activity = current_activity
-            elif previous_activity != '127.0.0.1':
+            elif stream_count == 0 and previous_activity != '127.0.0.1':
                 await set_discord_presence(bot, '127.0.0.1')
                 previous_activity = '127.0.0.1'
         else:
