@@ -60,6 +60,8 @@ async def update_discord_presence(bot, tautulli_data):
         media_type = activity.get('media_type', 'Unknown Media Type')
         if media_type == 'movie':
             title = activity.get('title', 'Unknown Movie Title')
+            year = activity.get('year', 'Unknown Year')
+            title = f"{title} ({year})"
         elif media_type == 'episode':
             title = activity.get('grandparent_title', 'Unknown Show Title')
         else:
