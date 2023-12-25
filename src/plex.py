@@ -7,10 +7,10 @@ def create_plex_embed(data):
         embeds_list = []
         if data and 'embeds' in data:
             embeds = data['embeds']
-            for embed in embeds:
-                process_embed_fields(embed)
-                embeds_list.append(embed)
-                logger.info(f"Created embed for {embed['title']} event")
+            for i, embed in enumerate(embeds):
+                embeds[i] = process_embed_fields(embed)
+                embeds_list.append(embeds[i])
+                logger.info(f"Created embed for {embeds[i]['title']} event")
             return {'embeds': embeds_list}, 200
         else:
             logger.info("Webhook received, but no events found. Data not saved.")
@@ -23,6 +23,7 @@ def process_embed_fields(embed):
     if 'fields' in embed:
         for field in embed['fields']:
             process_field_name(field)
+    return embed
 
 def process_field_name(field):
     if 'name' in field and field['name'] in ['Resumed Playing', 'Started Playing']:
