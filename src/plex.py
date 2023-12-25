@@ -26,6 +26,6 @@ def process_embed_fields(embed):
     return embed
 
 def process_field_name(field):
-    if 'name' in field and field['name'] in ['Resumed Playing', 'Started Playing']:
+    if 'name' in field and (field['name'].endswith('Resumed Playing') or field['name'].endswith('Started Playing')):
         if 'value' in field and field['value'].startswith('00:'):
             field['value'] = field['value'][3:]
