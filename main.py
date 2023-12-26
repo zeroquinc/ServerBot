@@ -144,9 +144,9 @@ async def handle_plex(request):
             if 'embeds' in embed_data and isinstance(embed_data['embeds'], list):
                 for embed_dict in embed_data['embeds']:
                     author_name = embed_dict.get('author', {}).get('name', '')
-                    if 'playing' in author_name:
+                    if 'Streaming' in author_name:
                         channel_id = playing_channel_id
-                    elif 'added' in author_name:
+                    elif 'New' in author_name:
                         channel_id = content_channel_id
                     else:
                         channel_id = playing_channel_id
