@@ -26,5 +26,5 @@ def process_embed_fields(embed):
     return embed
 
 def process_field_name(field):
-    if 'name' in field and (field['name'].endswith('Now Streaming') or field['name'].endswith('Streaming Resumed') or 'Runtime' in field['name']) and 'value' in field and field['value'].startswith('00:'):
+    if 'name' in field and (field['name'].endswith('Now Streaming') or field['name'].endswith('Resumed Streaming') or 'Runtime' in field['name']) and 'value' in field and field['value'].startswith('00:'):
         field['value'] = field['value'][3:]
