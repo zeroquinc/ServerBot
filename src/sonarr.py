@@ -1,16 +1,12 @@
 import discord
 from discord.utils import utcnow
 import requests
-import time
 
 from src.globals import TMDB_API_KEY, SONARR_ICON_URL, DISCORD_THUMBNAIL
 
 import src.logging
 
 logger = src.logging.logging.getLogger("sonarr")
-
-# Maintain a dictionary to keep track of EpisodeDeleted events count
-episode_deleted_counts = {}
 
 def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes < 1024 ** 3:  # Less than 1 GB
@@ -47,27 +43,13 @@ def create_sonarr_embed(json_data):
     elif event_type == "Grab":
         embed_data = create_grab_event_embed(json_data, instance_name)
     elif event_type == "EpisodeFileDelete":
-        # Introduce a delay of 1 minute
-        time.sleep(60)
-
-        # Check if there are multiple EpisodeDeleted events with the same series title
-        series_title = json_data['series'].get('title', 'N/A')
-
-        if series_title in episode_deleted_counts:
-            count = episode_deleted_counts[series_title] + 1
-            episode_deleted_counts[series_title] = count
-            return create_multiple_deleted_event_embed(json_data, count, instance_name)
-        else:
-            episode_deleted_counts[series_title] = 1
-            embed_data = create_episode_delete_event_embed(json_data, instance_name)
-            return embed_data
+        embed_data = create_episode_delete_event_embed(json_data, instance_name)
     elif event_type == "ApplicationUpdate":
         embed_data = create_update_event_embed(json_data, instance_name)
     else:
         embed_data = create_unknown_event_embed(event_type)
 
     return embed_data
-
 
 def create_test_event_embed(instance_name):
     embed = discord.Embed(
@@ -141,30 +123,6 @@ def create_episode_delete_event_embed(json_data, instance_name):
     embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Size", value=episode_size_human_readable, inline=False)
     embed.add_field(name="Path", value=episode_path, inline=False)
-    timestamp = utcnow()
-    embed.timestamp = timestamp
-    embed.set_image(url=DISCORD_THUMBNAIL)
-    return embed.to_dict()
-
-def create_multiple_deleted_event_embed(json_data, count, instance_name):
-    series_title = json_data['series'].get('title', 'N/A')
-    poster_paths = [get_tmdb_poster_path(json_data['series'].get('tvdbId', 'N/A'))]
-
-    # Extract formatted season and episode numbers for each deleted episode
-    deleted_episodes_info = "\n".join([
-        f"S{episode.get('seasonNumber', 'N/A'):02d}E{episode.get('episodeNumber', 'N/A'):02d}"
-        for episode in json_data.get('episodes', [])
-    ])
-
-    embed = discord.Embed(
-        title=f"{series_title}",
-        description=f"{count} entries\n{deleted_episodes_info}",
-        color=0xFF0000
-    )
-    for poster_path in poster_paths:
-        if poster_path:
-            embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
-    embed.set_author(name=f"{instance_name} - Episodes Deleted", icon_url=SONARR_ICON_URL)
     timestamp = utcnow()
     embed.timestamp = timestamp
     embed.set_image(url=DISCORD_THUMBNAIL)
