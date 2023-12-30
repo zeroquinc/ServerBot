@@ -38,6 +38,7 @@ TAUTULLI_USER_ID = os.getenv("TAUTULLI_USER_ID")
 RADARR_ICON_URL = "https://i.imgur.com/6U4aXO0.png"
 SONARR_ICON_URL = "https://i.imgur.com/dZSIKZE.png"
 TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
+PLEX_ICON_URL = "https://i.imgur.com/ZuFghbX.png"
 
 # Discord Thumbnail
 DISCORD_THUMBNAIL = "https://imgur.com/a/D3MxSNM"
