@@ -15,7 +15,7 @@ def plex_play(data):
             if source_metadata.get('media_type') == 'movie':
                 title = f"{source_metadata.get('title')} ({source_metadata.get('year')})"
             elif source_metadata.get('media_type') == 'episode':
-                title = f"{source_metadata.get('title')} - (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                title = f"{source_metadata.get('title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             else:
                 title = source_metadata.get('title', '')
             
@@ -32,7 +32,7 @@ def plex_play(data):
                 'timestamp': source_metadata.get('utctime'),
                 'url': source_metadata.get('imdb_url', ''),
                 'footer': {
-                    'text': f"{server_info.get('server_name')} | {server_info.get('username')} | {server_info.get('product')} | {server_info.get('video_decision', '')}"
+                    'text': f"{server_info.get('server_name')} | {stream_details.get('username')} | {server_info.get('product')} | {stream_details.get('video_decision', '')}"
                 },
                 'image': {
                     'url': 'https://imgur.com/a/D3MxSNM'
