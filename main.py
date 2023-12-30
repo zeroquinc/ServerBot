@@ -8,7 +8,7 @@ import src.logging
 from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
-from src.plex import create_plex_embed
+from src.plex import plex_play, plex_episode_content
 from src.trakt_favorites import trakt_favorites
 from src.trakt_ratings import trakt_ratings
 from src.trakt_user_weekly import create_weekly_user_embed
@@ -136,27 +136,30 @@ async def send_messages():
 async def handle_plex(request):
     try:
         data = await request.json()
-        embed_data, status_code = create_plex_embed(data)
         playing_channel_id = CHANNEL_PLEX_PLAYING
         content_channel_id = CHANNEL_PLEX_CONTENT
 
-        if status_code == 200:
-            if 'embeds' in embed_data and isinstance(embed_data['embeds'], list):
-                for embed_dict in embed_data['embeds']:
-                    author_name = embed_dict.get('author', {}).get('name', '')
-                    if 'Streaming' in author_name:
-                        channel_id = playing_channel_id
-                    elif 'New' in author_name:
-                        channel_id = content_channel_id
-                    else:
-                        channel_id = playing_channel_id
+        webhook_type = data.get('webhook_type', '')
 
-                    channel = bot.get_channel(channel_id)
-                    embed = discord.Embed.from_dict(embed_dict)
-                    await channel.send(embed=embed)
-                logger.info("Plex webhook received and processed successfully.")
-            else:
-                logger.warning("No valid 'embeds' data found.")
+        if webhook_type == 'nowplaying':
+            embed_data, status_code = plex_play(data)
+            channel_id = playing_channel_id
+        elif webhook_type == 'newcontent':
+            embed_data, status_code = create_season_embed(data)
+            channel_id = content_channel_id
+        else:
+            logger.info("Webhook received, but no relevant data found. Data not saved.")
+            return {'message': "Webhook received, but no relevant data found. Data not saved."}, 200
+
+        if 'embeds' in embed_data and isinstance(embed_data['embeds'], list):
+            for embed_dict in embed_data['embeds']:
+                channel = bot.get_channel(channel_id)
+                embed = discord.Embed.from_dict(embed_dict)
+                await channel.send(embed=embed)
+            logger.info("Plex webhook received and processed successfully.")
+        else:
+            logger.warning("No valid 'embeds' data found.")
+        
         return web.Response(status=status_code)
     
     except Exception as e:
