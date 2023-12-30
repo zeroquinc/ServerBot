@@ -139,7 +139,7 @@ async def handle_plex(request):
         playing_channel_id = CHANNEL_PLEX_PLAYING
         content_channel_id = CHANNEL_PLEX_CONTENT
 
-        webhook_type = data.get('stream_details', {}).get('webhook_type', '')
+        webhook_type = data.get('server_info', {}).get('webhook_type', '')
 
         if webhook_type == 'nowplaying':
             embed_data, status_code = plex_play(data)
