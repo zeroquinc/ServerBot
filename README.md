@@ -3,6 +3,11 @@
 This is a Discord.py bot created for learning Python and for fun.
 It is mainly used for Arrs and Plex notifications on your Discord server.
 
+- Plex Now Playing & New Content notifications
+- Trakt Ratings notifications
+- Trakt Weekly Global & User Top Shows / Movies notification
+- Sonarr & Radarr Grab & Delete notifications
+
 # Purpose
 
 - Discord notifications from Arrs and Plex / Tautulli
