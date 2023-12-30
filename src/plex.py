@@ -189,9 +189,9 @@ def plex_season_content(data):
             source_metadata = data['source_metadata_details']
             server_info = data['server_info']
 
-            if source_metadata.get('media_type') == 'episode':
+            if source_metadata.get('media_type') == 'season':
                 embed = {
-                    'title': f"{source_metadata.get('title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})",
+                    'title': f"{source_metadata.get('title')}",
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
                     'color': 15442439,
