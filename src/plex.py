@@ -47,7 +47,7 @@ def plex_play(data):
                 ]
             }
             embeds_list.append(embed)
-            logger.info(f"Created Play embed for {source_metadata.get('media_type')} event")
+            logger.info(f"Created Play Start embed for {source_metadata.get('media_type')} event")
             return {'embeds': embeds_list}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details or Stream Details found. Data not saved.")
@@ -100,7 +100,7 @@ def plex_resume(data):
                 ]
             }
             embeds_list.append(embed)
-            logger.info(f"Created Resumed embed for {source_metadata.get('media_type')} event")
+            logger.info(f"Created Play Resumed embed for {source_metadata.get('media_type')} event")
             return {'embeds': embeds_list}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details or Stream Details found. Data not saved.")
@@ -170,7 +170,7 @@ def plex_episode_content(data):
                     }
                 }
                 embeds_list.append(embed)
-                logger.info("Created embed for episode event")
+                logger.info(f"Created New Content embed for {source_metadata.get('media_type')} event")
                 return {'embeds': embeds_list}, 200
             else:
                 logger.info("Webhook received, but no episode details found. Data not saved.")
@@ -228,11 +228,11 @@ def plex_season_content(data):
                     }
                 }
                 embeds_list.append(embed)
-                logger.info("Created embed for Season event")
+                logger.info("Created New Content embed for Season event")
                 return {'embeds': embeds_list}, 200
             else:
-                logger.info("Webhook received, but no episode details found. Data not saved.")
-                return {'message': "Webhook received, but no episode details found. Data not saved."}, 200
+                logger.info("Webhook received, but no Season details found. Data not saved.")
+                return {'message': "Webhook received, but no Season details found. Data not saved."}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details found. Data not saved.")
             return {'message': "Webhook received, but no Source Metadata Details found. Data not saved."}, 200
@@ -301,11 +301,11 @@ def plex_movie_content(data):
                     }
                 }
                 embeds_list.append(embed)
-                logger.info("Created embed for Movie event")
+                logger.info(f"Created New Content embed for {source_metadata.get('media_type')} event")
                 return {'embeds': embeds_list}, 200
             else:
-                logger.info("Webhook received, but no episode details found. Data not saved.")
-                return {'message': "Webhook received, but no episode details found. Data not saved."}, 200
+                logger.info("Webhook received, but no Movie details found. Data not saved.")
+                return {'message': "Webhook received, but no Movie details found. Data not saved."}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details found. Data not saved.")
             return {'message': "Webhook received, but no Source Metadata Details found. Data not saved."}, 200
