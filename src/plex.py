@@ -29,7 +29,7 @@ def plex_play(data):
                     'url': source_metadata.get('poster_url', '')
                 },
                 'title': title,
-                'timestamp': source_metadata.get('utctime'),
+                'timestamp': server_info.get('utctime'),
                 'url': source_metadata.get('imdb_url', ''),
                 'footer': {
                     'text': f"{server_info.get('server_name')} | {stream_details.get('username')} | {server_info.get('product')} | {stream_details.get('video_decision', '')}"
