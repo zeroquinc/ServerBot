@@ -1,11 +1,12 @@
 # Discord.py Bot
 
 This is a Discord.py bot created for learning Python and for fun.
+It is mainly used for Arrs and Plex notifications on your Discord server.
 
 # Purpose
 
+- Discord notifications from Arrs and Plex / Tautulli
 - Learning Python
-- Use it myself for my Media Server
 - Enjoy building a Discord bot
 
 # Usage
