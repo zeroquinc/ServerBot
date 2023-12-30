@@ -1,13 +1,28 @@
 # ServerBot
 
 This is a Discord.py bot created for learning Python and for fun.
-It is mainly used for Arrs and Plex notifications on your Discord server.
+It is mainly used for Arrs and Plex notifications on your Discord server
 
 # Purpose
 
-- Discord notifications from Arrs and Plex / Tautulli
+- Plex Now Playing & New Content notifications
+- Trakt Ratings notifications
+- Trakt Weekly Global & User Top Shows / Movies notification
+- Sonarr & Radarr Grab & Delete notifications
 - Learning Python
 - Enjoy building a Discord bot
+
+# Examples
+
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/20546171-b168-48a8-99ac-d01e51d25322)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/0a4c6a3b-769e-4c5f-9873-0b4b98fafeee)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/02ba94c6-fee0-4a6a-a142-f3014b577025)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/818f8143-bffc-43b5-af1c-2682422c1acd)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/8c8808be-5afe-4479-8866-11dc5726a13c)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/cb98682d-5279-4fb7-a6e0-075490619b6e)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/921f87d4-b3fd-46bc-bde4-839de8890ef0)
+![image](https://github.com/zeroquinc/ServerBot/assets/39315068/f18da1a4-ff8e-484d-bc03-ae96933a5320)
+
 
 # Usage
 
