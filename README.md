@@ -1,4 +1,4 @@
-# Discord.py Bot
+# ServerBot
 
 This is a Discord.py bot created for learning Python and for fun.
 It is mainly used for Arrs and Plex notifications on your Discord server.
