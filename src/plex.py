@@ -32,7 +32,8 @@ def plex_play(data):
                 'timestamp': server_info.get('utctime'),
                 'url': source_metadata.get('imdb_url', ''),
                 'footer': {
-                    'text': f"{server_info.get('server_name')} | {stream_details.get('username')} | {server_info.get('product')} | {stream_details.get('video_decision', '')}"
+                    'text': f"{server_info.get('server_name')} | {stream_details.get('username')} | {stream_details.get('product')} | {stream_details.get('video_decision', '').title()}"
+
                 },
                 'image': {
                     'url': 'https://imgur.com/a/D3MxSNM'
