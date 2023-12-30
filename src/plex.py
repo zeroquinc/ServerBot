@@ -5,16 +5,17 @@ logger = src.logging.logging.getLogger("plex")
 def plex_play(data):
     try:
         embeds_list = []
-        if data and 'source_metadata_details' in data and 'stream_details' in data:
+        if data and 'source_metadata_details' in data and 'stream_details' in data and 'server_info' in data:
             source_metadata = data['source_metadata_details']
             stream_details = data['stream_details']
+            server_info = data['server_info']
             
             author_name = f"Plex - Streaming {source_metadata.get('media_type', '')}"
             
             if source_metadata.get('media_type') == 'movie':
                 title = f"{source_metadata.get('title')} ({source_metadata.get('year')})"
             elif source_metadata.get('media_type') == 'episode':
-                title = f"{source_metadata.get('title')} ({source_metadata.get('year')}) - {source_metadata.get('episode_name')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                title = f"{source_metadata.get('title')} - (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             else:
                 title = source_metadata.get('title', '')
             
@@ -31,7 +32,7 @@ def plex_play(data):
                 'timestamp': source_metadata.get('utctime'),
                 'url': source_metadata.get('imdb_url', ''),
                 'footer': {
-                    'text': f"{source_metadata.get('server_name')} | {source_metadata.get('username')} | {source_metadata.get('product')} | {source_metadata.get('video_decision', '')}"
+                    'text': f"{server_info.get('server_name')} | {server_info.get('username')} | {server_info.get('product')} | {server_info.get('video_decision', '')}"
                 },
                 'image': {
                     'url': 'https://imgur.com/a/D3MxSNM'
@@ -39,7 +40,7 @@ def plex_play(data):
                 'fields': [
                     {
                         'name': ':arrow_forward: Now Streaming',
-                        'value': f"{stream_details.get('remaining_time')} remaining",
+                        'value': f"{stream_details.get('remaining_time', '')[3:]} remaining" if stream_details.get('remaining_time', '').startswith("00:") else stream_details.get('remaining_time', ''),
                         'inline': True
                     }
                 ]
