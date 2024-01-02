@@ -83,7 +83,8 @@ def create_grab_event_embed(json_data, instance_name):
         formatted_season_number = f"{season_number:02d}"
         embed_title = f"{series_title} (Season {formatted_season_number})"
         embed = discord.Embed(title=embed_title, color=0x67B7D1)
-        embed.add_field(name="Season", value=formatted_season_number, inline=False)
+        episode_count = len(json_data['episodes'])
+        embed.add_field(name="Episodes", value=episode_count, inline=False)
     else:
         # This is an episode request
         episode_title = json_data['episodes'][0].get('title', 'N/A')
