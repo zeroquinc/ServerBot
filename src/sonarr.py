@@ -65,9 +65,6 @@ def create_test_event_embed(instance_name):
 
 def create_grab_event_embed(json_data, instance_name):
     series_title = json_data['series'].get('title', 'N/A')
-    episode_title = json_data['episodes'][0].get('title', 'N/A')
-    episode_number = json_data['episodes'][0].get('episodeNumber', 'N/A')
-    season_number = json_data['episodes'][0].get('seasonNumber', 'N/A')
     release_data = json_data.get('release', {})
     release_quality = release_data.get('quality', 'N/A')
     release_size_bytes = release_data.get('size', 'N/A')
@@ -79,16 +76,28 @@ def create_grab_event_embed(json_data, instance_name):
     custom_formats = release_data.get('customFormats', [])
     tvdb_id = json_data['series'].get('tvdbId', 'N/A')
     poster_path = get_tmdb_poster_path(tvdb_id)
-    formatted_episode_number = f"{episode_number:02d}"
-    formatted_season_number = f"{season_number:02d}"
-    embed = discord.Embed(
-        title=f"{series_title} (S{formatted_season_number}E{formatted_episode_number})",
-        color=0x67B7D1
-    )
+
+    if len(json_data['episodes']) > 1:
+        # This is a season request
+        season_number = json_data['episodes'][0].get('seasonNumber', 'N/A')
+        formatted_season_number = f"{season_number:02d}"
+        embed_title = f"{series_title} (Season {formatted_season_number})"
+        embed = discord.Embed(title=embed_title, color=0x67B7D1)
+        embed.add_field(name="Season", value=formatted_season_number, inline=False)
+    else:
+        # This is an episode request
+        episode_title = json_data['episodes'][0].get('title', 'N/A')
+        episode_number = json_data['episodes'][0].get('episodeNumber', 'N/A')
+        season_number = json_data['episodes'][0].get('seasonNumber', 'N/A')
+        formatted_episode_number = f"{episode_number:02d}"
+        formatted_season_number = f"{season_number:02d}"
+        embed_title = f"{series_title} (S{formatted_season_number}E{formatted_episode_number})"
+        embed = discord.Embed(title=embed_title, color=0x67B7D1)
+        embed.add_field(name="Episode", value=episode_title, inline=False)
+
     if poster_path:
         embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
     embed.set_author(name=f"{instance_name} - Grab", icon_url=SONARR_ICON_URL)
-    embed.add_field(name="Episode", value=episode_title, inline=False)
     embed.add_field(name="Size", value=release_size_human_readable, inline=True)
     embed.add_field(name="Quality", value=release_quality, inline=True)
     embed.add_field(name="Indexer", value=indexer_value, inline=True)
