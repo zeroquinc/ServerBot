@@ -171,7 +171,7 @@ def format_release_value(release_title):
     for char in release_title:
         current_line += char
         count += 1
-        if count >= 35 and (char == '-' or char == '.'):
+        if count >= 35 and (char == '-' or char == '.') and release_title[count] != '.':
             release_lines.append(current_line.rstrip('-').rstrip('.'))
             current_line = ""
             count = 0
