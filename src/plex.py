@@ -11,7 +11,7 @@ def plex_play(data):
             stream_details = data['stream_details']
             server_info = data['server_info']
             
-            author_name = f"Plex - Streaming {source_metadata.get('media_type', '')}"
+            author_name = f"Plex - Streaming {source_metadata.get('media_type', '').capitalize()}"
             
             if source_metadata.get('media_type') == 'movie':
                 title = f"{source_metadata.get('title')} ({source_metadata.get('year')})"
@@ -64,7 +64,7 @@ def plex_resume(data):
             stream_details = data['stream_details']
             server_info = data['server_info']
             
-            author_name = f"Plex - Streaming {source_metadata.get('media_type', '')}"
+            author_name = f"Plex - Streaming {source_metadata.get('media_type', '').capitalize()}"
             
             if source_metadata.get('media_type') == 'movie':
                 title = f"{source_metadata.get('title')} ({source_metadata.get('year')})"
