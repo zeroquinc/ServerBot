@@ -41,7 +41,7 @@ def plex_play(data):
                 'fields': [
                     {
                         'name': ':arrow_forward: Now Streaming',
-                        'value': f"{stream_details.get('remaining_time', '')[3:]} remaining" if stream_details.get('remaining_time', '').startswith("00:") else stream_details.get('remaining_time', ''),
+                        'value': f"{stream_details.get('remaining_time', '')[3:]} remaining" if stream_details.get('remaining_time', '').startswith("00:") else f"{stream_details.get('remaining_time', '')} remaining",
                         'inline': True
                     }
                 ]
@@ -94,7 +94,7 @@ def plex_resume(data):
                 'fields': [
                     {
                         'name': ':play_pause: Resumed Streaming',
-                        'value': f"{stream_details.get('remaining_time', '')[3:]} remaining" if stream_details.get('remaining_time', '').startswith("00:") else stream_details.get('remaining_time', ''),
+                        'value': f"{stream_details.get('remaining_time', '')[3:]} remaining" if stream_details.get('remaining_time', '').startswith("00:") else f"{stream_details.get('remaining_time', '')} remaining",
                         'inline': True
                     }
                 ]
