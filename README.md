@@ -14,6 +14,8 @@ It is mainly used for Arrs and Plex notifications on your Discord server
 
 # Examples
 
+Note: these are probably out of date by now.
+
 ![image](https://github.com/zeroquinc/ServerBot/assets/39315068/20546171-b168-48a8-99ac-d01e51d25322)
 ![image](https://github.com/zeroquinc/ServerBot/assets/39315068/0a4c6a3b-769e-4c5f-9873-0b4b98fafeee)
 ![image](https://github.com/zeroquinc/ServerBot/assets/39315068/02ba94c6-fee0-4a6a-a142-f3014b577025)
