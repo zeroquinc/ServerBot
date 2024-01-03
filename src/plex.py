@@ -55,9 +55,9 @@ def plex_resume(data):
             
             media_type = source_metadata.get('media_type', '').capitalize()
             title = source_metadata.get('title', '')
-            if media_type == 'movie':
+            if media_type == 'Movie':
                 title = f"{title} ({source_metadata.get('year')})"
-            elif media_type == 'episode':
+            elif media_type == 'Episode':
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             
             embed = {
