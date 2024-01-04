@@ -28,7 +28,8 @@ Note: these are probably out of date by now.
 
 # Usage
 
-Rename `env,example` to `.env` and fill in the variables and save it in the root folder
+* Rename `env,example` to `.env` and fill in the variables and save it in the root folder
+* Run `main.py`
 
 # The Plex notifications only work with Tautulli
 
