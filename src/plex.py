@@ -19,7 +19,7 @@ def plex_play(data):
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             
             embed = {
-                'color': 16556313,
+                'color': 32768,
                 'author': {'name': f"Plex - Streaming {media_type}", 'icon_url': PLEX_ICON_URL},
                 'thumbnail': {'url': source_metadata.get('poster_url', '')},
                 'title': title,
@@ -61,7 +61,7 @@ def plex_resume(data):
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             
             embed = {
-                'color': 16556313,
+                'color': 139,
                 'author': {'name': f"Plex - Streaming {media_type}", 'icon_url': PLEX_ICON_URL},
                 'thumbnail': {'url': source_metadata.get('poster_url', '')},
                 'title': title,
@@ -99,7 +99,7 @@ def plex_episode_content(data):
                     'title': f"{source_metadata.get('title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})",
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
-                    'color': 519138,
+                    'color': 16776960,
                     'fields': [
                         {'name': 'Quality', 'value': source_metadata.get('video_full_resolution', ''), 'inline': True},
                         {'name': 'Season/Episode', 'value': f"S{source_metadata.get('season_num00')} - E{source_metadata.get('episode_num00')}", 'inline': True},
@@ -136,7 +136,7 @@ def plex_season_content(data):
                     'title': source_metadata.get('title'),
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
-                    'color': 15442439,
+                    'color': 16711680,
                     'fields': [
                         {'name': 'Season', 'value': source_metadata.get('season_num00'), 'inline': True},
                         {'name': 'Episodes', 'value': source_metadata.get('episode_count'), 'inline': True},
