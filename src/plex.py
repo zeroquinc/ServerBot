@@ -61,7 +61,7 @@ def plex_resume(data):
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
             
             embed = {
-                'color': 139,
+                'color': 17613,
                 'author': {'name': f"Plex - Streaming {media_type}", 'icon_url': PLEX_ICON_URL},
                 'thumbnail': {'url': source_metadata.get('poster_url', '')},
                 'title': title,
