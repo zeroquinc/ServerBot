@@ -8,7 +8,7 @@ It is mainly used for Arrs and Plex notifications on your Discord server
 - Plex Now Playing & New Content notifications
 - Trakt Ratings notifications
 - Trakt Weekly Global & User Top Shows / Movies notification
-- Sonarr & Radarr Grab & Delete notifications
+- Sonarr & Radarr Grab & Delete notifications without spam
 - Learning Python
 - Enjoy building a Discord bot
 
