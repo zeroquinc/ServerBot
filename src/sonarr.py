@@ -172,8 +172,10 @@ def format_release_value(release_title):
         current_line += char
         count += 1
         if count >= 35 and (char == '-' or char == '.'):
-            # Check if the character at the split point is not a '.'
-            if char != '.':
+            # Check if the character at the split point is a '.'
+            if char == '.':
+                current_line = current_line.rstrip('-')
+            else:
                 current_line = current_line.rstrip('-').rstrip('.')
             release_lines.append(current_line)
             current_line = ""

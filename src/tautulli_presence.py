@@ -69,7 +69,6 @@ async def update_discord_presence(bot, tautulli_data):
             title = 'Unknown Title'
         activity_name = f'{title}'
         if activity_name != previous_activity:
-            logger.info(f"Discord presence updated: {activity_name}")
             await set_discord_presence(bot, activity_name)
             previous_activity = activity_name
 
