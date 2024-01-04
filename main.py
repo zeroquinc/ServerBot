@@ -95,6 +95,9 @@ async def trakt_favorites_task():
 # Create a queue for the messages
 message_queue = asyncio.Queue()
 
+# This dictionary will store the last message ID for each series and season
+last_messages = {}
+
 # Webhook setup for Sonarr
 async def handle_sonarr(request):
     try:
@@ -103,7 +106,34 @@ async def handle_sonarr(request):
         channel_id = CHANNEL_SONARR_GRABS
         channel = bot.get_channel(channel_id)
         embed = discord.Embed.from_dict(embed_data)
-        await message_queue.put((channel, embed))
+
+        # Create a key for the series and season
+        series_title = data['series']['title']
+        season_number = data['episode']['seasonNumber']
+        key = (series_title, season_number)
+
+        # Check if there's an existing message for this series and season
+        if key in last_messages:
+            # If there is, edit the message
+            message_id = last_messages[key]
+            message = await channel.fetch_message(message_id)
+            # Get the existing embeds
+            embeds = message.embeds
+            # Check if the message already has 10 embeds
+            if len(embeds) < 10:
+                # If not, add the new embed
+                embeds.append(embed)
+                # Update the message with the new list of embeds
+                await message.edit(embeds=embeds)
+            else:
+                # If it does, send a new message and store its ID
+                message = await channel.send(embed=embed)
+                last_messages[key] = message.id
+        else:
+            # If there isn't, send a new message and store its ID
+            message = await channel.send(embed=embed)
+            last_messages[key] = message.id
+
         logger.info("Sonarr webhook received and processed successfully.")
         return web.Response()
     except Exception as e:
