@@ -108,8 +108,8 @@ async def handle_sonarr(request):
         embed = discord.Embed.from_dict(embed_data)
 
         # Create a key for the series and season
-        series_title = data['series']['title']
-        season_number = data['episode']['seasonNumber']
+        series_title = data['series'].get('title',)
+        season_number = data['episodes'][0].get('seasonNumber')
         key = (series_title, season_number)
 
         # Check if there's an existing message for this series and season
