@@ -41,7 +41,7 @@ TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
 PLEX_ICON_URL = "https://i.imgur.com/ZuFghbX.png"
 
 # Discord Thumbnail
-DISCORD_THUMBNAIL = "https://imgur.com/a/D3MxSNM"
+DISCORD_THUMBNAIL = "https://i.postimg.cc/KvSTwcQ0/undefined-Imgur.png"
 
 # TMDB Globals
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
