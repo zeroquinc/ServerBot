@@ -3,8 +3,7 @@ from discord.ext import tasks, commands
 from aiohttp import web
 import asyncio
 
-import src.logging
-
+from src.custom_logger import logger
 from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
@@ -14,8 +13,6 @@ from src.trakt_ratings import trakt_ratings
 from src.trakt_user_weekly import create_weekly_user_embed
 from src.trakt_global_weekly import create_weekly_global_embed
 from src.tautulli_presence import tautulli_discord_presence
-
-logger = src.logging.logging.getLogger("bot")
 
 @bot.event
 async def on_ready():

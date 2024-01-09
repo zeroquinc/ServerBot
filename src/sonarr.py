@@ -3,10 +3,7 @@ from discord.utils import utcnow
 import requests
 
 from src.globals import TMDB_API_KEY, SONARR_ICON_URL, DISCORD_THUMBNAIL
-
-import src.logging
-
-logger = src.logging.logging.getLogger("sonarr")
+from .custom_logger import logger
 
 def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes < 1024 ** 3:  # Less than 1 GB

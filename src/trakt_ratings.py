@@ -6,10 +6,8 @@ import os
 from datetime import datetime, timedelta
 
 from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TRAKT_URL_RATINGS, TRAKT_URL_USER, TRAKT_ICON_URL, DISCORD_THUMBNAIL
+from .custom_logger import logger
 
-import src.logging
-
-logger = src.logging.logging.getLogger("trakt")
 processed_rating_embeds = set()
 
 def load_rating_processed_embeds():

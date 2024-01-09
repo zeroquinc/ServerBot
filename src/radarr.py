@@ -1,11 +1,10 @@
 import discord
 from discord.utils import utcnow
 import requests
-import src.logging
 
+from .custom_logger import logger
 from src.globals import TMDB_API_KEY, RADARR_ICON_URL, DISCORD_THUMBNAIL
 
-logger = src.logging.logging.getLogger("radarr")
 
 def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes == 0:

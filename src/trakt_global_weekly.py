@@ -3,9 +3,7 @@ import requests
 from datetime import datetime, timedelta
 
 from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_ICON_URL, TMDB_IMAGE_URL, TMDB_MOVIE_URL, TMDB_SHOW_URL
-import src.logging
-
-logger = src.logging.logging.getLogger("trakt")
+from .custom_logger import logger
 
 image_cache = {}
 

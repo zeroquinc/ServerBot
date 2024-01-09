@@ -1,7 +1,5 @@
-import src.logging
+from .custom_logger import logger
 from src.globals import DISCORD_THUMBNAIL, PLEX_ICON_URL
-
-logger = src.logging.logging.getLogger("plex")
 
 def plex_play(data):
     try:
