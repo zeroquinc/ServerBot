@@ -60,6 +60,9 @@ def create_update_watchtower_embed(data):
         # Add the container info to the description
         description += f"{i+1}: {container_name} {image}\n    From: {old_version} → {new_version}\n"
 
+    # Wrap the description in a code block
+    description = f"```{description}```"
+
     # Create a new Discord embed
     embed = discord.Embed(
         title="Watchtower: Update",  # Set the title of the embed
