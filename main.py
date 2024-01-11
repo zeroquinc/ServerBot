@@ -4,7 +4,7 @@ from aiohttp import web
 import asyncio
 
 from src.custom_logger import logger
-from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS
+from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS, CHANNEL_WATCHTOWER
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.plex import plex_play, plex_resume, plex_episode_content, plex_season_content, plex_movie_content
@@ -13,6 +13,7 @@ from src.trakt_ratings import trakt_ratings
 from src.trakt_user_weekly import create_weekly_user_embed
 from src.trakt_global_weekly import create_weekly_global_embed
 from src.tautulli_presence import tautulli_discord_presence
+from src.watchtower import create_watchtower_embed
 
 @bot.event
 async def on_ready():
@@ -156,13 +157,21 @@ async def handle_radarr(request):
     except Exception as e:
         logger.error(f"Error processing Radarr webhook: {e}")
         return web.Response(status=500)
-
-# Task for sending the messages
-async def send_messages():
-    while True:
-        channel, embed = await message_queue.get()
-        await channel.send(embed=embed)
-        await asyncio.sleep(1)
+    
+# Webhook setup for Watchtower
+async def handle_watchtower(request):
+    try:
+        data = await request.json()
+        embed_data = create_watchtower_embed(data)
+        channel_id = CHANNEL_WATCHTOWER
+        channel = bot.get_channel(channel_id)
+        embed = discord.Embed.from_dict(embed_data)
+        await message_queue.put((channel, embed))
+        logger.info("Watchtower webhook received and processed successfully.")
+        return web.Response()
+    except Exception as e:
+        logger.error(f"Error processing Watchtower webhook: {e}")
+        return web.Response(status=500)
 
 # Webhook setup for Plex/Tautulli
 async def handle_plex(request):
@@ -206,11 +215,19 @@ async def handle_plex(request):
     except Exception as e:
         logger.error(f"Error processing Plex webhook: {e}")
         return web.Response(status=500)
+    
+# Task for sending the messages
+async def send_messages():
+    while True:
+        channel, embed = await message_queue.get()
+        await channel.send(embed=embed)
+        await asyncio.sleep(1)
 
 app = web.Application()
 app.router.add_post('/sonarr', handle_sonarr)
 app.router.add_post('/radarr', handle_radarr)
 app.router.add_post('/plex', handle_plex)
+app.router.add_post('/watchtower', handle_watchtower)
 
 # Start the web server for the webhook
 uvicorn_params = {
@@ -223,6 +240,7 @@ uvicorn_app = web.Application()
 uvicorn_app.router.add_post("/sonarr", handle_sonarr)
 uvicorn_app.router.add_post("/radarr", handle_radarr)
 uvicorn_app.router.add_post("/plex", handle_plex)
+uvicorn_app.router.add_post("/watchtower", handle_watchtower)
 uvicorn_server = web.AppRunner(uvicorn_app)
 
 async def start():

@@ -21,6 +21,7 @@ CHANNEL_PLEX_CONTENT = int(os.getenv("CHANNEL_PLEX_CONTENT"))
 CHANNEL_PLEX_PLAYING = int(os.getenv("CHANNEL_PLEX_PLAYING"))
 CHANNEL_RADARR_GRABS = int(os.getenv("CHANNEL_RADARR_GRABS"))
 CHANNEL_SONARR_GRABS = int(os.getenv("CHANNEL_SONARR_GRABS"))
+CHANNEL_WATCHTOWER = int(os.getenv("CHANNEL_WATCHTOWER"))
 
 # Trakt Globals
 TRAKT_USERNAME = os.getenv("TRAKT_USERNAME")
@@ -39,6 +40,7 @@ RADARR_ICON_URL = "https://i.imgur.com/6U4aXO0.png"
 SONARR_ICON_URL = "https://i.imgur.com/dZSIKZE.png"
 TRAKT_ICON_URL = "https://i.imgur.com/tvnkxAY.png"
 PLEX_ICON_URL = "https://i.imgur.com/ZuFghbX.png"
+WATCHTOWER_ICON_URL = "https://i.imgur.com/QtRaLnk.png"
 
 # Discord Thumbnail
 DISCORD_THUMBNAIL = "https://i.postimg.cc/KvSTwcQ0/undefined-Imgur.png"
