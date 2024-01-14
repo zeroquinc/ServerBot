@@ -162,6 +162,7 @@ async def handle_radarr(request):
 async def handle_watchtower(request):
     try:
         data = await request.json()
+        logger.debug(f"Watchtower webhook received: {data}")
         embed_data = create_watchtower_embed(data)
         channel_id = CHANNEL_WATCHTOWER
         channel = bot.get_channel(channel_id)
