@@ -23,8 +23,6 @@ def fetch_tautulli_activity():
         logger.debug(f"Tautulli API Response Content: {response_content}")
         if response.status_code == 200:
             data = response.json()
-            if data:
-                logger.debug("Tautulli JSON data: {}", data)
             return data.get('response', {}).get('data', {})
         else:
             logger.error(f"Failed to fetch Tautulli data. Status code: {response.status_code}")
