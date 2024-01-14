@@ -1,5 +1,6 @@
 from loguru import logger
 import sys
+import os
 
 from config import LOG_LEVEL
 
@@ -10,10 +11,13 @@ This file contains the custom logger.
 # Function to switch the logger according to the LOG_LEVEL variable
 def switch_logger():
     logger.remove()
-    if LOG_LEVEL == 'DEBUG':
-        logger.add(sys.stdout, level='DEBUG', colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <red>{file}</red> | <yellow>{function}</yellow> | <white>{level}</white> | <level>{message}</level>")
-    elif LOG_LEVEL == 'INFO':
-        logger.add(sys.stdout, level='INFO', colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <white>{level}</white> | <level>{message}</level>")
+    if LOG_LEVEL in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
+        if not os.path.exists('logs'):
+            os.makedirs('logs')
+        log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <red>{file}</red> | <yellow>{function}</yellow> | <white>{level}</white> | <level>{message}</level>"
+        if LOG_LEVEL != 'INFO':
+            log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <white>{level}</white> | <level>{message}</level>"
+        logger.add(f'logs/{LOG_LEVEL.lower()}.log', level=LOG_LEVEL, colorize=True, format=log_format)
     else:
         raise ValueError("Invalid log level")
 
