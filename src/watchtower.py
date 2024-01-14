@@ -5,9 +5,11 @@ from .globals import (
     WATCHTOWER_ICON_URL,
     DISCORD_THUMBNAIL
 )
+
 from .custom_logger import logger
 
 def create_watchtower_embed(data):
+    logger.debug("Watchtower API Response: {}", data)
     if data['message'].startswith('Watchtower'):
         return create_checking_watchtower_embed(data)
     elif data['message'][0].isdigit():
