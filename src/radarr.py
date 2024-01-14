@@ -2,9 +2,13 @@ import discord
 from discord.utils import utcnow
 import requests
 
-from .custom_logger import logger
-from src.globals import TMDB_API_KEY, RADARR_ICON_URL, DISCORD_THUMBNAIL
+from src.globals import (
+    TMDB_API_KEY, 
+    RADARR_ICON_URL, 
+    DISCORD_THUMBNAIL
+)
 
+from .custom_logger import logger
 
 def convert_bytes_to_human_readable(size_in_bytes):
     if size_in_bytes == 0:

@@ -1,7 +1,11 @@
 import requests
 import discord
 
-from src.globals import TAUTULLI_API_URL, TAUTULLI_API_KEY
+from src.globals import (
+    TAUTULLI_API_URL,
+    TAUTULLI_API_KEY
+)
+
 from .custom_logger import logger
 
 previous_activity = None

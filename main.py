@@ -4,16 +4,33 @@ from aiohttp import web
 import asyncio
 
 from src.custom_logger import logger
-from src.globals import bot, TOKEN, CHANNEL_PLEX_CONTENT, CHANNEL_PLEX_PLAYING, CHANNEL_RADARR_GRABS, CHANNEL_SONARR_GRABS, CHANNEL_WATCHTOWER
-from src.sonarr import create_sonarr_embed
-from src.radarr import create_radarr_embed
-from src.plex import plex_play, plex_resume, plex_episode_content, plex_season_content, plex_movie_content
+
+from src.globals import (
+    bot, 
+    TOKEN, 
+    CHANNEL_PLEX_CONTENT, 
+    CHANNEL_PLEX_PLAYING, 
+    CHANNEL_RADARR_GRABS, 
+    CHANNEL_SONARR_GRABS, 
+    CHANNEL_WATCHTOWER
+)
+
+from src.plex import (
+    plex_play, 
+    plex_resume, 
+    plex_episode_content, 
+    plex_season_content, 
+    plex_movie_content
+)
+
 from src.trakt_favorites import trakt_favorites
 from src.trakt_ratings import trakt_ratings
 from src.trakt_user_weekly import create_weekly_user_embed
 from src.trakt_global_weekly import create_weekly_global_embed
 from src.tautulli_presence import tautulli_discord_presence
 from src.watchtower import create_watchtower_embed
+from src.sonarr import create_sonarr_embed
+from src.radarr import create_radarr_embed
 
 @bot.event
 async def on_ready():

@@ -4,7 +4,12 @@ import requests
 import json
 from datetime import datetime, timedelta
 
-from src.globals import load_dotenv, TRAKT_CLIENT_ID, TMDB_API_KEY, TRAKT_USERNAME, TMDB_API_KEY
+from src.globals import (
+    TRAKT_CLIENT_ID, 
+    TMDB_API_KEY, 
+    TRAKT_USERNAME
+)
+
 from src.custom_logger import logger
 
 def get_dates():

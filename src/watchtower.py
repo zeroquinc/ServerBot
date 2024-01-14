@@ -1,8 +1,11 @@
 import discord
 from discord.utils import utcnow
 
+from .globals import (
+    WATCHTOWER_ICON_URL,
+    DISCORD_THUMBNAIL
+)
 from .custom_logger import logger
-from src.globals import WATCHTOWER_ICON_URL, DISCORD_THUMBNAIL
 
 def create_watchtower_embed(data):
     if data['message'].startswith('Watchtower'):

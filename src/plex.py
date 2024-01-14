@@ -1,5 +1,9 @@
+from src.globals import (
+    DISCORD_THUMBNAIL, 
+    PLEX_ICON_URL
+)
+
 from .custom_logger import logger
-from src.globals import DISCORD_THUMBNAIL, PLEX_ICON_URL
 
 def plex_play(data):
     try:
