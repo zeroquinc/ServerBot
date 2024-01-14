@@ -99,7 +99,7 @@ def create_grab_event_embed(json_data, instance_name):
         embed.add_field(name="Episode", value=episode_title, inline=False)
 
     if poster_path:
-        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w500{poster_path}")
     embed.set_author(name=f"{instance_name} - Grab", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Size", value=release_size_human_readable, inline=True)
     embed.add_field(name="Quality", value=release_quality, inline=True)
@@ -131,7 +131,7 @@ def create_episode_delete_event_embed(json_data, instance_name):
         color=0xFF0000
     )
     if poster_path:
-        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w500{poster_path}")
     embed.set_author(name=f"{instance_name} - Episode Deleted", icon_url=SONARR_ICON_URL)
     embed.add_field(name="Size", value=episode_size_human_readable, inline=False)
     embed.add_field(name="Path", value=episode_path, inline=False)

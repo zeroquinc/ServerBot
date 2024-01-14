@@ -84,7 +84,7 @@ def create_grab_embed(json_data, instance_name):
         color=0xffa500
     )
     if poster_path:
-        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w500{poster_path}")
     embed.set_author(name=f"{instance_name} - Grab", icon_url=RADARR_ICON_URL)
     embed.add_field(name="Size", value=release_size_human_readable, inline=True)
     embed.add_field(name="Quality", value=release_quality, inline=True)
@@ -112,7 +112,7 @@ def create_movie_delete_embed(json_data, instance_name):
         color=0xFF0000
     )
     if poster_path:
-        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w200{poster_path}")
+        embed.set_thumbnail(url=f"https://image.tmdb.org/t/p/w500{poster_path}")
     embed.set_author(name=f"{instance_name} - Movie Deleted", icon_url=RADARR_ICON_URL)
     embed.add_field(name="Size", value=folder_size_human_readable, inline=False)
     embed.add_field(name="Path", value=folder_path, inline=False)
