@@ -31,6 +31,23 @@ Note: these are probably out of date by now.
 * Rename `env.example` to `.env` and fill in the variables and save it in the root folder
 * Run `main.py`
 
+# Watchtower
+
+* Use the url: generic://yourip:1337/watchtower?template=json&disabletls=yes, for example a Docker Compose using this URL:
+
+```
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_NOTIFICATION_REPORT: true
+      WATCHTOWER_NOTIFICATION_URL: generic://yourip:1337/watchtower?template=json&disabletls=yes
+      WATCHTOWER_CLEANUP: true
+      TZ: Europe/Amsterdam
+```
+
 # The Plex notifications only work with Tautulli
 
 In Tautulli -> Notification Agents make these Agents:
