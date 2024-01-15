@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 from src.globals import (
     TRAKT_CLIENT_ID, 
     TMDB_API_KEY, 
-    TRAKT_USERNAME
+    TRAKT_USERNAME,
+    DISCORD_THUMBNAIL
 )
 
 from src.custom_logger import logger
@@ -130,7 +131,7 @@ def create_movie_embed(sorted_history_data, start_date_str, end_date_str, week_n
     timestamp_end = end_date.strftime('%a %b %d %Y')
     timestamp = f"{timestamp_start} to {timestamp_end}"
     movies_embed.set_footer(text=timestamp)
-    movies_embed.set_image(url='https://imgur.com/a/D3MxSNM')
+    movies_embed.set_image(url=DISCORD_THUMBNAIL)
     if movie_count > 0:
         movies_embed = add_movie_fields_to_embed(movies_embed, sorted_history_data)
     else:
@@ -155,7 +156,7 @@ def create_episode_embed(sorted_history_data, start_date_str, end_date_str, week
     timestamp_end = end_date.strftime('%a %b %d %Y')
     timestamp = f"{timestamp_start} to {timestamp_end}"
     episodes_embed.set_footer(text=timestamp)
-    episodes_embed.set_image(url='https://imgur.com/a/D3MxSNM')
+    episodes_embed.set_image(url=DISCORD_THUMBNAIL)
     if total_episode_count > 0:
         episodes_embed = add_episode_fields_to_embed(episodes_embed, episode_counts)
     else:
