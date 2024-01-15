@@ -8,7 +8,8 @@ from .globals import (
     TRAKT_ICON_URL,
     TMDB_IMAGE_URL,
     TMDB_MOVIE_URL,
-    TMDB_SHOW_URL
+    TMDB_SHOW_URL,
+    DISCORD_THUMBNAIL
 )
 from .custom_logger import logger
 
@@ -54,6 +55,9 @@ def create_embed(color, author_name, footer_text):
         "fields": [],
         "thumbnail": {
             "url": "",
+        },
+        "image": {
+            "url": DISCORD_THUMBNAIL,
         },
         "author": {
             "name": author_name,
