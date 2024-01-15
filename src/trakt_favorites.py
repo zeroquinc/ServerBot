@@ -44,7 +44,7 @@ def format_favorite_show_embed(show):
     notes = show["notes"]
     timestamp = datetime.utcnow().isoformat()
     fields = [
-        {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
+        {'name': 'User', 'value': f"[{TRAKT_USERNAME}](https://trakt.tv/user/{TRAKT_USERNAME})", 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
     if notes:
@@ -73,7 +73,7 @@ def format_favorite_movie_embed(movie):
     notes = movie["notes"]
     timestamp = datetime.utcnow().isoformat()
     fields = [
-        {'name': 'User', 'value': TRAKT_USERNAME, 'inline': True},
+        {'name': 'User', 'value': f"[{TRAKT_USERNAME}](https://trakt.tv/user/{TRAKT_USERNAME})", 'inline': True},
         {'name': 'Links', 'value': f'{trakt_link} • {imdb_link}', 'inline': True}
     ]
     if notes:
