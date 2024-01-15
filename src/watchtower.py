@@ -54,20 +54,25 @@ def create_update_watchtower_embed(data):
 
     # Process each line
     for i, line in enumerate(lines):
-        # Split the line into parts
-        parts = line.split(' ')
-        
-        # Extract the container name, image, and versions
-        container_name = parts[1].strip('\/')
-        image = parts[2].strip('()')
-        
-        # Check if ' updated to ' is in parts[4] before trying to split it
-        if ' updated to ' in parts[4]:
-            old_version, new_version = parts[4].split(' updated to ')
+        # Split the line into two parts using ' updated to ' as the delimiter
+        parts = line.split(' updated to ')
+
+        # Check if the line contains ' updated to '
+        if len(parts) == 2:
+            # Split the first part into subparts using a space as the delimiter
+            subparts = parts[0].split(' ')
+            
+            # Extract the container name, image, and old version
+            container_name = subparts[1].strip('\/')
+            image = subparts[2].strip('()')
+            old_version = subparts[3]
+            
+            # The second part is the new version
+            new_version = parts[1]
         else:
-            # Handle the case where ' updated to ' is not in parts[4]
-            old_version, new_version = None, None
+            # Handle the case where the line doesn't contain ' updated to '
             logger.error(f"Unexpected format in line: {line}")
+            continue  # Skip this line and move on to the next one
 
         # Add the container info to the description
         description += f"{i+1}: {container_name} {image}\n    From: {old_version} → {new_version}\n"
