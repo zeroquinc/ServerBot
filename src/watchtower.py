@@ -49,8 +49,10 @@ def create_update_watchtower_embed(data):
     # Skip the first line and process the rest
     lines = lines[1:]
 
-    # Initialize the description
+    # Initialize the description and counters
     description = ''
+    updated_count = 0
+    failed_count = 0
 
     # Process each line
     for i, line in enumerate(lines):
@@ -69,9 +71,13 @@ def create_update_watchtower_embed(data):
             
             # The second part is the new version
             new_version = parts[1]
+
+            # Increment the updated count
+            updated_count += 1
         else:
             # Handle the case where the line doesn't contain ' updated to '
             logger.error(f"Unexpected format in line: {line}")
+            failed_count += 1  # Increment the failed count
             continue  # Skip this line and move on to the next one
 
         # Add the container info to the description
@@ -83,12 +89,19 @@ def create_update_watchtower_embed(data):
     # Create a new Discord embed
     embed = discord.Embed(
         title="Watchtower: Update",  # Set the title of the embed
-        description=description,  # Set the description (main content) of the embed
         color=0x00ff00  # Set the color of the embed
     )
 
     # Set the author name and url
     embed.set_author(name="Watchtower: Update", icon_url=WATCHTOWER_ICON_URL)
+
+    # Add fields for Containers, Updated, and Failed
+    embed.add_field(name="Containers", value=str(len(lines)), inline=False)
+    embed.add_field(name="Updated", value=str(updated_count), inline=False)
+    embed.add_field(name="Failed", value=str(failed_count), inline=False)
+
+    # Set the description (main content) of the embed
+    embed.add_field(name="Details", value=description, inline=False)
 
     timestamp = utcnow()
     embed.timestamp = timestamp
