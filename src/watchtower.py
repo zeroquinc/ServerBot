@@ -1,4 +1,5 @@
 import discord
+import re
 from discord.utils import utcnow
 
 from .globals import (
@@ -66,7 +67,7 @@ def create_update_watchtower_embed(data):
             
             # Extract the container name, image, and old version
             container_name = subparts[1].strip('\/')
-            image = subparts[2].strip('()').strip(')')  # Remove the trailing parenthesis
+            image = re.sub(r'\W+', '', subparts[2])  # Remove all non-alphanumeric characters
             old_version = subparts[3]
             
             # The second part is the new version
@@ -77,9 +78,12 @@ def create_update_watchtower_embed(data):
 
             # Add the container info to the description
             details += f"{i+1}: {container_name} {image}\n    From: {old_version} → {new_version}\n"
+
         else:
-            # Handle the case where the line doesn't contain ' updated to '
-            failed_count += 1  # Increment the failed count
+            # Check if the line contains 'failed'
+            if 'failed' in line:
+                # Increment the failed count
+                failed_count += 1
 
     # Check if there were any updates
     if updated_count == 0:
