@@ -155,6 +155,7 @@ async def handle_sonarr(request):
             await channel.send(embed=embed)
 
         logger.info("Sonarr webhook received and processed successfully.")
+        logger.debug(f"Sonarr embed data: {embed_data}")
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Sonarr webhook: {e}")
@@ -170,6 +171,7 @@ async def handle_radarr(request):
         embed = discord.Embed.from_dict(embed_data)
         await message_queue.put((channel, embed))
         logger.info("Radarr webhook received and processed successfully.")
+        logger.debug(f"Radarr embed data: {embed_data}")
         return web.Response()
     except Exception as e:
         logger.error(f"Error processing Radarr webhook: {e}")

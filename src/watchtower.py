@@ -112,4 +112,6 @@ def create_update_watchtower_embed(data):
     embed.timestamp = timestamp
     embed.set_image(url=DISCORD_THUMBNAIL)
 
+    logger.info("Watchtower Embed has been created")
+    logger.debug("Watchtower Embed: {}", embed.to_dict())
     return embed.to_dict()  # Return the embed as a dictionary

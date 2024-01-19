@@ -17,8 +17,10 @@ def plex_play(data):
             
             if media_type == 'Movie':
                 title = f"{title} ({source_metadata.get('year')})"
+                logger.info(f"Created Movie Play embed for {source_metadata.get('title')} ({source_metadata.get('year')})")
             elif media_type == 'Episode':
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                logger.info(f"Created Episode Play embed for {source_metadata.get('show_title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})")
             
             embed = {
                 'color': 32768,
@@ -39,7 +41,7 @@ def plex_play(data):
                     }
                 ]
             }
-            logger.info(f"Created Play Start embed for {media_type} event")
+            logger.debug(f"Play Start embed: {embed}")
             return {'embeds': [embed]}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details or Stream Details found. Data not saved.")
@@ -59,8 +61,10 @@ def plex_resume(data):
             title = source_metadata.get('title', '')
             if media_type == 'Movie':
                 title = f"{title} ({source_metadata.get('year')})"
+                logger.info(f"Created Movie Resume embed for {source_metadata.get('title')} ({source_metadata.get('year')})")
             elif media_type == 'Episode':
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                logger.info(f"Created Episode Resume embed for {source_metadata.get('show_title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})")
             
             embed = {
                 'color': 17613,
@@ -81,7 +85,7 @@ def plex_resume(data):
                     }
                 ]
             }
-            logger.info(f"Created Play Resumed embed for {media_type} event")
+            logger.debug(f"Play Resumed embed: {embed}")
             return {'embeds': [embed]}, 200
         else:
             logger.info("Webhook received, but no Source Metadata Details or Stream Details found. Data not saved.")
@@ -116,6 +120,8 @@ def plex_episode_content(data):
                     'thumbnail': {'url': source_metadata.get('poster_url', '')},
                     'image': {'url': DISCORD_THUMBNAIL}
                 }
+                logger.info(f"Created New Episode embed for {source_metadata.get('title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})")
+                logger.debug(f"New Episode embed: {embed}")
                 return {'embeds': [embed]}, 200
             else:
                 logger.info("Webhook received, but no episode details found. Data not saved.")
@@ -150,6 +156,8 @@ def plex_season_content(data):
                     'thumbnail': {'url': source_metadata.get('poster_url', '')},
                     'image': {'url': DISCORD_THUMBNAIL}
                 }
+                logger.info(f"Created New Season embed for {source_metadata.get('title')} - Season {source_metadata.get('season_num00')}")
+                logger.debug(f"New Season embed: {embed}")
                 return {'embeds': [embed]}, 200
             else:
                 logger.info("Webhook received, but no Season details found. Data not saved.")
@@ -187,6 +195,8 @@ def plex_movie_content(data):
                     'thumbnail': {'url': source_metadata.get('poster_url', '')},
                     'image': {'url': f'{DISCORD_THUMBNAIL}'}
                 }
+                logger.info(f"Created New Movie embed for {source_metadata.get('title')} ({source_metadata.get('year')})")
+                logger.debug(f"New Movie embed: {embed}")
                 return {'embeds': [embed]}, 200
             else:
                 logger.info("Webhook received, but no Movie details found. Data not saved.")

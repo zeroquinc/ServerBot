@@ -19,8 +19,6 @@ def fetch_tautulli_activity():
                 'cmd': 'get_activity'
             }
         )
-        response_content = response.text
-        logger.debug(f"Tautulli API Response Content: {response_content}")
         if response.status_code == 200:
             data = response.json()
             return data.get('response', {}).get('data', {})
