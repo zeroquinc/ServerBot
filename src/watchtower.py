@@ -67,7 +67,7 @@ def create_update_watchtower_embed(data):
             
             # Extract the container name, image, and old version
             container_name = subparts[1].strip('\/')
-            image = re.sub(r'\W+', '', subparts[2])  # Remove all non-alphanumeric characters
+            image = re.sub(r'[^\w/:]', '', subparts[2])  # Keep alphanumeric characters, slashes, and colons
             old_version = subparts[3]
             
             # The second part is the new version
@@ -77,7 +77,7 @@ def create_update_watchtower_embed(data):
             updated_count += 1
 
             # Add the container info to the description
-            details += f"{i+1}: {container_name} {image}\n    From: {old_version} → {new_version}\n"
+            details += f"{i+1}: {container_name}\n    {image}\n    From: {old_version} → {new_version}\n"
 
         else:
             # Check if the line contains 'failed'
