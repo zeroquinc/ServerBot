@@ -17,13 +17,15 @@ def plex_play(data):
             
             if media_type == 'Movie':
                 title = f"{title} ({source_metadata.get('year')})"
+                color = 16753920
                 logger.info(f"Created Movie Play embed for {source_metadata.get('title')} ({source_metadata.get('year')})")
             elif media_type == 'Episode':
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                color = 6719185
                 logger.info(f"Created Episode Play embed for {source_metadata.get('show_title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})")
             
             embed = {
-                'color': 32768,
+                'color': color,
                 'author': {'name': f"Plex - Streaming {media_type}", 'icon_url': PLEX_ICON_URL},
                 'thumbnail': {'url': source_metadata.get('poster_url', '')},
                 'title': title,
@@ -61,13 +63,15 @@ def plex_resume(data):
             title = source_metadata.get('title', '')
             if media_type == 'Movie':
                 title = f"{title} ({source_metadata.get('year')})"
+                color = 16753920
                 logger.info(f"Created Movie Resume embed for {source_metadata.get('title')} ({source_metadata.get('year')})")
             elif media_type == 'Episode':
                 title = f"{title} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})"
+                color = 6719185
                 logger.info(f"Created Episode Resume embed for {source_metadata.get('show_title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})")
             
             embed = {
-                'color': 17613,
+                'color': color,
                 'author': {'name': f"Plex - Streaming {media_type}", 'icon_url': PLEX_ICON_URL},
                 'thumbnail': {'url': source_metadata.get('poster_url', '')},
                 'title': title,
@@ -105,7 +109,7 @@ def plex_episode_content(data):
                     'title': f"{source_metadata.get('title')} (S{source_metadata.get('season_num00')}E{source_metadata.get('episode_num00')})",
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
-                    'color': 16776960,
+                    'color': 6719185,
                     'fields': [
                         {'name': 'Quality', 'value': source_metadata.get('video_full_resolution', ''), 'inline': True},
                         {'name': 'Season/Episode', 'value': f"S{source_metadata.get('season_num00')} - E{source_metadata.get('episode_num00')}", 'inline': True},
@@ -144,7 +148,7 @@ def plex_season_content(data):
                     'title': source_metadata.get('title'),
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
-                    'color': 16711680,
+                    'color': 6719185,
                     'fields': [
                         {'name': 'Season', 'value': source_metadata.get('season_num00'), 'inline': True},
                         {'name': 'Episodes', 'value': source_metadata.get('episode_count'), 'inline': True},
@@ -180,7 +184,7 @@ def plex_movie_content(data):
                     'title': f"{source_metadata.get('title')} ({source_metadata.get('year')})",
                     'description': source_metadata.get('summary', ''),
                     'url': source_metadata.get('plex_url', ''),
-                    'color': 15402759,
+                    'color': 16753920,
                     'fields': [
                         {'name': 'Quality', 'value': source_metadata.get('video_full_resolution', ''), 'inline': True},
                         {'name': 'Genres', 'value': source_metadata.get('genres', ''), 'inline': True},
