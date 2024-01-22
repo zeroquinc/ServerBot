@@ -51,7 +51,7 @@ def format_favorite_show_embed(show):
         fields.append({'name': 'Comment', 'value': notes, 'inline': False})
     return {
         'title': f'{show["show"]["title"]}',
-        'color': 3313406,
+        'color': 6719185,
         'thumbnail': {'url': thumbnail},
         'fields': fields,
         'timestamp': timestamp,
@@ -80,7 +80,7 @@ def format_favorite_movie_embed(movie):
         fields.append({'name': 'Comment', 'value': notes, 'inline': False})
     return {
         'title': f'{movie["movie"]["title"]} ({movie["movie"]["year"]})',
-        'color': 15892745,
+        'color': 16753920,
         'thumbnail': {'url': thumbnail},
         'fields': fields,
         'timestamp': timestamp,

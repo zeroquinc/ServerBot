@@ -118,7 +118,7 @@ def create_movie_embed(sorted_history_data, start_date_str, end_date_str, week_n
     movie_count = get_movie_count(sorted_history_data)
     movies_embed = discord.Embed(
         title=f"{movie_count} Movie{'s' if movie_count != 1 else ''} :clapper:", 
-        color=0xFEA232
+        color=0xffa500
     )
     movies_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/movies/added?start_at={start_date_str}&end_at={end_date_str}"
     movies_embed.set_author(
@@ -143,7 +143,7 @@ def create_episode_embed(sorted_history_data, start_date_str, end_date_str, week
     total_episode_count = sum(item['count'] for item in episode_counts.values())
     episodes_embed = discord.Embed(
         title=f"{total_episode_count} Episode{'s' if total_episode_count != 1 else ''} :tv:",
-        color=0x328efe
+        color=0x67B7D1
     )
     episodes_embed.url = f"https://trakt.tv/users/{TRAKT_USERNAME}/history/episodes/added?start_at={start_date_str}&end_at={end_date_str}"
     episodes_embed.set_author(

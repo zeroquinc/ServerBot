@@ -15,8 +15,8 @@ from .custom_logger import logger
 
 image_cache = {}
 
-EMBED_COLOR_MOVIE = 0xFEA232
-EMBED_COLOR_SHOW = 0x328efe
+EMBED_COLOR_MOVIE = 0xffa500
+EMBED_COLOR_SHOW = 0x67B7D1
 
 def get_data_from_url(url, headers):
     try:
