@@ -3,6 +3,7 @@ from time import sleep
 import re
 from discord import Embed, Colour
 from discord.utils import utcnow
+import getpass
 
 from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL
 
@@ -130,6 +131,10 @@ async def system_info():
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
         
+        # Get the current username and hostname
+        username = getpass.getuser()
+        hostname = get_hostname()
+        
         # Log the information
         logger.debug(f'Free space: {storage_info}')
         logger.debug(f'RAM usage: {ram_usage}%')
@@ -140,7 +145,7 @@ async def system_info():
         logger.debug(f'Users: {users}')
         
         # Create a Discord embed
-        embed = Embed(title=get_hostname(), colour=Colour.yellow())
+        embed = Embed(title=f"{username}@{hostname}", colour=Colour.yellow())
         embed.set_author(name="Server Snapshot", icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
