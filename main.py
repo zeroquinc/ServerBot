@@ -13,7 +13,10 @@ from src.globals import (
     CHANNEL_RADARR_GRABS, 
     CHANNEL_SONARR_GRABS, 
     CHANNEL_WATCHTOWER,
-    CHANNEL_SYSTEM_INFO
+    CHANNEL_SYSTEM_INFO,
+    CHANNEL_TRAKT_USER,
+    CHANNEL_TRAKT_GLOBAL,
+    CHANNEL_TRAKT_RATINGS
 )
 
 from src.plex import (
@@ -59,13 +62,13 @@ async def send_weekly_embeds(ctx):
     try:
         # Weekly Trakt User Plays
         data_user = create_weekly_user_embed()
-        channel_user = bot.get_channel(1046746288412176434)
+        channel_user = bot.get_channel(CHANNEL_TRAKT_USER)
         for embed in data_user['embeds']:
             await channel_user.send(embed=discord.Embed.from_dict(embed))
         await ctx.send("Weekly Trakt User Plays sent successfully.")
         # Weekly Trakt Global Plays
         data_global = create_weekly_global_embed()
-        channel_global = bot.get_channel(1144085449007177758)
+        channel_global = bot.get_channel(CHANNEL_TRAKT_GLOBAL)
         for embed in data_global['embeds']:
             await channel_global.send(embed=discord.Embed.from_dict(embed))
         await ctx.send("Weekly Trakt Global Plays sent successfully.")
@@ -109,7 +112,7 @@ async def trakt_ratings_task():
     try:
         data = trakt_ratings()
         if data is not None:
-            channel = bot.get_channel(1071806800527118367)
+            channel = bot.get_channel(CHANNEL_TRAKT_RATINGS)
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
         else:
@@ -123,7 +126,7 @@ async def trakt_favorites_task():
     logger.info("Starting Trakt Favorites Task")
     try:
         data = trakt_favorites()
-        channel = bot.get_channel(1071806800527118367)
+        channel = bot.get_channel(CHANNEL_TRAKT_RATINGS)
         if data is not None:
             for embed in data['embeds']:
                 await channel.send(embed=discord.Embed.from_dict(embed))
