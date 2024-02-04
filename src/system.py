@@ -5,11 +5,16 @@ from .custom_logger import logger
 
 async def system_info():
     try:
-        # Get disk space usage
-        df = subprocess.check_output(['df', '/']).decode('utf-8').splitlines()[1]
-        total_space = int(df.split()[1]) * 1024  # in bytes
-        used_space = int(df.split()[2]) * 1024  # in bytes
-        free_space = int(df.split()[3]) * 1024  # in bytes
+        # Get disk space usage for all mount points
+        df_output = subprocess.check_output(['df']).decode('utf-8').splitlines()[1:]
+        total_space = 0
+        used_space = 0
+        free_space = 0
+        for line in df_output:
+            parts = line.split()
+            total_space += int(parts[1]) * 1024  # in bytes
+            used_space += int(parts[2]) * 1024  # in bytes
+            free_space += int(parts[3]) * 1024  # in bytes
 
         # Convert bytes to terabytes
         total_space_tb = round(total_space / (1024 ** 4), 2)
@@ -17,7 +22,7 @@ async def system_info():
         free_space_tb = round(free_space / (1024 ** 4), 2)
 
         # Format the output
-        storage_info = f'Storage\nTotal: {total_space_tb}T → Used: {used_space_tb}T → Free: {free_space_tb}T ↑'
+        storage_info = f'Total Storage\nTotal: {total_space_tb}T → Used: {used_space_tb}T → Free: {free_space_tb}T ↑'
 
         # Get RAM usage
         free = subprocess.check_output(['free']).decode('utf-8').splitlines()[1]
