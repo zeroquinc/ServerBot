@@ -104,7 +104,9 @@ def get_uptime_load_users():
             days = '0'
             time_str = uptime.strip()
 
-        hours, minutes = time_str.split(":")
+        time_parts = time_str.split(":")
+        hours = time_parts[0] if len(time_parts) > 1 else '0'
+        minutes = time_parts[1] if len(time_parts) > 1 else time_parts[0]
         uptime = f"{days}d {hours}h {minutes}m"
 
     # Extract load
