@@ -2,7 +2,7 @@ import subprocess
 from time import sleep
 import re
 from discord import Embed, Colour
-import datetime
+from discord.utils import utcnow
 
 from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL
 
@@ -123,7 +123,8 @@ async def system_info():
         # Create a Discord embed
         embed = Embed(title=get_hostname(), colour=Colour.yellow())
         embed.set_author(name="Server Snapshot", icon_url=SYSTEM_ICON_URL)
-        embed.timestamp = datetime.datetime.utcnow()
+        timestamp = utcnow()
+        embed.timestamp = timestamp
         embed.set_footer(text=get_os_version())
         embed.set_image(url=DISCORD_THUMBNAIL)
         embed.add_field(name="Uptime", value=uptime, inline=True)
@@ -134,6 +135,7 @@ async def system_info():
         embed.add_field(name="CPU", value=f"{cpu_usage}%", inline=True)
         embed.add_field(name="RAM", value=f"{ram_usage}%", inline=True)
 
+        logger.info("System Info Embed has been created")
         return embed
 
     except Exception as e:
