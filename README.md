@@ -2,6 +2,7 @@
 
 This is a Discord.py bot created for learning Python and for fun.
 It is mainly used for Arrs and Plex notifications on your Discord server
+There is a high possiblity this doesnt work for you, or some things won't. It's tested on Ubuntu Server 22.04.
 
 # Purpose
 
