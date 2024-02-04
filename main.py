@@ -31,6 +31,7 @@ from src.tautulli_presence import tautulli_discord_presence
 from src.watchtower import create_watchtower_embed
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
+from src.system import system_info
 
 @bot.event
 async def on_ready():
@@ -40,6 +41,7 @@ async def on_ready():
         trakt_ratings_task.start()
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
+        fetch_system_info.start()
         logger.info("Tasks started succesfully.")
     except Exception as e:
         logger.error(f'Error starting tasks: {str(e)}')
@@ -68,6 +70,14 @@ async def send_weekly_embeds(ctx):
         await ctx.send("Weekly Trakt Global Plays sent successfully.")
     except Exception as e:
         await ctx.send(f"An error occurred: {str(e)}")
+
+# System Info Command Task Loop        
+@tasks.loop(hours=12)
+async def fetch_system_info():
+    try:
+        await system_info()
+    except Exception as e:
+        logger.error(f'An error occurred while fetching system info: {e}')  
     
 # Discord Rich Presence Tautulli Task Loop 
 @tasks.loop(seconds=600)
