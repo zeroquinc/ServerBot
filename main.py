@@ -12,7 +12,8 @@ from src.globals import (
     CHANNEL_PLEX_PLAYING, 
     CHANNEL_RADARR_GRABS, 
     CHANNEL_SONARR_GRABS, 
-    CHANNEL_WATCHTOWER
+    CHANNEL_WATCHTOWER,
+    CHANNEL_SYSTEM_INFO
 )
 
 from src.plex import (
@@ -71,13 +72,27 @@ async def send_weekly_embeds(ctx):
     except Exception as e:
         await ctx.send(f"An error occurred: {str(e)}")
 
-# System Info Command Task Loop        
 @tasks.loop(hours=12)
 async def fetch_system_info():
     try:
-        await system_info()
+        # Get the system info embed
+        embed = await system_info()
+        # Get the channel where you want to send the message
+        channel = bot.get_channel(CHANNEL_SYSTEM_INFO)
+        # Fetch the history of the channel
+        history = []
+        async for message in channel.history(limit=100):
+            history.append(message)
+        # Find the last message sent by the bot with the author "Server Snapshot"
+        message_to_edit = next((message for message in reversed(history) if message.author == bot.user and message.embeds and message.embeds[0].author.name == "Server Snapshot"), None)
+        if message_to_edit:
+            # Edit the message
+            await message_to_edit.edit(embed=embed)
+        else:
+            # Send a new message
+            await channel.send(embed=embed)
     except Exception as e:
-        logger.error(f'An error occurred while fetching system info: {e}')  
+        logger.error(f'An error occurred while fetching system info: {e}')
     
 # Discord Rich Presence Tautulli Task Loop 
 @tasks.loop(seconds=600)

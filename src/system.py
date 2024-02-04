@@ -1,11 +1,31 @@
 import subprocess
 from time import sleep
 import re
+from discord import Embed, Colour
+import datetime
+
+from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL
 
 from .custom_logger import logger
 
 # Initialize previous free space to None
 previous_free_space = None
+
+def get_hostname():
+    try:
+        hostname = subprocess.check_output('hostname', shell=True).decode('utf-8').strip()
+        return hostname
+    except Exception as e:
+        print(f'An error occurred while fetching hostname: {e}')
+        return None
+    
+def get_os_version():
+    try:
+        os_version = subprocess.check_output('lsb_release -d', shell=True).decode('utf-8').strip().split(":")[1].strip()
+        return os_version
+    except Exception as e:
+        print(f'An error occurred while fetching OS version: {e}')
+        return None
 
 async def system_info():
     try:
@@ -39,7 +59,7 @@ async def system_info():
             arrow = ''
 
         # Format the output
-        storage_info = f'Total Storage\nTotal: {total_space_tb}T → Used: {used_space_tb}T → Free: {free_space_tb}T {arrow}'
+        storage_info = f'Total: {total_space_tb}T → Used: {used_space_tb}T → Free: {free_space_tb}T {arrow}'
         
         # Update previous free space
         previous_free_space = free_space_tb
@@ -68,12 +88,19 @@ async def system_info():
         uptime_output = subprocess.check_output(['uptime']).decode('utf-8')
 
         # Extract uptime
-        uptime_match = re.search('up (.*?),', uptime_output)
+        uptime_match = re.search('up (.*),', uptime_output)
         if uptime_match:
             uptime = uptime_match.group(1)
             # Convert uptime to desired format
-            days, time = uptime.split(", ")
-            hours, minutes = time.split(":")
+            if 'day' in uptime:
+                parts = uptime.split(", ")
+                days = parts[0].split()[0]
+                time_str = parts[1].strip() if len(parts) > 1 else '0:0'
+            else:
+                days = '0'
+                time_str = uptime.strip()
+
+            hours, minutes = time_str.split(":")
             uptime = f"{days}d {hours}h {minutes}m"
 
         # Extract load
@@ -85,13 +112,29 @@ async def system_info():
         users = users_match.group(1) if users_match else ''
 
         # Log the information
-        logger.info(f'Free space: {storage_info}')
-        logger.info(f'RAM usage: {ram_usage}%')
-        logger.info(f'CPU usage: {cpu_usage}%')
-        logger.info(f'CPU temperature: {cpu_temp}°C')
-        logger.info(f'Uptime: {uptime}')
-        logger.info(f'Load: {load}')
-        logger.info(f'Users: {users}')
+        logger.debug(f'Free space: {storage_info}')
+        logger.debug(f'RAM usage: {ram_usage}%')
+        logger.debug(f'CPU usage: {cpu_usage}%')
+        logger.debug(f'CPU temperature: {cpu_temp}°C')
+        logger.debug(f'Uptime: {uptime}')
+        logger.debug(f'Load: {load}')
+        logger.debug(f'Users: {users}')
+        
+        # Create a Discord embed
+        embed = Embed(title=get_hostname(), colour=Colour.yellow())
+        embed.set_author(name="Server Snapshot", icon_url=SYSTEM_ICON_URL)
+        embed.timestamp = datetime.datetime.utcnow()
+        embed.set_footer(text=get_os_version())
+        embed.set_image(url=DISCORD_THUMBNAIL)
+        embed.add_field(name="Uptime", value=uptime, inline=True)
+        embed.add_field(name="Load", value=load, inline=True)
+        embed.add_field(name="Users", value=users, inline=True)
+        embed.add_field(name="Storage", value=storage_info, inline=False)
+        embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
+        embed.add_field(name="CPU", value=f"{cpu_usage}%", inline=True)
+        embed.add_field(name="RAM", value=f"{ram_usage}%", inline=True)
+
+        return embed
 
     except Exception as e:
         logger.error(f'An error occurred while fetching system info: {e}')
