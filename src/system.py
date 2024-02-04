@@ -120,30 +120,35 @@ def get_uptime_load_users():
 async def system_info():
     try:
         # Get system info
-        info = {
-            'Storage': get_storage_info(),
-            'RAM': f"{get_ram_usage()}%",
-            'CPU': f"{get_cpu_usage()}%",
-            'CPU Temp': f"{get_cpu_temp()}°C",
-            'Uptime': get_uptime_load_users()[0],
-            'Load': get_uptime_load_users()[1],
-            'Users': get_uptime_load_users()[2]
-        }
-
+        storage_info = get_storage_info()
+        ram_usage = get_ram_usage()
+        cpu_usage = get_cpu_usage()
+        cpu_temp = get_cpu_temp()
+        uptime, load, users = get_uptime_load_users()
+        
         # Log the information
-        for key, value in info.items():
-            logger.debug(f'{key}: {value}')
-
+        logger.debug(f'Free space: {storage_info}')
+        logger.debug(f'RAM usage: {ram_usage}%')
+        logger.debug(f'CPU usage: {cpu_usage}%')
+        logger.debug(f'CPU temperature: {cpu_temp}°C')
+        logger.debug(f'Uptime: {uptime}')
+        logger.debug(f'Load: {load}')
+        logger.debug(f'Users: {users}')
+        
         # Create a Discord embed
         embed = Embed(title=get_hostname(), colour=Colour.yellow())
         embed.set_author(name="Server Snapshot", icon_url=SYSTEM_ICON_URL)
-        embed.timestamp = utcnow()
+        timestamp = utcnow()
+        embed.timestamp = timestamp
         embed.set_footer(text=get_os_version())
         embed.set_image(url=DISCORD_THUMBNAIL)
-
-        # Add fields to the embed
-        for key, value in info.items():
-            embed.add_field(name=key, value=value, inline=True if key != 'Storage' else False)
+        embed.add_field(name="Uptime", value=uptime, inline=True)
+        embed.add_field(name="Load", value=load, inline=True)
+        embed.add_field(name="Users", value=users, inline=True)
+        embed.add_field(name="Storage", value=storage_info, inline=False)
+        embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
+        embed.add_field(name="CPU", value=f"{cpu_usage}%", inline=True)
+        embed.add_field(name="RAM", value=f"{ram_usage}%", inline=True)
 
         logger.info("System Info Embed has been created")
         return embed
