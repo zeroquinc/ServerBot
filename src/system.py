@@ -66,9 +66,23 @@ async def system_info():
         
         # Get system uptime, load, and users
         uptime_output = subprocess.check_output(['uptime']).decode('utf-8')
-        uptime = re.search('up (.*),', uptime_output).group(1)
-        load = re.search('load average: (.*)', uptime_output).group(1)
-        users = re.search(', (.*) user', uptime_output).group(1)
+
+        # Extract uptime
+        uptime_match = re.search('up (.*?),', uptime_output)
+        if uptime_match:
+            uptime = uptime_match.group(1)
+            # Convert uptime to desired format
+            days, time = uptime.split(", ")
+            hours, minutes = time.split(":")
+            uptime = f"{days}d {hours}h {minutes}m"
+
+        # Extract load
+        load_match = re.search('load average: (.*)', uptime_output)
+        load = load_match.group(1) if load_match else ''
+
+        # Extract users
+        users_match = re.search('(\d+) user', uptime_output)
+        users = users_match.group(1) if users_match else ''
 
         # Log the information
         logger.info(f'Free space: {storage_info}')
