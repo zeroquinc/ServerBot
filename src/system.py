@@ -72,9 +72,18 @@ async def system_info():
         if uptime_match:
             uptime = uptime_match.group(1)
             # Convert uptime to desired format
-            days, time = uptime.split(", ")
-            hours, minutes = time.split(":")
-            uptime = f"{days}d {hours}h {minutes}m"
+            uptime_parts = uptime.split(", ")
+            if len(uptime_parts) == 2:
+                days, time = uptime_parts
+                hours, minutes = time.split(":")
+                uptime = f"{days}d {hours}h {minutes}m"
+            elif len(uptime_parts) == 1:
+                if 'min' in uptime_parts[0]:
+                    minutes = uptime_parts[0].split()[0]
+                    uptime = f"0d 0h {minutes}m"
+                else:
+                    hours, minutes = uptime_parts[0].split(":")
+                    uptime = f"0d {hours}h {minutes}m"
 
         # Extract load
         load_match = re.search('load average: (.*)', uptime_output)
