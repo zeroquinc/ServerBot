@@ -178,6 +178,9 @@ async def system_info():
         logger.debug(f'Uptime: {uptime}')
         logger.debug(f'Load: {load}')
         logger.debug(f'Users: {users}')
+        logger.debug(f'Network RX: {rx}')
+        logger.debug(f'Network TX: {tx}')
+        logger.debug(f'Total Data: {total}')
         
         # Create a Discord embed
         embed = Embed(title=f"{username}@{hostname}", colour=Colour.yellow())
