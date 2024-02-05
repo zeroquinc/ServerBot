@@ -211,7 +211,7 @@ async def system_info():
         embed.add_field(name="Network RX", value=rx, inline=True)
         embed.add_field(name="Network TX", value=tx, inline=True)
         embed.add_field(name="Total Data", value=total, inline=True)
-        embed.add_field(name="Package Updates", value=f"```{package_updates}```", inline=False)
+        embed.add_field(name="Available Updates", value=f"```{package_updates}```", inline=False)
 
         logger.info("System Info Embed has been created")
         return embed
