@@ -3,3 +3,4 @@ discord.py==2.3.2
 loguru==0.7.2
 python-dotenv==1.0.0
 Requests==2.31.0
+pytz==2024.1
