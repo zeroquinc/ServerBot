@@ -47,7 +47,8 @@ def get_network_usage():
         tx_bytes = int(data[9])  # transmitted data in bytes
         total_rx += rx_bytes
         total_tx += tx_bytes
-    return bytes_to_human_readable(total_rx), bytes_to_human_readable(total_tx)
+    total_data = total_rx + total_tx
+    return bytes_to_human_readable(total_rx), bytes_to_human_readable(total_tx), bytes_to_human_readable(total_data)
 
 def get_storage_info():
     global previous_free_space
@@ -163,7 +164,7 @@ async def system_info():
         cpu_usage, cpu_ghz = get_cpu_usage()
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
-        rx, tx = get_network_usage()
+        rx, tx, total = get_network_usage()
         
         # Get the current username and hostname
         username = getpass.getuser()
@@ -194,6 +195,7 @@ async def system_info():
         embed.add_field(name="RAM", value=f"{ram_usage}% [{total_ram}]", inline=True)
         embed.add_field(name="Network RX", value=rx, inline=True)
         embed.add_field(name="Network TX", value=tx, inline=True)
+        embed.add_field(name="Total Data", value=total, inline=True)
 
         logger.info("System Info Embed has been created")
         return embed
