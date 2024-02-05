@@ -93,13 +93,10 @@ def get_storage_info():
     else:
         arrow = ''
 
-    # Format the output
-    storage_info = f'Total: {total_space_tb}T → Used: {used_space_tb}T → Free: {free_space_tb}T {arrow}'
-
     # Update previous free space
     previous_free_space = free_space_tb
 
-    return storage_info
+    return f'{total_space_tb}T', f'{used_space_tb}T', f'{free_space_tb}T {arrow}'
 
 def get_package_updates():
     try:
@@ -184,7 +181,7 @@ def get_uptime_load_users():
 async def system_info():
     try:
         # Get system info
-        storage_info = get_storage_info()
+        storage_total, storage_used, storage_free = get_storage_info()
         ram_usage, total_ram = get_ram_usage()
         cpu_usage, cpu_ghz = get_cpu_usage()
         cpu_temp = get_cpu_temp()
@@ -198,7 +195,9 @@ async def system_info():
         hostname = get_hostname()
         
         # Log the information
-        logger.debug(f'Free space: {storage_info}')
+        logger.debug(f'Used Space: {storage_used}')
+        logger.debug(f'Free Space: {storage_free}')
+        logger.debug(f'Total Space: {storage_total}')
         logger.debug(f'RAM usage: {ram_usage}%')
         logger.debug(f'CPU usage: {cpu_usage}%')
         logger.debug(f'CPU temperature: {cpu_temp}°C')
@@ -220,7 +219,9 @@ async def system_info():
         embed.add_field(name="Uptime", value=uptime, inline=True)
         embed.add_field(name="Load", value=load, inline=True)
         embed.add_field(name="Users", value=users, inline=True)
-        embed.add_field(name="Storage", value=storage_info, inline=False)
+        embed.add_field(name="Total Space", value=storage_total, inline=True)
+        embed.add_field(name="Used Space", value=storage_used, inline=True)
+        embed.add_field(name="Free Space", value=storage_free, inline=True)
         embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
         embed.add_field(name="CPU Usage", value=f"{cpu_usage}% [{cpu_ghz}]", inline=True)
         embed.add_field(name="RAM Usage", value=f"{ram_usage}% [{total_ram}]", inline=True)
