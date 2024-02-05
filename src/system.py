@@ -37,15 +37,17 @@ def bytes_to_human_readable(bytes):
     return f'{round(bytes, 2)} {units[i]}'
 
 def get_network_usage():
+    total_rx = 0
+    total_tx = 0
     with open('/proc/net/dev') as f:
         lines = f.readlines()
-    for line in lines:
-        if 'eth0' in line:  # replace 'eth0' with your network interface name
-            data = line.split()
-            rx_bytes = int(data[1])  # received data in bytes
-            tx_bytes = int(data[9])  # transmitted data in bytes
-            return bytes_to_human_readable(rx_bytes), bytes_to_human_readable(tx_bytes)
-    return None, None
+    for line in lines[2:]:  # skip the first two lines, as they don't contain interface data
+        data = line.split()
+        rx_bytes = int(data[1])  # received data in bytes
+        tx_bytes = int(data[9])  # transmitted data in bytes
+        total_rx += rx_bytes
+        total_tx += tx_bytes
+    return bytes_to_human_readable(total_rx), bytes_to_human_readable(total_tx)
 
 def get_storage_info():
     global previous_free_space
