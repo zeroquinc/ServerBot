@@ -32,7 +32,7 @@ def get_os_version():
     
 def get_generation_info():
     # Get the current date and time
-    now = datetime.now(pytz.timezone({TIMEZONE}))
+    now = datetime.now(pytz.timezone(TIMEZONE))
     # Calculate the date and time 12 hours from now
     regenerate_time = now + timedelta(hours=12)
 
