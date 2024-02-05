@@ -84,7 +84,16 @@ def get_cpu_usage():
     stat2 = list(map(int, stat2.split()[1:]))
     diff = [b - a for a, b in zip(stat1, stat2)]
     cpu_usage = round(100 * (diff[0] + diff[1]) / sum(diff), 2)  # in percentage
-    return cpu_usage
+
+    with open('/proc/cpuinfo') as f:
+        lines = f.readlines()
+    for line in lines:
+        if 'cpu MHz' in line:
+            cpu_mhz = float(line.split(':')[1].strip())
+            cpu_ghz = round(cpu_mhz / 1000, 2)  # convert MHz to GHz
+            break
+
+    return cpu_usage, f"{cpu_ghz}GHz"
 
 def get_cpu_temp():
     with open('/sys/class/thermal/thermal_zone0/temp') as f:
@@ -130,7 +139,7 @@ async def system_info():
         # Get system info
         storage_info = get_storage_info()
         ram_usage, total_ram = get_ram_usage()
-        cpu_usage = get_cpu_usage()
+        cpu_usage, cpu_ghz = get_cpu_usage()
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
         
@@ -159,7 +168,7 @@ async def system_info():
         embed.add_field(name="Users", value=users, inline=True)
         embed.add_field(name="Storage", value=storage_info, inline=False)
         embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
-        embed.add_field(name="CPU", value=f"{cpu_usage}%", inline=True)
+        embed.add_field(name="CPU", value=f"{cpu_usage}% [{cpu_ghz}]", inline=True)
         embed.add_field(name="RAM", value=f"{ram_usage}% [{total_ram}]", inline=True)
 
         logger.info("System Info Embed has been created")
