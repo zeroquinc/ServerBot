@@ -4,6 +4,7 @@ import re
 from discord import Embed, Colour
 from discord.utils import utcnow
 import getpass
+from datetime import datetime, timedelta
 
 from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL
 
@@ -27,6 +28,18 @@ def get_os_version():
     except Exception as e:
         logger.error(f'An error occurred while fetching OS version: {e}')
         return None
+    
+def get_generation_info():
+    # Get the current date and time
+    now = datetime.utcnow()
+    # Calculate the date and time 12 hours from now
+    regenerate_time = now + timedelta(hours=12)
+
+    # Format the dates and times as strings
+    now_str = now.strftime('%d/%m/%Y %H:%M')
+    regenerate_time_str = regenerate_time.strftime('%d/%m/%Y %H:%M')
+
+    return f"This was generated on {now_str}, it will regenerate on {regenerate_time_str}"
     
 def bytes_to_human_readable(bytes):
     units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -178,6 +191,7 @@ async def system_info():
         uptime, load, users = get_uptime_load_users()
         rx, tx, total = get_network_usage()
         package_updates = get_package_updates()
+        generation_info = get_generation_info()
         
         # Get the current username and hostname
         username = getpass.getuser()
@@ -214,6 +228,7 @@ async def system_info():
         embed.add_field(name="Network TX", value=tx, inline=True)
         embed.add_field(name="Total Data", value=total, inline=True)
         embed.add_field(name="Packages", value=package_updates, inline=False)
+        embed.add_field(name="Info", value=generation_info, inline=False)
 
         logger.info("System Info Embed has been created")
         return embed
