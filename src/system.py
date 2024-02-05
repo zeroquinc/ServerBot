@@ -96,7 +96,7 @@ def get_storage_info():
     # Update previous free space
     previous_free_space = free_space_tb
 
-    return f'{total_space_tb}T', f'{used_space_tb}T', f'{free_space_tb}T {arrow}'
+    return f'{total_space_tb} TiB', f'{used_space_tb} TiB', f'{free_space_tb} TiB {arrow}'
 
 def get_package_updates():
     try:
