@@ -67,9 +67,10 @@ def get_storage_info():
     return storage_info
 
 def get_ram_usage():
-    free = subprocess.check_output(['free']).decode('utf-8').splitlines()[1]
+    free = subprocess.check_output(['free', '-h']).decode('utf-8').splitlines()[1]
+    total_ram = free.split()[1]
     ram_usage = round(int(free.split()[2]) / int(free.split()[1]) * 100, 2)  # in percentage
-    return ram_usage
+    return ram_usage, total_ram
 
 def get_cpu_usage():
     with open('/proc/stat') as f:
@@ -126,7 +127,7 @@ async def system_info():
     try:
         # Get system info
         storage_info = get_storage_info()
-        ram_usage = get_ram_usage()
+        ram_usage, total_ram = get_ram_usage()
         cpu_usage = get_cpu_usage()
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
@@ -157,7 +158,7 @@ async def system_info():
         embed.add_field(name="Storage", value=storage_info, inline=False)
         embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
         embed.add_field(name="CPU", value=f"{cpu_usage}%", inline=True)
-        embed.add_field(name="RAM", value=f"{ram_usage}%", inline=True)
+        embed.add_field(name="RAM", value=f"{ram_usage}% [{total_ram}]", inline=True)
 
         logger.info("System Info Embed has been created")
         return embed
