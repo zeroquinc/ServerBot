@@ -145,6 +145,7 @@ last_messages = {}
 async def handle_sonarr(request):
     try:
         data = await request.json()
+        logger.debug(f"Sonarr webhook data: {data}")
         event_type = data.get('eventType', 'N/A')
         embed_data = create_sonarr_embed(data)
         channel_id = CHANNEL_SONARR_GRABS
@@ -193,6 +194,7 @@ async def handle_sonarr(request):
 async def handle_radarr(request):
     try:
         data = await request.json()
+        logger.debug(f"Radarr webhook data: {data}")
         embed_data = create_radarr_embed(data)
         channel_id = CHANNEL_RADARR_GRABS
         channel = bot.get_channel(channel_id)
