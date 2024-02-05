@@ -88,6 +88,16 @@ def get_storage_info():
 
     return storage_info
 
+def get_package_updates():
+    try:
+        output = subprocess.check_output('apt list --upgradable', shell=True).decode('utf-8')
+        lines = output.splitlines()
+        updates = len(lines) - 1  # Subtract 1 for the header line
+        return updates
+    except Exception as e:
+        logger.error(f'An error occurred while checking for package updates: {e}')
+        return None
+
 def get_ram_usage():
     free = subprocess.check_output(['free', '-b']).decode('utf-8').splitlines()[1]
     total_ram = int(free.split()[1])
@@ -165,6 +175,7 @@ async def system_info():
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
         rx, tx, total = get_network_usage()
+        package_updates = get_package_updates()
         
         # Get the current username and hostname
         username = getpass.getuser()
@@ -181,6 +192,7 @@ async def system_info():
         logger.debug(f'Network RX: {rx}')
         logger.debug(f'Network TX: {tx}')
         logger.debug(f'Total Data: {total}')
+        logger.debug(f'Package updates: {package_updates}')
         
         # Create a Discord embed
         embed = Embed(title=f"{username}@{hostname}", colour=Colour.yellow())
@@ -199,6 +211,7 @@ async def system_info():
         embed.add_field(name="Network RX", value=rx, inline=True)
         embed.add_field(name="Network TX", value=tx, inline=True)
         embed.add_field(name="Total Data", value=total, inline=True)
+        embed.add_field(name="Package Updates", value=f"```{package_updates}```", inline=False)
 
         logger.info("System Info Embed has been created")
         return embed
