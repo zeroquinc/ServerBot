@@ -194,21 +194,6 @@ async def system_info():
         username = getpass.getuser()
         hostname = get_hostname()
         
-        # Log the information
-        logger.debug(f'Used Space: {storage_used}')
-        logger.debug(f'Free Space: {storage_free}')
-        logger.debug(f'Total Space: {storage_total}')
-        logger.debug(f'RAM usage: {ram_usage}%')
-        logger.debug(f'CPU usage: {cpu_usage}%')
-        logger.debug(f'CPU temperature: {cpu_temp}°C')
-        logger.debug(f'Uptime: {uptime}')
-        logger.debug(f'Load: {load}')
-        logger.debug(f'Users: {users}')
-        logger.debug(f'Network RX: {rx}')
-        logger.debug(f'Network TX: {tx}')
-        logger.debug(f'Total Data: {total}')
-        logger.debug(f'Package updates: {package_updates}')
-        
         # Create a Discord embed
         embed = Embed(title=f"{username}@{hostname}", colour=Colour.yellow())
         embed.set_author(name="Server Snapshot", icon_url=SYSTEM_ICON_URL)
@@ -232,6 +217,7 @@ async def system_info():
         embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
 
         logger.info("System Info Embed has been created")
+        logger.debug(f"System Info Embed: {embed.to_dict()}")
         return embed
 
     except Exception as e:
