@@ -67,10 +67,12 @@ def get_storage_info():
     return storage_info
 
 def get_ram_usage():
-    free = subprocess.check_output(['free', '-h']).decode('utf-8').splitlines()[1]
-    total_ram = free.split()[1]
-    ram_usage = round(int(free.split()[2]) / int(free.split()[1]) * 100, 2)  # in percentage
-    return ram_usage, total_ram
+    free = subprocess.check_output(['free', '-b']).decode('utf-8').splitlines()[1]
+    total_ram = int(free.split()[1])
+    used_ram = int(free.split()[2])
+    ram_usage = round(used_ram / total_ram * 100, 2)  # in percentage
+    total_ram_gb = round(total_ram / (1024**3), 2)  # convert bytes to GB
+    return ram_usage, f"{total_ram_gb}GB"
 
 def get_cpu_usage():
     with open('/proc/stat') as f:
