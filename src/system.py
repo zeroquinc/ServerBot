@@ -35,11 +35,10 @@ def get_generation_info():
     # Calculate the date and time 12 hours from now
     regenerate_time = now + timedelta(hours=12)
 
-    # Format the dates and times as strings
-    now_str = now.strftime('%d/%m/%Y %H:%M')
-    regenerate_time_str = regenerate_time.strftime('%d/%m/%Y %H:%M')
+    # Convert the regenerate time to a Unix timestamp
+    regenerate_timestamp = int(regenerate_time.timestamp())
 
-    return f"This was generated on {now_str}, it will regenerate on {regenerate_time_str}"
+    return f"This will regenerate on <t:{regenerate_timestamp}:F>"
     
 def bytes_to_human_readable(bytes):
     units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
