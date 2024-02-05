@@ -5,8 +5,9 @@ from discord import Embed, Colour
 from discord.utils import utcnow
 import getpass
 from datetime import datetime, timedelta
+import pytz
 
-from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL
+from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
 
 from .custom_logger import logger
 
@@ -31,7 +32,7 @@ def get_os_version():
     
 def get_generation_info():
     # Get the current date and time
-    now = datetime.utcnow()
+    now = datetime.now(pytz.timezone({TIMEZONE}))
     # Calculate the date and time 12 hours from now
     regenerate_time = now + timedelta(hours=12)
 

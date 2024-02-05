@@ -55,3 +55,6 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_MOVIE_URL = 'https://api.themoviedb.org/3/movie/'
 TMDB_SHOW_URL = 'https://api.themoviedb.org/3/tv/'
 TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'
+
+# Timezone
+TIMEZONE = os.getenv("TIMEZONE")    # Example: "America/New_York"
