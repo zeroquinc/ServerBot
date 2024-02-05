@@ -95,7 +95,7 @@ def get_package_updates():
         updates = len(lines) - 1  # Subtract 1 for the header line
         package_names = [line.split('/')[0] for line in lines[1:]]  # Skip the header line
         package_names_str = ', '.join(package_names)
-        return f'{updates} updates available\n\n{package_names_str}'
+        return f'{updates} updates available\n\n```{package_names_str}```'
     except Exception as e:
         logger.error(f'An error occurred while checking for package updates: {e}')
         return None
@@ -213,7 +213,7 @@ async def system_info():
         embed.add_field(name="Network RX", value=rx, inline=True)
         embed.add_field(name="Network TX", value=tx, inline=True)
         embed.add_field(name="Total Data", value=total, inline=True)
-        embed.add_field(name="Packages", value=f"```{package_updates}```", inline=False)
+        embed.add_field(name="Packages", value=package_updates, inline=False)
 
         logger.info("System Info Embed has been created")
         return embed
