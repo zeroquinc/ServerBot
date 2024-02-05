@@ -27,6 +27,25 @@ def get_os_version():
     except Exception as e:
         logger.error(f'An error occurred while fetching OS version: {e}')
         return None
+    
+def bytes_to_human_readable(bytes):
+    units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+    i = 0
+    while bytes >= 1024:
+        bytes /= 1024
+        i += 1
+    return f'{round(bytes, 2)} {units[i]}'
+
+def get_network_usage():
+    with open('/proc/net/dev') as f:
+        lines = f.readlines()
+    for line in lines:
+        if 'eth0' in line:  # replace 'eth0' with your network interface name
+            data = line.split()
+            rx_bytes = int(data[1])  # received data in bytes
+            tx_bytes = int(data[9])  # transmitted data in bytes
+            return bytes_to_human_readable(rx_bytes), bytes_to_human_readable(tx_bytes)
+    return None, None
 
 def get_storage_info():
     global previous_free_space
@@ -142,6 +161,7 @@ async def system_info():
         cpu_usage, cpu_ghz = get_cpu_usage()
         cpu_temp = get_cpu_temp()
         uptime, load, users = get_uptime_load_users()
+        rx, tx = get_network_usage()
         
         # Get the current username and hostname
         username = getpass.getuser()
@@ -170,6 +190,8 @@ async def system_info():
         embed.add_field(name="CPU Temp", value=f"{cpu_temp}°C", inline=True)
         embed.add_field(name="CPU", value=f"{cpu_usage}% [{cpu_ghz}]", inline=True)
         embed.add_field(name="RAM", value=f"{ram_usage}% [{total_ram}]", inline=True)
+        embed.add_field(name="Network RX", value=rx, inline=True)
+        embed.add_field(name="Network TX", value=tx, inline=True)
 
         logger.info("System Info Embed has been created")
         return embed
