@@ -75,7 +75,7 @@ async def send_weekly_embeds(ctx):
     except Exception as e:
         await ctx.send(f"An error occurred: {str(e)}")
 
-@tasks.loop(hours=12)
+@tasks.loop(hours=24)
 async def fetch_system_info():
     try:
         # Get the system info embed

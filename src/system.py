@@ -11,8 +11,9 @@ from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
 
 from .custom_logger import logger
 
-# Initialize previous free space to None
+# Initialize previous free space and used space to None
 previous_free_space = None
+previous_used_space = None
 
 def get_hostname():
     try:
@@ -33,8 +34,8 @@ def get_os_version():
 def get_generation_info():
     # Get the current date and time
     now = datetime.now(pytz.timezone(TIMEZONE))
-    # Calculate the date and time 12 hours from now
-    regenerate_time = now + timedelta(hours=12)
+    # Calculate the date and time 24 hours from now
+    regenerate_time = now + timedelta(hours=24)
 
     # Convert the regenerate time to a Unix timestamp
     regenerate_timestamp = int(regenerate_time.timestamp())
@@ -65,6 +66,7 @@ def get_network_usage():
 
 def get_storage_info():
     global previous_free_space
+    global previous_used_space
     # Get disk space usage for /dev/ filesystems only
     df_output = subprocess.check_output(['df']).decode('utf-8').splitlines()[1:]
     total_space = 0
@@ -85,18 +87,30 @@ def get_storage_info():
     # Check if free space has increased or decreased
     if previous_free_space is not None:
         if free_space_tb > previous_free_space:
-            arrow = '↑'
+            arrow_free = '↑'
         elif free_space_tb < previous_free_space:
-            arrow = '↓'
+            arrow_free = '↓'
         else:
-            arrow = ''
+            arrow_free = ''
     else:
-        arrow = ''
+        arrow_free = ''
 
-    # Update previous free space
+    # Check if used space has increased or decreased
+    if previous_used_space is not None:
+        if used_space_tb > previous_used_space:
+            arrow_used = '↑'
+        elif used_space_tb < previous_used_space:
+            arrow_used = '↓'
+        else:
+            arrow_used = ''
+    else:
+        arrow_used = ''
+
+    # Update previous free space and used space
     previous_free_space = free_space_tb
+    previous_used_space = used_space_tb
 
-    return f'{total_space_tb} TiB', f'{used_space_tb} TiB', f'{free_space_tb} TiB {arrow}'
+    return f'{total_space_tb} TiB', f'{used_space_tb} TiB {arrow_used}', f'{free_space_tb} TiB {arrow_free}'
 
 def get_package_updates():
     try:
