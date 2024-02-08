@@ -24,20 +24,24 @@ def get_generation_info():
     return f"This will regenerate on <t:{regenerate_timestamp}:F>"
 
 def run_plextraktsync_sync():
-    try:
-        # Find the full path of the plextraktsync command
-        command = shutil.which('plextraktsync')
-        if command is None:
-            print('plextraktsync command not found')
-            return None
-
-        # Run the command
-        output = subprocess.check_output(f'{command} sync', shell=True).decode('utf-8').strip()
-        return output
-    except Exception as e:
-        print(f'An error occurred while running {command} sync: {e}')
+    # Find the full path of the plextraktsync command
+    command = shutil.which('plextraktsync')
+    if command is None:
+        print('plextraktsync command not found')
         return None
 
+    try:
+        # Run the command
+        full_command = f'{command} sync'
+        logger.info(f'Running command: {full_command}')
+        output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
+        return output
+    except subprocess.CalledProcessError as e:
+        logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
+        return None
+    except Exception as e:
+        logger.error(f'An error occurred while running {full_command}: {e}')
+        return None
 async def plextraktsync():
     try:
         # Run the command and get the output

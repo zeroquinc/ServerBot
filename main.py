@@ -112,7 +112,7 @@ async def fetch_plextraktsync():
         async for message in channel.history(limit=100):
             history.append(message)
         # Find the last message sent by the bot with the author "Server Snapshot"
-        message_to_edit = next((message for message in reversed(history) if message.author == bot.user and message.embeds and message.embeds[0].author.name == "Server Snapshot"), None)
+        message_to_edit = next((message for message in reversed(history) if message.author == bot.user and message.embeds and message.embeds[0].author.name == "PlexTraktSync"), None)
         if message_to_edit:
             # Edit the message
             await message_to_edit.edit(embed=embed)
