@@ -32,6 +32,14 @@ def run_plextraktsync_sync():
         # Split the output into lines
         lines = output.split('\n')
 
+        # Find the line with the sync time and remove it from the lines
+        sync_time = None
+        for i, line in enumerate(lines):
+            if 'Completed full sync in' in line:
+                sync_time = line
+                del lines[i]
+                break
+
         # Remove lines starting with 'INFO'
         lines = [line for line in lines if not line.startswith('INFO')]
 
@@ -41,18 +49,18 @@ def run_plextraktsync_sync():
         # Join the lines back into a single string
         output = '\n'.join(lines)
 
-        return output
+        return output, sync_time
     except subprocess.CalledProcessError as e:
         logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
-        return None
+        return None, None
     except Exception as e:
         logger.error(f'An error occurred while running {full_command}: {e}')
-        return None
+        return None, None
 
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output = run_plextraktsync_sync()
+        sync_output, sync_time = run_plextraktsync_sync()
         generation_info = get_generation_info()
 
         # Split the output into lines
@@ -62,6 +70,12 @@ async def plextraktsync():
         title = lines[0]
         description = '\n'.join(lines[1:])
 
+        # If the description is empty, set it to "Nothing new added to collection!"
+        if not description.strip():
+            description = f'**Nothing new added to collection!**'
+        else:
+            description = f'**Adding to collection:**\n```{description}```'
+
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
         embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
@@ -70,10 +84,14 @@ async def plextraktsync():
         embed.set_image(url=DISCORD_THUMBNAIL)
 
         # Set the output as the description in a code block
-        embed.description = f'**Adding to collection:**\n```{description}```'
+        embed.description = description
 
         # Add the generation info to the embed
         embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
+
+        # Set the footer to the sync time
+        if sync_time is not None:
+            embed.set_footer(text=sync_time)
 
         logger.info("PlexTraktSync Sync Embed has been created")
         logger.debug(f"PlexTraktSync Sync Embed: {embed.to_dict()}")
