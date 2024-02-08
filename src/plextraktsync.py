@@ -95,7 +95,7 @@ async def plextraktsync():
 
         # Add the warnings to the embed
         if warnings:
-            embed.add_field(name=":warning: Warnings", value='\n'.join(warnings), inline=False)
+            embed.add_field(name=":warning: Warnings", value='```{}```'.format('\n'.join(warnings)), inline=False)
 
         # Add the generation info to the embed
         embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
