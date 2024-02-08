@@ -5,10 +5,11 @@ import getpass
 from datetime import datetime, timedelta
 import pytz
 
-from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE, USER
+from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
 
 from .custom_logger import logger
 
+import subprocess
 
 def get_generation_info():
     # Get the current date and time
@@ -21,10 +22,10 @@ def get_generation_info():
 
     return f"This will regenerate on <t:{regenerate_timestamp}:F>"
 
-def run_plextraktsync_sync(USER):
+def run_plextraktsync_sync():
     try:
-        # Run the command as the specified user
-        full_command = f'/home/{USER}/.local/bin/plextraktsync sync'
+        # Run the command
+        full_command = f'plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
         return output
@@ -38,7 +39,7 @@ def run_plextraktsync_sync(USER):
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output = run_plextraktsync_sync(USER)
+        sync_output = run_plextraktsync_sync()
         generation_info = get_generation_info()
         
         # Create a Discord embed
