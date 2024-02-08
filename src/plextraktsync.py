@@ -42,24 +42,27 @@ def run_plextraktsync_sync():
                 del lines[i]
                 break
 
+        # Extract warnings and remove 'WARNING' from the start
+        warnings = [line.lstrip('WARNING  ') for line in lines if line.startswith('WARNING')]
+
         # Remove 'INFO', 'WARNING' and leading spaces from lines
         lines = [line.lstrip('INFO     ').lstrip('WARNING  ') for line in lines]
 
         # Join the lines back into a single string
         output = '\n'.join(lines)
 
-        return output, sync_time
+        return output, sync_time, warnings
     except subprocess.CalledProcessError as e:
         logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
-        return None, None
+        return None, None, None
     except Exception as e:
         logger.error(f'An error occurred while running {full_command}: {e}')
-        return None, None
+        return None, None, None
 
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output, sync_time = run_plextraktsync_sync()
+        sync_output, sync_time, warnings = run_plextraktsync_sync()
         generation_info = get_generation_info()
 
         # Split the output into lines
@@ -67,13 +70,18 @@ async def plextraktsync():
 
         # Set the title to the first line and the description to the rest
         title = lines[0]
-        description = '\n'.join(lines[1:])
+        description_lines = []
 
-        # If 'Adding to collection' is not in the description, set it to "Nothing new added to collection!"
-        if 'Adding to collection' not in description:
-            description = f'**Nothing new added to collection!**'
+        # Find 'Adding to collection' in the lines, strip it and add to description_lines
+        for line in lines[1:]:
+            if 'Adding to collection' in line:
+                description_lines.append(line.replace('Adding to collection: ', ''))
+
+        # If 'Adding to collection' was not found, set description to "Nothing new added to collection!"
+        if not description_lines:
+            description = '**Nothing new added to collection!**'
         else:
-            description = f'**Adding to collection:**\n```{description}```'
+            description = '**Adding to collection:**\n```' + "\n".join(description_lines) + '```'
 
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
@@ -87,6 +95,10 @@ async def plextraktsync():
 
         # Add the generation info to the embed
         embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
+
+        # Add the warnings to the embed
+        if warnings:
+            embed.add_field(name=":warning: Warnings", value='\n'.join(warnings), inline=False)
 
         # Set the footer to the sync time
         if sync_time is not None:
