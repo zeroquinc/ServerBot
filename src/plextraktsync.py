@@ -93,12 +93,12 @@ async def plextraktsync():
         # Set the output as the description in a code block
         embed.description = description
 
-        # Add the generation info to the embed
-        embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
-
         # Add the warnings to the embed
         if warnings:
             embed.add_field(name=":warning: Warnings", value='\n'.join(warnings), inline=False)
+
+        # Add the generation info to the embed
+        embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
 
         # Set the footer to the sync time
         if sync_time is not None:
