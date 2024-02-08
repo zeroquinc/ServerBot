@@ -4,6 +4,7 @@ from discord.utils import utcnow
 import getpass
 from datetime import datetime, timedelta
 import pytz
+import shutil
 
 from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
 
@@ -24,11 +25,17 @@ def get_generation_info():
 
 def run_plextraktsync_sync():
     try:
+        # Find the full path of the plextraktsync command
+        command = shutil.which('plextraktsync')
+        if command is None:
+            print('plextraktsync command not found')
+            return None
+
         # Run the command
-        output = subprocess.check_output('plextraktsync sync', shell=True).decode('utf-8').strip()
+        output = subprocess.check_output(f'{command} sync', shell=True).decode('utf-8').strip()
         return output
     except Exception as e:
-        logger.error(f'An error occurred while running plextraktsync sync: {e}')
+        print(f'An error occurred while running {command} sync: {e}')
         return None
 
 async def plextraktsync():
