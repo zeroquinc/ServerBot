@@ -75,10 +75,10 @@ def get_storage_info():
     for line in df_output:
         parts = line.split()
         if parts[0].startswith('/dev/'):
-            # Sum bytes
-            total_space += int(parts[1])
-            used_space += int(parts[2])
-            free_space += int(parts[3])
+            # Sum bytes (multiply by 1024 because df output is in 1K-blocks)
+            total_space += int(parts[1]) * 1024
+            used_space += int(parts[2]) * 1024
+            free_space += int(parts[3]) * 1024
 
     # Convert to human readable format
     total_space = bytes_to_human_readable(total_space)
