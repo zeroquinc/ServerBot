@@ -16,6 +16,9 @@ DISCORD_SERVER_ID = os.getenv("DISCORD_SERVER_ID")
 TOKEN = os.environ["DISCORD_TOKEN"]
 allowed_roles = "Captain"
 
+# Linux Globals
+USER = os.getenv("USER")
+
 # Channel Globals
 CHANNEL_PLEX_CONTENT = int(os.getenv("CHANNEL_PLEX_CONTENT"))
 CHANNEL_PLEX_PLAYING = int(os.getenv("CHANNEL_PLEX_PLAYING"))

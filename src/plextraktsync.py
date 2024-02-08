@@ -4,13 +4,11 @@ from discord.utils import utcnow
 import getpass
 from datetime import datetime, timedelta
 import pytz
-import shutil
 
-from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
+from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE, USER
 
 from .custom_logger import logger
 
-import subprocess
 
 def get_generation_info():
     # Get the current date and time
@@ -23,16 +21,10 @@ def get_generation_info():
 
     return f"This will regenerate on <t:{regenerate_timestamp}:F>"
 
-def run_plextraktsync_sync():
-    # Find the full path of the plextraktsync command
-    command = shutil.which('plextraktsync')
-    if command is None:
-        print('plextraktsync command not found')
-        return None
-
+def run_plextraktsync_sync(USER):
     try:
-        # Run the command
-        full_command = f'{command} sync'
+        # Run the command as the specified user
+        full_command = f'sudo -u {USER} plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
         return output
@@ -42,10 +34,11 @@ def run_plextraktsync_sync():
     except Exception as e:
         logger.error(f'An error occurred while running {full_command}: {e}')
         return None
+
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output = run_plextraktsync_sync()
+        sync_output = run_plextraktsync_sync(USER)
         generation_info = get_generation_info()
         
         # Create a Discord embed
