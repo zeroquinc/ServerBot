@@ -41,11 +41,11 @@ def run_plextraktsync_sync():
                 del lines[i]
                 break
 
-        # Remove lines starting with 'INFO'
-        lines = [line for line in lines if not line.startswith('INFO')]
+        # Remove lines starting with 'INFO', 'Processing', and 'WARNING'
+        lines = [line for line in lines if not line.startswith(('INFO', 'Processing', 'WARNING'))]
 
-        # Remove 'INFO     Adding to collection:' from lines
-        lines = [line.replace('INFO     Adding to collection:', '') for line in lines]
+        # Remove 'Adding to collection:' from lines
+        lines = [line.replace('Adding to collection:', '') for line in lines]
 
         # Join the lines back into a single string
         output = '\n'.join(lines)
