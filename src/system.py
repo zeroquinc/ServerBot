@@ -68,37 +68,44 @@ def get_storage_info():
     global previous_free_space
     global previous_used_space
     # Get disk space usage for /dev/ filesystems only
-    df_output = subprocess.check_output(['df', '-H']).decode('utf-8').splitlines()[1:]
-    total_space = ''
-    used_space = ''
-    free_space = ''
+    df_output = subprocess.check_output(['df']).decode('utf-8').splitlines()[1:]
+    total_space = 0
+    used_space = 0
+    free_space = 0
     for line in df_output:
         parts = line.split()
         if parts[0].startswith('/dev/'):
-            # Append B cause df -H output is without B
-            total_space = parts[1] + 'B'
-            used_space = parts[2] + 'B'
-            free_space = parts[3] + 'B'
+            # Sum bytes
+            total_space += int(parts[1])
+            used_space += int(parts[2])
+            free_space += int(parts[3])
+
+    # Convert to human readable format
+    total_space = bytes_to_human_readable(total_space)
+    used_space = bytes_to_human_readable(used_space)
+    free_space = bytes_to_human_readable(free_space)
 
     # Check if free space has increased or decreased
     if previous_free_space is not None:
-        if float(free_space[:-2]) > float(previous_free_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
+        if float(free_space.split()[0]) > float(previous_free_space.split()[0]):
             arrow_free = '↑'
-        elif float(free_space[:-2]) < float(previous_free_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
+        elif float(free_space.split()[0]) < float(previous_free_space.split()[0]):
             arrow_free = '↓'
         else:
             arrow_free = ''
+
     else:
         arrow_free = ''
 
     # Check if used space has increased or decreased
     if previous_used_space is not None:
-        if float(used_space[:-2]) > float(previous_used_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
+        if float(used_space.split()[0]) > float(previous_used_space.split()[0]):
             arrow_used = '↑'
-        elif float(used_space[:-2]) < float(previous_used_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
+        elif float(used_space.split()[0]) < float(previous_used_space.split()[0]):
             arrow_used = '↓'
         else:
             arrow_used = ''
+
     else:
         arrow_used = ''
 
