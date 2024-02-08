@@ -41,11 +41,8 @@ def run_plextraktsync_sync():
                 del lines[i]
                 break
 
-        # Remove lines starting with 'INFO', 'Processing', and 'WARNING'
-        lines = [line for line in lines if not line.startswith(('INFO', 'Processing', 'WARNING'))]
-
-        # Remove 'Adding to collection:' from lines
-        lines = [line.replace('Adding to collection:', '') for line in lines]
+        # Remove 'INFO', 'WARNING' and leading spaces from lines
+        lines = [line.lstrip('INFO     ').lstrip('WARNING  ') for line in lines]
 
         # Join the lines back into a single string
         output = '\n'.join(lines)
@@ -71,15 +68,16 @@ async def plextraktsync():
         title = lines[0]
         description = '\n'.join(lines[1:])
 
-        # If the description is empty, set it to "Nothing new added to collection!"
-        if not description.strip():
+        # If 'Adding to collection' is not in the description, set it to "Nothing new added to collection!"
+        if 'Adding to collection' not in description:
             description = f'**Nothing new added to collection!**'
         else:
             description = f'**Adding to collection:**\n```{description}```'
 
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
-        embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
+        embed.title = title
+        embed.set_author(name=f'PlexTraktSync Sync', icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
