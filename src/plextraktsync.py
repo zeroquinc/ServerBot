@@ -76,8 +76,7 @@ async def plextraktsync():
 
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
-        embed.title = title
-        embed.set_author(name=f'PlexTraktSync Sync', icon_url=SYSTEM_ICON_URL)
+        embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
