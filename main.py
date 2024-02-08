@@ -16,7 +16,8 @@ from src.globals import (
     CHANNEL_SYSTEM_INFO,
     CHANNEL_TRAKT_USER,
     CHANNEL_TRAKT_GLOBAL,
-    CHANNEL_TRAKT_RATINGS
+    CHANNEL_TRAKT_RATINGS,
+    CHANNEL_PLEXTRAKTSYNC
 )
 
 from src.plex import (
@@ -36,6 +37,7 @@ from src.watchtower import create_watchtower_embed
 from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
+from src.plextraktsync import plextraktsync
 
 @bot.event
 async def on_ready():
@@ -96,6 +98,28 @@ async def fetch_system_info():
             await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching system info: {e}')
+
+@tasks.loop(hours=24)
+async def fetch_plextraktsync():
+    try:
+        # Get the system info embed
+        embed = await plextraktsync()
+        # Get the channel where you want to send the message
+        channel = bot.get_channel(CHANNEL_PLEXTRAKTSYNC)
+        # Fetch the history of the channel
+        history = []
+        async for message in channel.history(limit=100):
+            history.append(message)
+        # Find the last message sent by the bot with the author "Server Snapshot"
+        message_to_edit = next((message for message in reversed(history) if message.author == bot.user and message.embeds and message.embeds[0].author.name == "Server Snapshot"), None)
+        if message_to_edit:
+            # Edit the message
+            await message_to_edit.edit(embed=embed)
+        else:
+            # Send a new message
+            await channel.send(embed=embed)
+    except Exception as e:
+        logger.error(f'An error occurred while fetching plextraktsync: {e}')
     
 # Discord Rich Presence Tautulli Task Loop 
 @tasks.loop(seconds=600)
