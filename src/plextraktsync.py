@@ -24,7 +24,7 @@ def get_generation_info():
 def run_plextraktsync_sync(USER):
     try:
         # Run the command as the specified user
-        full_command = f'sudo -E -u {USER} plextraktsync sync'
+        full_command = f'/home/{USER}/.local/bin/plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
         return output
