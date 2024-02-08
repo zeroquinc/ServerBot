@@ -29,6 +29,7 @@ def run_plextraktsync_sync():
         full_command = f'/home/{user}/.local/bin/plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
+        logger.debug(f'Command output: {output}')
 
         # Split the output into lines
         lines = output.split('\n')
