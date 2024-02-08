@@ -68,27 +68,23 @@ def get_storage_info():
     global previous_free_space
     global previous_used_space
     # Get disk space usage for /dev/ filesystems only
-    df_output = subprocess.check_output(['df']).decode('utf-8').splitlines()[1:]
-    total_space = 0
-    used_space = 0
-    free_space = 0
+    df_output = subprocess.check_output(['df', '-H']).decode('utf-8').splitlines()[1:]
+    total_space = ''
+    used_space = ''
+    free_space = ''
     for line in df_output:
         parts = line.split()
         if parts[0].startswith('/dev/'):
-            total_space += int(parts[1]) * 1024  # in bytes
-            used_space += int(parts[2]) * 1024  # in bytes
-            free_space += int(parts[3]) * 1024  # in bytes
-
-    # Convert bytes to terabytes
-    total_space_tb = round(total_space / (1024 ** 4), 2)
-    used_space_tb = round(used_space / (1024 ** 4), 2)
-    free_space_tb = round(free_space / (1024 ** 4), 2)
+            # Append B cause df -H output is without B
+            total_space = parts[1] + 'B'
+            used_space = parts[2] + 'B'
+            free_space = parts[3] + 'B'
 
     # Check if free space has increased or decreased
     if previous_free_space is not None:
-        if free_space_tb > previous_free_space:
+        if float(free_space[:-2]) > float(previous_free_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
             arrow_free = '↑'
-        elif free_space_tb < previous_free_space:
+        elif float(free_space[:-2]) < float(previous_free_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
             arrow_free = '↓'
         else:
             arrow_free = ''
@@ -97,9 +93,9 @@ def get_storage_info():
 
     # Check if used space has increased or decreased
     if previous_used_space is not None:
-        if used_space_tb > previous_used_space:
+        if float(used_space[:-2]) > float(previous_used_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
             arrow_used = '↑'
-        elif used_space_tb < previous_used_space:
+        elif float(used_space[:-2]) < float(previous_used_space[:-2]):  # exclude the last two characters (e.g., 'MB', 'GB')
             arrow_used = '↓'
         else:
             arrow_used = ''
@@ -107,10 +103,10 @@ def get_storage_info():
         arrow_used = ''
 
     # Update previous free space and used space
-    previous_free_space = free_space_tb
-    previous_used_space = used_space_tb
+    previous_free_space = free_space
+    previous_used_space = used_space
 
-    return f'{total_space_tb} TiB', f'{used_space_tb} TiB {arrow_used}', f'{free_space_tb} TiB {arrow_free}'
+    return f'{total_space}', f'{used_space} {arrow_used}', f'{free_space} {arrow_free}'
 
 def get_package_updates():
     try:
