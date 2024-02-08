@@ -28,6 +28,19 @@ def run_plextraktsync_sync():
         full_command = f'plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
+
+        # Split the output into lines
+        lines = output.split('\n')
+
+        # Remove lines starting with 'INFO'
+        lines = [line for line in lines if not line.startswith('INFO')]
+
+        # Remove 'INFO     Adding to collection:' from lines
+        lines = [line.replace('INFO     Adding to collection:', '') for line in lines]
+
+        # Join the lines back into a single string
+        output = '\n'.join(lines)
+
         return output
     except subprocess.CalledProcessError as e:
         logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
@@ -41,16 +54,23 @@ async def plextraktsync():
         # Run the command and get the output
         sync_output = run_plextraktsync_sync()
         generation_info = get_generation_info()
-        
+
+        # Split the output into lines
+        lines = sync_output.split('\n')
+
+        # Set the title to the first line and the description to the rest
+        title = lines[0]
+        description = '\n'.join(lines[1:])
+
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
-        embed.set_author(name="PlexTraktSync Sync", icon_url=SYSTEM_ICON_URL)
+        embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
 
         # Set the output as the description in a code block
-        embed.description = f'```{sync_output}```'
+        embed.description = f'**Adding to collection:**\n```{description}```'
 
         # Add the generation info to the embed
         embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
