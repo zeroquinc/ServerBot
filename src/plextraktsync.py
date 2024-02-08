@@ -37,7 +37,7 @@ def run_plextraktsync_sync():
         sync_time = None
         for i, line in enumerate(lines):
             if 'Completed full sync in' in line:
-                sync_time = line
+                sync_time = line.replace('INFO     ', '')
                 del lines[i]
                 break
 
