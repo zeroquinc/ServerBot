@@ -48,7 +48,7 @@ async def on_ready():
         trakt_favorites_task.start()
         tautulli_discord_activity.start()
         fetch_system_info.start()
-        plextraktsync.start()
+        fetch_plextraktsync.start()
         logger.info("Tasks started succesfully.")
     except Exception as e:
         logger.error(f'Error starting tasks: {str(e)}')
