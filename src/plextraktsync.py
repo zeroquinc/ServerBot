@@ -45,47 +45,39 @@ def run_plextraktsync_sync():
         # Extract warnings and remove 'WARNING' from the start
         warnings = [line.lstrip('WARNING  ') for line in lines if line.startswith('WARNING')]
 
+        # Extract 'Adding to collection' lines and remove 'Adding to collection: ' from the start
+        adding_to_collection = [line.replace('Adding to collection: ', '') for line in lines if 'Adding to collection: ' in line]
+
         # Remove 'INFO', 'WARNING' and leading spaces from lines
         lines = [line.lstrip('INFO     ').lstrip('WARNING  ') for line in lines]
 
         # Join the lines back into a single string
         output = '\n'.join(lines)
-
-        return output, sync_time, warnings
+        
+        logger.debug(f'Output: {output}\nSync time: {sync_time}\nWarnings: {warnings}\nAdding to collection: {adding_to_collection}')
+        return output, sync_time, warnings, adding_to_collection
     except subprocess.CalledProcessError as e:
         logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
-        return None, None, None
+        return None, None, None, None
     except Exception as e:
         logger.error(f'An error occurred while running {full_command}: {e}')
-        return None, None, None
+        return None, None, None, None
 
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output, sync_time, warnings = run_plextraktsync_sync()
+        sync_output, sync_time, warnings, adding_to_collection = run_plextraktsync_sync()
         generation_info = get_generation_info()
 
-        # Split the output into lines
-        lines = sync_output.split('\n')
-
-        # Set the title to the first line and the description to the rest
-        title = lines[0]
-        description_lines = []
-
-        # Find 'Adding to collection' in the lines, strip it and add to description_lines
-        for line in lines[1:]:
-            if 'Adding to collection' in line:
-                description_lines.append(line.replace('Adding to collection: ', ''))
-
         # If 'Adding to collection' was not found, set description to "Nothing new added to collection!"
-        if not description_lines:
+        if not adding_to_collection:
             description = '**Nothing new added to collection!**'
         else:
-            description = '**Adding to collection:**\n```' + "\n".join(description_lines) + '```'
+            description = '**Adding to collection:**\n```' + "\n".join(adding_to_collection) + '```'
 
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
-        embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
+        embed.set_author(name=sync_output, icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
