@@ -43,7 +43,7 @@ def run_plextraktsync_sync():
                 break
 
         # Extract warnings and remove 'WARNING' from the start
-        warnings = [line.lstrip('WARNING  ') for line in lines if line.startswith('WARNING')]
+        warnings = [re.sub(r'\s*\(\d{4}\)\s*|<PlexGuid:.*>$', '', line.lstrip('WARNING  ')) for line in lines if line.startswith('WARNING')]
 
         # Remove 'INFO', 'WARNING' and leading spaces from lines
         lines = [line.replace('INFO     ', '', 1) if line.startswith('INFO     ') else line.replace('WARNING  ', '', 1) if line.startswith('WARNING  ') else line for line in lines]
