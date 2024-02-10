@@ -71,12 +71,6 @@ async def plextraktsync():
         sync_time, warnings, adding_to_collection, title = run_plextraktsync_sync()
         generation_info = get_generation_info()
 
-        # If 'Adding to collection' was not found, set description to "Nothing new added to collection!"
-        if not adding_to_collection:
-            description = '**Nothing new added to collection!**'
-        else:
-            description = '**Adding to collection:**\n```' + "\n".join(adding_to_collection) + '```'
-
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
         embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
@@ -84,15 +78,21 @@ async def plextraktsync():
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
 
-        # Set the output as the description in a code block
-        embed.description = description
+        # If 'Adding to collection' was not found, set description to "Nothing new added to collection!"
+        if not adding_to_collection:
+            description = 'Nothing new added to collection in the last 24 hours.'
+            embed.description = description
+        else:
+            # Add 'Adding to collection' as a field in the embed
+            adding_to_collection_value = '```' + "\n".join(adding_to_collection) + '```'
+            embed.add_field(name=":open_file_folder: Adding to collection", value=adding_to_collection_value, inline=False)
 
         # Add the warnings to the embed
         if warnings:
             embed.add_field(name=":warning: Warnings", value='```{}```'.format('\n'.join(warnings)), inline=False)
 
         # Add the generation info to the embed
-        embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
+        embed.add_field(name=":zap: Info", value=generation_info, inline=False)
 
         # Set the footer to the sync time
         if sync_time is not None:

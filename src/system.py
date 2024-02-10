@@ -231,7 +231,7 @@ async def system_info():
         embed.add_field(name=":arrow_up: Network TX", value=tx, inline=True)
         embed.add_field(name=":bar_chart: Total Data", value=total, inline=True)
         embed.add_field(name=":package: Packages", value=package_updates, inline=False)
-        embed.add_field(name=":loudspeaker: Info", value=generation_info, inline=False)
+        embed.add_field(name=":zap: Info", value=generation_info, inline=False)
 
         logger.info("System Info Embed has been created")
         logger.debug(f"System Info Embed: {embed.to_dict()}")
