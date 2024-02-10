@@ -69,7 +69,7 @@ def run_plextraktsync_sync():
 async def plextraktsync():
     try:
         # Run the command and get the output
-        sync_output, sync_time, warnings, adding_to_collection = run_plextraktsync_sync()
+        sync_time, warnings, adding_to_collection, title = run_plextraktsync_sync()
         generation_info = get_generation_info()
 
         # If 'Adding to collection' was not found, set description to "Nothing new added to collection!"
@@ -80,7 +80,7 @@ async def plextraktsync():
 
         # Create a Discord embed
         embed = Embed(colour=Colour.red())
-        embed.set_author(name=sync_output, icon_url=SYSTEM_ICON_URL)
+        embed.set_author(name=title, icon_url=SYSTEM_ICON_URL)
         timestamp = utcnow()
         embed.timestamp = timestamp
         embed.set_image(url=DISCORD_THUMBNAIL)
