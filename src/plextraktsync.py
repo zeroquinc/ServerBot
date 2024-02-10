@@ -4,6 +4,7 @@ from discord.utils import utcnow
 import getpass
 from datetime import datetime, timedelta
 import pytz
+import re
 
 from .globals import DISCORD_THUMBNAIL, SYSTEM_ICON_URL, TIMEZONE
 
@@ -48,7 +49,7 @@ def run_plextraktsync_sync():
         lines = [line.replace('INFO     ', '', 1) if line.startswith('INFO     ') else line.replace('WARNING  ', '', 1) if line.startswith('WARNING  ') else line for line in lines]
 
         # Extract 'Adding to collection' lines and remove 'Adding to collection: ' from the start
-        adding_to_collection = [line.replace('Adding to collection: ', '').strip() for line in lines if 'Adding to collection: ' in line]
+        adding_to_collection = [re.sub(r'\s*\(\d{4}\)\s*$', '', line.replace('Adding to collection: ', '').strip()) for line in lines if 'Adding to collection: ' in line]
 
         # Set the title to the first line and the description to the rest
         title = lines[0]
