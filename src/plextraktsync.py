@@ -52,7 +52,7 @@ def run_plextraktsync_sync():
         adding_to_collection = [re.sub(r'\s*\(\d{4}\)\s*$', '', line.replace('Adding to collection: ', '').strip()) for line in lines if 'Adding to collection: ' in line]
 
         # Set the title to the first line and the description to the rest
-        title = lines[0]
+        title = lines[0].strip()
 
         # Join the lines back into a single string
         output = '\n'.join(lines)
