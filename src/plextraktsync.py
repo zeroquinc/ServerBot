@@ -29,7 +29,6 @@ def run_plextraktsync_sync():
         full_command = f'/home/{user}/.local/bin/plextraktsync sync'
         logger.info(f'Running command: {full_command}')
         output = subprocess.check_output(full_command, shell=True).decode('utf-8').strip()
-        logger.debug(f'Command output: {output}')
 
         # Split the output into lines
         lines = output.split('\n')
@@ -49,7 +48,7 @@ def run_plextraktsync_sync():
         lines = [line.replace('INFO     ', '', 1) if line.startswith('INFO     ') else line.replace('WARNING  ', '', 1) if line.startswith('WARNING  ') else line for line in lines]
 
         # Extract 'Adding to collection' lines and remove 'Adding to collection: ' from the start
-        adding_to_collection = [line.replace('Adding to collection: ', '') for line in lines if 'Adding to collection: ' in line]
+        adding_to_collection = [line.replace('Adding to collection: ', '').strip() for line in lines if 'Adding to collection: ' in line]
 
         # Set the title to the first line and the description to the rest
         title = lines[0]
@@ -58,7 +57,7 @@ def run_plextraktsync_sync():
         output = '\n'.join(lines)
         
         logger.debug(f'Output: {output}\nSync time: {sync_time}\nWarnings: {warnings}\nAdding to collection: {adding_to_collection}')
-        return output, sync_time, warnings, adding_to_collection, title
+        return sync_time, warnings, adding_to_collection, title
     except subprocess.CalledProcessError as e:
         logger.error(f'Command failed with error code {e.returncode}, output: {e.output}')
         return None, None, None, None
