@@ -35,7 +35,7 @@ def create_embed(achievement):
     embed.add_field(name="Game", value=achievement['GameTitle'], inline=False)
     embed.add_field(name="Achievement", value=achievement['Title'], inline=False)
     embed.add_field(name="Points", value=achievement['Points'], inline=False)
-    hardcore_value = "Yes" if achievement['Hardcore'] == 1 else "No"
+    hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
     embed.add_field(name="Hardcore", value=hardcore_value, inline=False)
     embed.add_field(name="Date", value=achievement['Date'], inline=False)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=False)
