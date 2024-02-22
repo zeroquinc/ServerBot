@@ -29,7 +29,7 @@ def fetch_data():
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME, 'm': RETRO_TIMEFRAME}
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        logger.debug('Data fetched successfully')
+        logger.debug(f'Data fetched successfully: {response.json()}')
         return response.json()
     else:
         logger.debug(f'Error: {response.status_code}')
@@ -60,7 +60,9 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
         num_awarded = int(completion['NumAwarded']) - new_achievements_count
-        embed.add_field(name="Set Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
+        max_possible = int(completion['MaxPossible'])
+        percentage = (num_awarded / max_possible) * 100
+        embed.add_field(name="Set Completion", value=f"{num_awarded}/{max_possible} ({percentage:.2f}%)", inline=False)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
