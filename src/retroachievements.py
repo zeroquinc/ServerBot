@@ -66,7 +66,7 @@ def create_embed(achievement, completion_cache, new_achievements_count):
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
-    friendly_date = date.strftime('%d/%m/%Y, %H:%M:%S')
+    friendly_date = date.strftime('%d/%m/%Y on %H:%M:%S')
 
     embed.add_field(name="User", value=f"[{RETRO_USERNAME}](https://retroachievements.org/user/{RETRO_USERNAME})", inline=True)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
