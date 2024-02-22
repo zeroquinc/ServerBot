@@ -70,8 +70,8 @@ async def clear(ctx):
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
-        # Fetch the completion progress for all games
-        completion_cache = fetch_completion()
+        # Initialize the completion cache
+        completion_cache = {}
         # Fetch the recent achievements
         achievements = fetch_recent_achievements(completion_cache)
         logger.info(f'Fetched {len(achievements)} recent achievements')
