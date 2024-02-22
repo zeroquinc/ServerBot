@@ -70,10 +70,8 @@ async def clear(ctx):
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
-        # Initialize the completion cache
-        completion_cache = {}
         # Fetch the recent achievements
-        achievements = fetch_recent_achievements(completion_cache)
+        achievements = fetch_recent_achievements()
         logger.info(f'Fetched {len(achievements)} recent achievements')
         logger.debug(f'Fetched achievements: {achievements}')
         # Convert the achievements to Discord embeds
