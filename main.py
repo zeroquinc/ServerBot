@@ -68,7 +68,7 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
-@tasks.loop(hours=24)
+@tasks.loop(minutes=5)
 async def fetch_retroachievements():
     try:
         for username in RETRO_TARGET_USERNAMES:
@@ -76,14 +76,14 @@ async def fetch_retroachievements():
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
-            logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-            logger.debug(f'Fetched achievements: {achievements}')
             # Convert the achievements to Discord embeds
             embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
             # Get the channel where you want to send the message
             channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
             for embed in embeds:
                 # Send a new message
+                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
+                logger.debug(f'Fetched achievements: {achievements}')
                 await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')

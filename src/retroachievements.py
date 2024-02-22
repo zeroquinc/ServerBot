@@ -8,7 +8,6 @@ from .globals import (
     DISCORD_THUMBNAIL,
     RETRO_USERNAME,
     RETRO_API_KEY,
-    RETRO_TARGET_USERNAMES,
     RETRO_TIMEFRAME
 )
 
@@ -73,24 +72,34 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     embed.set_image(url=DISCORD_THUMBNAIL)
     embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
-    embed.set_footer(text=f"Earned on: {friendly_date}")
+
+    # Set the footer text and image based on the username
+    if username == 'Desiler':
+        embed.set_footer(text=f"Earned on: {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
+    elif username == 'Lipperdie':
+        embed.set_footer(text=f"Earned on: {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
+    else:
+        embed.set_footer(text=f"Earned on: {friendly_date}")
 
     return embed
 
-def fetch_recent_achievements(completion_cache, username):
+def fetch_recent_achievements(completion_cache, processed_achievements, username):
     data = fetch_data(username)
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
         embeds = []
         for achievement in data:
             game_id = achievement['GameID']
+            achievement_id = achievement['AchievementID']
             if username not in completion_cache:
                 completion_cache[username] = {}
             if game_id not in completion_cache[username]:
                 completion_cache[username][game_id] = fetch_completion(username)
+            if achievement_id not in processed_achievements:
+                new_achievements_count[game_id] += 1
+                processed_achievements.add(achievement_id)
             embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id], username)
             embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
-            new_achievements_count[game_id] += 1
         embeds.sort()
         return [embed.to_dict() for _, embed in embeds]
     else:
