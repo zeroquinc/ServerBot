@@ -68,7 +68,7 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
-@tasks.loop(minutes=15)
+@tasks.loop(minutes=30)
 async def fetch_retroachievements():
     try:
         for username in RETRO_TARGET_USERNAMES:

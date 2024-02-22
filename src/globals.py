@@ -62,7 +62,7 @@ TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'
 RETRO_USERNAME = os.getenv("RETRO_USERNAME")
 RETRO_API_KEY = os.getenv("RETRO_API_KEY")
 RETRO_TARGET_USERNAMES = [username.strip() for username in os.getenv('RETRO_TARGET_USERNAMES').split(',')]
-RETRO_TIMEFRAME = 15
+RETRO_TIMEFRAME = 30
 
 # Timezone
 TIMEZONE = os.getenv("TIMEZONE")    # Example: "America/New_York"
