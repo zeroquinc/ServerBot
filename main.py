@@ -69,7 +69,7 @@ async def clear(ctx):
     await ctx.channel.purge()
 
 processed_achievements = set()
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=15)
 async def fetch_retroachievements():
     try:
         for username in RETRO_TARGET_USERNAMES:

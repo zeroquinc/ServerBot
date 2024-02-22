@@ -29,8 +29,10 @@ def fetch_data(username):
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username, 'm': RETRO_TIMEFRAME}
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        logger.debug(f'Data fetched successfully: {response.json()}')
-        return response.json()
+        data = response.json()
+        if len(data) > 0:
+            logger.debug(f'Response data: {data}')
+        return data
     else:
         logger.debug(f'Error: {response.status_code}')
         return None
