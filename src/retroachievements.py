@@ -14,12 +14,12 @@ from .globals import (
 
 from .custom_logger import logger
 
-def fetch_completion():
-    url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME}
+def fetch_completion(game_ids):
+    url = 'https://retroachievements.org/API/API_GetUserProgress.php'
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME, 'i': ','.join(map(str, game_ids))}
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        return {game['GameID']: game for game in response.json()['Results']}
+        return response.json()
     else:
         logger.debug(f'Error: {response.status_code}')
         return None
@@ -59,8 +59,9 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     # Fetch the completion status of the game
     completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
-        num_awarded = int(completion['NumAwarded']) - new_achievements_count
-        embed.add_field(name="Set Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
+        num_achieved = completion['NumAchieved'] + new_achievements_count[achievement['GameID']]
+        num_possible = completion['NumPossibleAchievements']
+        embed.add_field(name="Set Completion", value=f"{num_achieved}/{num_possible}", inline=False)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
