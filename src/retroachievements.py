@@ -82,7 +82,7 @@ def fetch_recent_achievements(completion_cache):
         embeds = []
         for achievement in data:
             embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
-            embeds.append(embed)
+            embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
             new_achievements_count[achievement['GameID']] += 1
-        embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M:%S'))
-        return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
+        embeds.sort()
+        return [embed.to_dict() for _, embed in embeds]  # Return the embeds as a list of dictionaries
