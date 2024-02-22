@@ -39,7 +39,7 @@ from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
 from src.plextraktsync import plextraktsync
-from src.retroachievements import fetch_recent_achievements
+from src.retroachievements import fetch_completion, fetch_recent_achievements
 
 @bot.event
 async def on_ready():
@@ -65,8 +65,10 @@ async def send(ctx, channel_id: int, *, message: str):
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
+        # Fetch the completion progress for all games
+        completion_cache = fetch_completion()
         # Fetch the recent achievements
-        achievements = fetch_recent_achievements()
+        achievements = fetch_recent_achievements(completion_cache)
         logger.info(f'Fetched {len(achievements)} recent achievements')
         logger.debug(f'Fetched achievements: {achievements}')
         # Convert the achievements to Discord embeds

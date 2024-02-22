@@ -13,21 +13,12 @@ from .globals import (
 
 from .custom_logger import logger
 
-# Cache the completion status of games to avoid spamming the API
-
-completion_cache = {}
-
-def fetch_completion(game_id):
-    if game_id in completion_cache:
-        return completion_cache[game_id]
-
+def fetch_completion():
     url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME, 'c': game_id}
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME}
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        completion = response.json()
-        completion_cache[game_id] = completion
-        return completion
+        return {game['GameID']: game for game in response.json()['Results']}
     else:
         logger.debug(f'Error: {response.status_code}')
         return None
@@ -43,7 +34,7 @@ def fetch_data():
         logger.debug(f'Error: {response.status_code}')
         return None
 
-def create_embed(achievement):
+def create_embed(achievement, completion_cache):
     embed = discord.Embed(
         title=achievement['GameTitle'],
         color=discord.Color.blue()
@@ -65,7 +56,7 @@ def create_embed(achievement):
     embed.add_field(name="Description", value=achievement['Description'], inline=False)
 
     # Fetch the completion status of the game
-    completion = fetch_completion(achievement['GameID'])
+    completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
         embed.add_field(name="Completion", value=f"{completion['NumAwarded']}/{completion['MaxPossible']}", inline=False)
 
@@ -82,10 +73,9 @@ def create_embed(achievement):
 
     return embed
 
-def fetch_recent_achievements():
+def fetch_recent_achievements(completion_cache):
     data = fetch_data()
     if data is not None:
-        embeds = [create_embed(achievement) for achievement in data]
-        # Sort the embeds by date
-        embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed['fields'][-1]['value'], '%d/%m/%Y, %H:%M'))
+        embeds = [create_embed(achievement, completion_cache) for achievement in data]
+        embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M'))
         return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
