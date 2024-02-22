@@ -25,19 +25,21 @@ def fetch_data():
 
 def create_embed(achievement):
     embed = discord.Embed(
-        title=f"{achievement['GameTitle']} ({achievement['ConsoleName']})",
+        title=achievement['GameTitle'],
         description=achievement['Description'],
         color=discord.Color.blue()
     )
     timestamp = utcnow()
     embed.timestamp = timestamp
+    embed.url = f"https://retroachievements.org/achievement/{achievement['ID']}"
     embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
-    embed.add_field(name="Game", value=achievement['GameTitle'], inline=False)
-    embed.add_field(name="Achievement", value=achievement['Title'], inline=True)
+    embed.add_field(name="Title", value=achievement['Title'], inline=True)
     embed.add_field(name="Points", value=achievement['Points'], inline=True)
     hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
     embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
-    embed.add_field(name="Date", value=achievement['Date'], inline=False)
+    embed.add_field(name="Description", value=achievement['Description'], inline=False)
+    embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
+    embed.add_field(name="Date", value=achievement['Date'], inline=True)
     embed.set_image(url=DISCORD_THUMBNAIL)
     embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
     return embed
