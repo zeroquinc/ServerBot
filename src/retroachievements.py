@@ -84,7 +84,9 @@ def fetch_recent_achievements(completion_cache, username):
         embeds = []
         for achievement in data:
             game_id = achievement['GameID']
-            if game_id not in completion_cache.get(username, {}):
+            if username not in completion_cache:
+                completion_cache[username] = {}
+            if game_id not in completion_cache[username]:
                 completion_cache[username][game_id] = fetch_completion(username)
             embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id])
             embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
