@@ -61,8 +61,6 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     if completion is not None:
         num_awarded = int(completion['NumAwarded']) - new_achievements_count
         embed.add_field(name="Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
-        # Decrement the number of awarded achievements in the completion cache
-        completion['NumAwarded'] = str(num_awarded)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
@@ -81,8 +79,8 @@ def fetch_recent_achievements(completion_cache):
     data = fetch_data()
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
-        embeds = []  # Initialize the embeds list
-        for achievement in reversed(data):
+        embeds = []
+        for achievement in data:
             new_achievements_count[achievement['GameID']] += 1
             embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
             embeds.append(embed)
