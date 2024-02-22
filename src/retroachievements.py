@@ -54,7 +54,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
 
     embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
-    embed.add_field(name="Description", value=achievement['Description'], inline=False)
+    embed.add_field(name="Description", value=f"```{achievement['Description']}```", inline=False)
 
     # Fetch the completion status of the game
     completion = completion_cache.get(achievement['GameID'])
