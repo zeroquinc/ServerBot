@@ -3,6 +3,7 @@ import discord
 from discord.utils import utcnow
 from datetime import datetime
 import collections
+import json
 
 from .globals import (
     DISCORD_THUMBNAIL,
@@ -14,15 +15,16 @@ from .globals import (
 
 from .custom_logger import logger
 
-def fetch_completion():
-    url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        return {game['GameID']: game for game in response.json()['Results']}
-    else:
-        logger.debug(f'Error: {response.status_code}')
-        return None
+def fetch_completion(game_id, completion_cache):
+    if game_id not in completion_cache:
+        url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
+        params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME, 'g': game_id}
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            completion_cache[game_id] = response.json()
+        else:
+            logger.debug(f'Error: {response.status_code}')
+    return completion_cache.get(game_id)
 
 def fetch_data():
     url = 'https://retroachievements.org/API/API_GetUserRecentAchievements.php'
@@ -57,7 +59,7 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     embed.add_field(name="Description", value=achievement['Description'], inline=False)
 
     # Fetch the completion status of the game
-    completion = completion_cache.get(achievement['GameID'])
+    completion = fetch_completion(achievement['GameID'], completion_cache)
     if completion is not None:
         num_awarded = int(completion['NumAwarded']) - new_achievements_count
         embed.add_field(name="Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
@@ -75,14 +77,15 @@ def create_embed(achievement, completion_cache, new_achievements_count):
 
     return embed
 
-def fetch_recent_achievements(completion_cache):
+def fetch_recent_achievements():
+    completion_cache = {}
     data = fetch_data()
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
         embeds = []
         for achievement in data:
-            new_achievements_count[achievement['GameID']] += 1
             embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
             embeds.append(embed)
+            new_achievements_count[achievement['GameID']] += 1
         embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M'))
-        return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
+        return [embed.to_dict() for embed in embeds]  # Return the embeds as a list
