@@ -39,7 +39,7 @@ from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
 from src.plextraktsync import plextraktsync
-from src.retroachievements import fetch_completion, fetch_recent_achievements
+from src.retroachievements import fetch_completion, fetch_recent_achievements, fetch_data
 
 @bot.event
 async def on_ready():
@@ -70,19 +70,24 @@ async def clear(ctx):
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
-        # Fetch the completion progress for all games
-        completion_cache = fetch_completion()
         # Fetch the recent achievements
-        achievements = fetch_recent_achievements(completion_cache)
-        logger.info(f'Fetched {len(achievements)} recent achievements')
-        logger.debug(f'Fetched achievements: {achievements}')
-        # Convert the achievements to Discord embeds
-        embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
-        # Get the channel where you want to send the message
-        channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
-        for embed in embeds:
-            # Send a new message
-            await channel.send(embed=embed)
+        achievements_data = fetch_data()
+        if achievements_data is not None:
+            # Extract the game IDs
+            game_ids = [achievement['GameID'] for achievement in achievements_data]
+            # Fetch the completion progress for the games
+            completion_cache = fetch_completion(game_ids)
+            # Process the achievements
+            achievements = fetch_recent_achievements(completion_cache)
+            logger.info(f'Fetched {len(achievements)} recent achievements')
+            logger.debug(f'Fetched achievements: {achievements}')
+            # Convert the achievements to Discord embeds
+            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+            # Get the channel where you want to send the message
+            channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
+            for embed in embeds:
+                # Send a new message
+                await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
