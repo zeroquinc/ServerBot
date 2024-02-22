@@ -80,13 +80,11 @@ async def fetch_retroachievements():
             embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
             # Get the channel where you want to send the message
             channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
-            # Split the embeds into groups of 10
-            embeds_chunks = [embeds[i:i + 10] for i in range(0, len(embeds), 10)]
-            for embeds_chunk in embeds_chunks:
+            for embed in embeds:
                 # Send a new message
                 logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
                 logger.debug(f'Fetched achievements: {achievements}')
-                await channel.send(embeds=embeds_chunk)
+                await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
