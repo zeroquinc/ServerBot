@@ -8,15 +8,15 @@ from .globals import (
     DISCORD_THUMBNAIL,
     RETRO_USERNAME,
     RETRO_API_KEY,
-    RETRO_TARGET_USERNAME,
+    RETRO_TARGET_USERNAMES,
     RETRO_TIMEFRAME
 )
 
 from .custom_logger import logger
 
-def fetch_completion():
+def fetch_completion(user):
     url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME}
+    params = {'z': user, 'y': RETRO_API_KEY, 'u': user}
     response = requests.get(url, params=params)
     if response.status_code == 200:
         return {game['GameID']: game for game in response.json()['Results']}
@@ -24,9 +24,9 @@ def fetch_completion():
         logger.debug(f'Error: {response.status_code}')
         return None
 
-def fetch_data():
+def fetch_data(user):
     url = 'https://retroachievements.org/API/API_GetUserRecentAchievements.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': RETRO_TARGET_USERNAME, 'm': RETRO_TIMEFRAME}
+    params = {'z': user, 'y': RETRO_API_KEY, 'u': user, 'm': RETRO_TIMEFRAME}
     response = requests.get(url, params=params)
     if response.status_code == 200:
         logger.debug('Data fetched successfully')
@@ -76,13 +76,14 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     return embed
 
 def fetch_recent_achievements(completion_cache):
-    data = fetch_data()
-    if data is not None:
-        new_achievements_count = collections.defaultdict(int)
-        embeds = []
-        for achievement in data:
-            embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
-            embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
-            new_achievements_count[achievement['GameID']] += 1
-        embeds.sort()
-        return [embed.to_dict() for _, embed in embeds]  # Return the embeds as a list of dictionaries
+    for username in RETRO_TARGET_USERNAMES:
+        data = fetch_data(username)
+        if data is not None:
+            new_achievements_count = collections.defaultdict(int)
+            embeds = []
+            for achievement in data:
+                embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
+                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+                new_achievements_count[achievement['GameID']] += 1
+            embeds.sort()
+            return [embed.to_dict() for _, embed in embeds]  # Return the embeds as a list of dictionaries
