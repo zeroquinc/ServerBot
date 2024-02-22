@@ -61,7 +61,7 @@ TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'
 # RetroAchievements Globals
 RETRO_USERNAME = os.getenv("RETRO_USERNAME")
 RETRO_API_KEY = os.getenv("RETRO_API_KEY")
-RETRO_TARGET_USERNAMES = os.getenv("RETRO_TARGET_USERNAMES")
+RETRO_TARGET_USERNAMES = [username.strip() for username in os.getenv('RETRO_TARGET_USERNAMES').split(',')]
 RETRO_TIMEFRAME = 1440
 
 # Timezone
