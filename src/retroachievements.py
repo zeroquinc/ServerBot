@@ -2,6 +2,7 @@ import requests
 import discord
 from discord.utils import utcnow
 from datetime import datetime
+import collections
 
 from .globals import (
     DISCORD_THUMBNAIL,
@@ -34,7 +35,7 @@ def fetch_data():
         logger.debug(f'Error: {response.status_code}')
         return None
 
-def create_embed(achievement, completion_cache):
+def create_embed(achievement, completion_cache, new_achievements_count):
     embed = discord.Embed(
         title=achievement['GameTitle'],
         color=discord.Color.blue()
@@ -58,7 +59,8 @@ def create_embed(achievement, completion_cache):
     # Fetch the completion status of the game
     completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
-        embed.add_field(name="Completion", value=f"{completion['NumAwarded']}/{completion['MaxPossible']}", inline=False)
+        num_awarded = int(completion['NumAwarded']) + new_achievements_count
+        embed.add_field(name="Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
@@ -76,6 +78,9 @@ def create_embed(achievement, completion_cache):
 def fetch_recent_achievements(completion_cache):
     data = fetch_data()
     if data is not None:
-        embeds = [create_embed(achievement, completion_cache) for achievement in data]
+        new_achievements_count = collections.defaultdict(int)
+        for achievement in data:
+            new_achievements_count[achievement['GameID']] += 1
+        embeds = [create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']]) for achievement in data]
         embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M'))
         return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
