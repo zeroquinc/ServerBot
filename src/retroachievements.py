@@ -8,8 +8,8 @@ from .globals import (
     DISCORD_THUMBNAIL,
     RETRO_USERNAME,
     RETRO_API_KEY,
-    RETRO_TIMEFRAME,
-    RETRO_TARGET_USERNAMES
+    RETRO_TARGET_USERNAMES,
+    RETRO_TIMEFRAME
 )
 
 from .custom_logger import logger
@@ -29,6 +29,7 @@ def fetch_data(username):
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username, 'm': RETRO_TIMEFRAME}
     response = requests.get(url, params=params)
     if response.status_code == 200:
+        logger.debug(f'Data fetched successfully: {response.json()}')
         return response.json()
     else:
         logger.debug(f'Error: {response.status_code}')
@@ -83,23 +84,20 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     return embed
 
-def fetch_recent_achievements(completion_cache, processed_achievements, username):
+def fetch_recent_achievements(completion_cache, username):
     data = fetch_data(username)
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
         embeds = []
         for achievement in data:
             game_id = achievement['GameID']
-            achievement_id = achievement['AchievementID']
             if username not in completion_cache:
                 completion_cache[username] = {}
             if game_id not in completion_cache[username]:
                 completion_cache[username][game_id] = fetch_completion(username)
-            if achievement_id not in processed_achievements:
-                new_achievements_count[game_id] += 1
-                processed_achievements.add(achievement_id)
             embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id], username)
             embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+            new_achievements_count[game_id] += 1
         embeds.sort()
         return [embed.to_dict() for _, embed in embeds]
     else:
