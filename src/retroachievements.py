@@ -43,7 +43,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     #timestamp = utcnow()
     #embed.timestamp = timestamp
     embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
-    embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
+    embed.set_author(name="Achievement Unlocked", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
 
     # Add the achievement link to the embed
     achievement_link = f"[{achievement['Title']}](https://retroachievements.org/achievement/{achievement['AchievementID']})"
@@ -62,7 +62,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
         num_awarded = int(completion['NumAwarded']) - new_achievements_count
         max_possible = int(completion['MaxPossible'])
         percentage = (num_awarded / max_possible) * 100
-        embed.add_field(name="Set Completion", value=f"{num_awarded}/{max_possible} ({percentage:.2f}%)", inline=False)
+        embed.add_field(name="Set Completion", value=f"```{num_awarded}/{max_possible} ({percentage:.2f}%)```", inline=False)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
@@ -76,11 +76,11 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     # Set the footer text and image based on the username
     if username == 'Desiler':
-        embed.set_footer(text=f"Earned on: {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
+        embed.set_footer(text=f"Earned at {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
     elif username == 'Lipperdie':
-        embed.set_footer(text=f"Earned on: {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
+        embed.set_footer(text=f"Earned at {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
     else:
-        embed.set_footer(text=f"Earned on: {friendly_date}")
+        embed.set_footer(text=f"Earned at {friendly_date}")
 
     return embed
 
