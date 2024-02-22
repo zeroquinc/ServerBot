@@ -66,7 +66,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
-    friendly_date = date.strftime('%d/%m/%Y on %H:%M:%S')
+    friendly_date = date.strftime('%d/%m/%Y at %H:%M:%S')
 
     embed.add_field(name="User", value=f"[{username}](https://retroachievements.org/user/{username})", inline=True)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
@@ -76,11 +76,11 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     # Set the footer text and image based on the username
     if username == 'Desiler':
-        embed.set_footer(text=f"Earned at {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
+        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
     elif username == 'Lipperdie':
-        embed.set_footer(text=f"Earned at {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
+        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
     else:
-        embed.set_footer(text=f"Earned at {friendly_date}")
+        embed.set_footer(text=f"Earned on {friendly_date}")
 
     return embed
 
