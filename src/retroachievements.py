@@ -35,7 +35,7 @@ def fetch_data(username):
         logger.debug(f'Error: {response.status_code}')
         return None
 
-def create_embed(achievement, completion_cache, new_achievements_count):
+def create_embed(achievement, completion_cache, new_achievements_count, username):
     embed = discord.Embed(
         title=achievement['GameTitle'],
         color=discord.Color.blue()
@@ -68,7 +68,7 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
     friendly_date = date.strftime('%d/%m/%Y on %H:%M:%S')
 
-    embed.add_field(name="User", value=f"[{RETRO_USERNAME}](https://retroachievements.org/user/{RETRO_USERNAME})", inline=True)
+    embed.add_field(name="User", value=f"[{username}](https://retroachievements.org/user/{username})", inline=True)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
 
     embed.set_image(url=DISCORD_THUMBNAIL)
@@ -88,7 +88,7 @@ def fetch_recent_achievements(completion_cache, username):
                 completion_cache[username] = {}
             if game_id not in completion_cache[username]:
                 completion_cache[username][game_id] = fetch_completion(username)
-            embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id])
+            embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id], username)
             embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
             new_achievements_count[game_id] += 1
         embeds.sort()
