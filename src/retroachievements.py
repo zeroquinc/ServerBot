@@ -8,7 +8,8 @@ from .globals import (
     DISCORD_THUMBNAIL,
     RETRO_USERNAME,
     RETRO_API_KEY,
-    RETRO_TIMEFRAME
+    RETRO_TIMEFRAME,
+    RETRO_TARGET_USERNAMES
 )
 
 from .custom_logger import logger
