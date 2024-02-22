@@ -17,7 +17,8 @@ from src.globals import (
     CHANNEL_TRAKT_USER,
     CHANNEL_TRAKT_GLOBAL,
     CHANNEL_TRAKT_RATINGS,
-    CHANNEL_PLEXTRAKTSYNC
+    CHANNEL_PLEXTRAKTSYNC,
+    CHANNEL_RETROACHIEVEMENTS
 )
 
 from src.plex import (
@@ -38,6 +39,7 @@ from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
 from src.plextraktsync import plextraktsync
+from retroachievements import fetch_recent_achievements
 
 @bot.event
 async def on_ready():
@@ -49,6 +51,7 @@ async def on_ready():
         tautulli_discord_activity.start()
         fetch_system_info.start()
         fetch_plextraktsync.start()
+        fetch_retroachievements.start()
         logger.info("Tasks started succesfully.")
     except Exception as e:
         logger.error(f'Error starting tasks: {str(e)}')
@@ -58,6 +61,21 @@ async def on_ready():
 async def send(ctx, channel_id: int, *, message: str):
     channel = bot.get_channel(channel_id)
     await channel.send(message)
+
+@tasks.loop(hours=24)
+async def fetch_retroachievements():
+    try:
+        # Fetch the recent achievements
+        achievements = fetch_recent_achievements()
+        # Convert the achievements to Discord embeds
+        embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+        # Get the channel where you want to send the message
+        channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
+        for embed in embeds:
+            # Send a new message
+            await channel.send(embed=embed)
+    except Exception as e:
+        logger.error(f'An error occurred while fetching retroachievements: {e}')
     
 # Define the !trakt command
 @bot.command(name='trakt')

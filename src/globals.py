@@ -27,6 +27,7 @@ CHANNEL_TRAKT_GLOBAL = int(os.getenv("CHANNEL_TRAKT_GLOBAL"))
 CHANNEL_TRAKT_RATINGS = int(os.getenv("CHANNEL_TRAKT_RATINGS"))
 CHANNEL_SYSTEM_INFO = int(os.getenv("CHANNEL_SYSTEM_INFO"))
 CHANNEL_PLEXTRAKTSYNC = int(os.getenv("CHANNEL_PLEXTRAKTSYNC"))
+CHANNEL_RETROACHIEVEMENTS = int(os.getenv("CHANNEL_RETROACHIEVEMENTS"))
 
 # Trakt Globals
 TRAKT_USERNAME = os.getenv("TRAKT_USERNAME")
@@ -56,6 +57,12 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_MOVIE_URL = 'https://api.themoviedb.org/3/movie/'
 TMDB_SHOW_URL = 'https://api.themoviedb.org/3/tv/'
 TMDB_IMAGE_URL = 'https://image.tmdb.org/t/p/w500/'
+
+# RetroAchievements Globals
+RETRO_USERNAME = os.getenv("RETRO_USERNAME")
+RETRO_API_KEY = os.getenv("RETRO_API_KEY")
+RETRO_TARGET_USERNAME = os.getenv("RETRO_TARGET_USERNAME")
+RETRO_TIMEFRAME = 1440
 
 # Timezone
 TIMEZONE = os.getenv("TIMEZONE")    # Example: "America/New_York"
