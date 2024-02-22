@@ -40,8 +40,8 @@ def create_embed(achievement, completion_cache, new_achievements_count):
         title=achievement['GameTitle'],
         color=discord.Color.blue()
     )
-    timestamp = utcnow()
-    embed.timestamp = timestamp
+    #timestamp = utcnow()
+    #embed.timestamp = timestamp
     embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
     embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
 
@@ -60,7 +60,7 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
         num_awarded = int(completion['NumAwarded']) - new_achievements_count
-        embed.add_field(name="Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
+        embed.add_field(name="Set Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
@@ -68,11 +68,10 @@ def create_embed(achievement, completion_cache, new_achievements_count):
 
     embed.add_field(name="User", value=f"[{RETRO_USERNAME}](https://retroachievements.org/user/{RETRO_USERNAME})", inline=True)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
-    embed.add_field(name="Date", value=friendly_date, inline=True)
 
     embed.set_image(url=DISCORD_THUMBNAIL)
     embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
-    embed.set
+    embed.set_footer(text=f"Earned on: {friendly_date}")
 
     return embed
 
@@ -83,7 +82,7 @@ def fetch_recent_achievements(completion_cache):
         embeds = []
         for achievement in data:
             embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
-            embeds.append(embed)
+            embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
             new_achievements_count[achievement['GameID']] += 1
-        embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M:%S'))
-        return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
+        embeds.sort()
+        return [embed.to_dict() for _, embed in embeds]  # Return the embeds as a list of dictionaries
