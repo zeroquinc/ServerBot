@@ -40,8 +40,8 @@ def create_embed(achievement, completion_cache, new_achievements_count):
         title=achievement['GameTitle'],
         color=discord.Color.blue()
     )
-    timestamp = utcnow()
-    embed.timestamp = timestamp
+    #timestamp = utcnow()
+    #embed.timestamp = timestamp
     embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
     embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
 
@@ -72,6 +72,7 @@ def create_embed(achievement, completion_cache, new_achievements_count):
 
     embed.set_image(url=DISCORD_THUMBNAIL)
     embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
+    embed.set_footer(text=f"Earned on: {friendly_date}")
 
     return embed
 
