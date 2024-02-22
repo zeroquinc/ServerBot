@@ -77,18 +77,19 @@ def create_embed(achievement, completion_cache, new_achievements_count):
 
     return embed
 
-def fetch_recent_achievements():
-    all_embeds = []
-    for username in RETRO_TARGET_USERNAMES:
-        completion_cache = fetch_completion(username)
-        data = fetch_data(username)
-        if data is not None:
-            new_achievements_count = collections.defaultdict(int)
-            embeds = []
-            for achievement in data:
-                embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
-                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
-                new_achievements_count[achievement['GameID']] += 1
-            embeds.sort()
-            all_embeds.extend([embed.to_dict() for _, embed in embeds])  # Add the embeds to the list of all embeds
-    return all_embeds  # Return all embeds as a list of dictionaries
+def fetch_recent_achievements(completion_cache, username):
+    data = fetch_data(username)
+    if data is not None:
+        new_achievements_count = collections.defaultdict(int)
+        embeds = []
+        for achievement in data:
+            game_id = achievement['GameID']
+            if game_id not in completion_cache[username]:
+                completion_cache[username][game_id] = fetch_completion(username)
+            embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id])
+            embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+            new_achievements_count[game_id] += 1
+        embeds.sort()
+        return [embed.to_dict() for _, embed in embeds]
+    else:
+        return None
