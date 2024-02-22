@@ -38,15 +38,16 @@ def create_embed(achievement):
 
     # Hardcore mode is a boolean, so we need to convert it to a string
     hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
-    
+
     embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
     embed.add_field(name="Description", value=achievement['Description'], inline=False)
-    embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
     friendly_date = date.strftime('%d %B %Y, %H:%M')
 
+    embed.add_field(name="User", value=f"https://retroachievements.org/user/{RETRO_USERNAME}", inline=True)
+    embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
     embed.add_field(name="Date", value=friendly_date, inline=True)
     embed.set_image(url=DISCORD_THUMBNAIL)
     embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
