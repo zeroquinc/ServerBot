@@ -68,6 +68,7 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
+processed_achievements = set()
 @tasks.loop(minutes=5)
 async def fetch_retroachievements():
     try:
@@ -75,7 +76,7 @@ async def fetch_retroachievements():
             # Fetch the completion progress for all games
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
-            achievements = fetch_recent_achievements(completion_cache, username)
+            achievements = fetch_recent_achievements(completion_cache, username, processed_achievements)
             # Convert the achievements to Discord embeds
             embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
             # Get the channel where you want to send the message
