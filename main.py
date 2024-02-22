@@ -18,8 +18,7 @@ from src.globals import (
     CHANNEL_TRAKT_GLOBAL,
     CHANNEL_TRAKT_RATINGS,
     CHANNEL_PLEXTRAKTSYNC,
-    CHANNEL_RETROACHIEVEMENTS,
-    RETRO_TARGET_USERNAMES
+    CHANNEL_RETROACHIEVEMENTS
 )
 
 from src.plex import (
@@ -71,20 +70,19 @@ async def clear(ctx):
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
-        for username in RETRO_TARGET_USERNAMES:
-            # Fetch the completion progress for all games
-            completion_cache = fetch_completion(username)
-            # Fetch the recent achievements
-            achievements = fetch_recent_achievements(completion_cache)
-            logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-            logger.debug(f'Fetched achievements for {username}: {achievements}')
-            # Convert the achievements to Discord embeds
-            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
-            # Get the channel where you want to send the message
-            channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
-            for embed in embeds:
-                # Send a new message
-                await channel.send(embed=embed)
+        # Fetch the completion progress for all games
+        completion_cache = fetch_completion()
+        # Fetch the recent achievements
+        achievements = fetch_recent_achievements(completion_cache)
+        logger.info(f'Fetched {len(achievements)} recent achievements')
+        logger.debug(f'Fetched achievements: {achievements}')
+        # Convert the achievements to Discord embeds
+        embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+        # Get the channel where you want to send the message
+        channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
+        for embed in embeds:
+            # Send a new message
+            await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
