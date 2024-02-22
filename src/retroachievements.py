@@ -59,8 +59,10 @@ def create_embed(achievement, completion_cache, new_achievements_count):
     # Fetch the completion status of the game
     completion = completion_cache.get(achievement['GameID'])
     if completion is not None:
-        num_awarded = int(completion['NumAwarded']) + new_achievements_count
+        num_awarded = int(completion['NumAwarded']) - new_achievements_count
         embed.add_field(name="Completion", value=f"{num_awarded}/{completion['MaxPossible']}", inline=False)
+        # Decrement the number of awarded achievements in the completion cache
+        completion['NumAwarded'] = str(num_awarded)
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
@@ -79,8 +81,9 @@ def fetch_recent_achievements(completion_cache):
     data = fetch_data()
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
-        for achievement in data:
+        for achievement in reversed(data):
             new_achievements_count[achievement['GameID']] += 1
-        embeds = [create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']]) for achievement in data]
+            embed = create_embed(achievement, completion_cache, new_achievements_count[achievement['GameID']])
+            embeds.append(embed)
         embeds = sorted(embeds, key=lambda embed: datetime.strptime(embed.fields[-1].value, '%d/%m/%Y, %H:%M'))
         return [embed.to_dict() for embed in embeds]  # Return the embeds as a list of dictionaries
