@@ -62,6 +62,11 @@ async def send(ctx, channel_id: int, *, message: str):
     channel = bot.get_channel(channel_id)
     await channel.send(message)
 
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def clear(ctx):
+    await ctx.channel.purge()
+
 @tasks.loop(hours=24)
 async def fetch_retroachievements():
     try:
