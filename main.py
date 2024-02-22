@@ -39,7 +39,7 @@ from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
 from src.plextraktsync import plextraktsync
-from retroachievements import fetch_recent_achievements
+from src.retroachievements import fetch_recent_achievements
 
 @bot.event
 async def on_ready():
