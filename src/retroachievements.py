@@ -31,7 +31,7 @@ def create_embed(achievement):
     )
     timestamp = utcnow()
     embed.timestamp = timestamp
-    embed.url = f"https://retroachievements.org/achievement/{achievement['ID']}"
+    embed.url = f"https://retroachievements.org/achievement/{achievement['AchievementID']}"
     embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
     embed.add_field(name="Title", value=achievement['Title'], inline=True)
     embed.add_field(name="Points", value=achievement['Points'], inline=True)
