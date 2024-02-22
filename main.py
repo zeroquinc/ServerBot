@@ -67,6 +67,8 @@ async def fetch_retroachievements():
     try:
         # Fetch the recent achievements
         achievements = fetch_recent_achievements()
+        logger.info(f'Fetched {len(achievements)} recent achievements')
+        logger.debug(f'Fetched achievements: {achievements}')
         # Convert the achievements to Discord embeds
         embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
         # Get the channel where you want to send the message
