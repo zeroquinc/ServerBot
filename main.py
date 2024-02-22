@@ -67,7 +67,7 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
-@tasks.loop(hours=24)
+@tasks.loop(minutes=15)
 async def fetch_retroachievements():
     try:
         # Fetch the completion progress for all games
