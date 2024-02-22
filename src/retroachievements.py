@@ -33,7 +33,7 @@ def create_embed(achievement):
     embed.timestamp = timestamp
     embed.url = f"https://retroachievements.org/achievement/{achievement['AchievementID']}"
     embed.set_author(name="A new Achievement has been earned", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
-    embed.add_field(name="Title", value=achievement['Title'], inline=True)
+    embed.add_field(name="Achievement", value=achievement['Title'], inline=True)
     embed.add_field(name="Points", value=achievement['Points'], inline=True)
 
     # Hardcore mode is a boolean, so we need to convert it to a string
@@ -44,9 +44,9 @@ def create_embed(achievement):
 
     # Convert the date to a more friendly format
     date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
-    friendly_date = date.strftime('%d %B %Y, %H:%M')
+    friendly_date = date.strftime('%d/%m/%Y, %H:%M')
 
-    embed.add_field(name="User", value=f"https://retroachievements.org/user/{RETRO_USERNAME}", inline=True)
+    embed.add_field(name="User", value=f"[{RETRO_USERNAME}](https://retroachievements.org/user/{RETRO_USERNAME})", inline=True)
     embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
     embed.add_field(name="Date", value=friendly_date, inline=True)
     embed.set_image(url=DISCORD_THUMBNAIL)
