@@ -104,7 +104,7 @@ def check_game_completion(username, completion, achievement):
         if completed_games_count is not None:
             # Create a new embed message for the completed game
             embed = discord.Embed(
-                description=f"This is your {completed_games_count}th mastery! :trophy:",
+                description=f"This is {username}'s {completed_games_count}th mastery! :trophy:",
                 color=discord.Color.gold()
             )
             embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
