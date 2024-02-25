@@ -97,29 +97,31 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     return embed
 
 def check_game_completion(username, completion, achievement):
-    logger.debug(f"Completion: {completion}")
-    num_awarded = int(completion['NumAwarded'])
-    max_possible = int(completion['MaxPossible'])
-    if num_awarded == max_possible:
-        completed_games_count = fetch_completed_games(username)
-        if completed_games_count is not None:
-            # Create a new embed message for the completed game
-            embed = discord.Embed(
-                description=f"This is {username}'s {completed_games_count}th mastery! :trophy:",
-                color=discord.Color.gold()
-            )
-            embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
-            embed.set_author(name=f"Mastered {achievement['GameTitle']}", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
-            embed.set_image(url=DISCORD_THUMBNAIL)
-            embed.set_thumbnail(url=f"https://i.imgur.com/rXH9hOd.png")
-            # Set the footer text and image based on the username
-            if username == 'Desiler':
-                embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/mJvWGe1.png')
-            elif username == 'Lipperdie':
-                embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
-            else:
-                embed.set_footer(text=f"Congratulations!")
-            return embed
+    game_id = achievement['GameID']
+    if game_id in completion:
+        game_details = completion[game_id]
+        num_awarded = int(game_details['NumAwarded'])
+        max_possible = int(game_details['MaxPossible'])
+        if num_awarded == max_possible:
+            completed_games_count = fetch_completed_games(username)
+            if completed_games_count is not None:
+                # Create a new embed message for the completed game
+                embed = discord.Embed(
+                    description=f"This is {username}'s {completed_games_count}th mastery! :trophy:",
+                    color=discord.Color.gold()
+                )
+                embed.url = f"https://retroachievements.org/game/{game_id}"
+                embed.set_author(name=f"Mastered {achievement['GameTitle']}", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
+                embed.set_image(url=DISCORD_THUMBNAIL)
+                embed.set_thumbnail(url=f"https://i.imgur.com/rXH9hOd.png")
+                # Set the footer text and image based on the username
+                if username == 'Desiler':
+                    embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/mJvWGe1.png')
+                elif username == 'Lipperdie':
+                    embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
+                else:
+                    embed.set_footer(text=f"Congratulations!")
+                return embed
     return None
 
 def fetch_recent_achievements(completion_cache, username):
