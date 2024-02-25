@@ -14,6 +14,18 @@ from .globals import (
 
 from .custom_logger import logger
 
+def fetch_completed_games(username):
+    url = 'https://retroachievements.org/API/API_GetUserCompletedGames.php'
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        completed_games = response.json()
+        hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1')
+        return hardcore_completions
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+
 def fetch_completion(username):
     url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
@@ -84,6 +96,31 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
 
     return embed
 
+def check_game_completion(username, completion, achievement):
+    num_awarded = int(completion['NumAwarded'])
+    max_possible = int(completion['MaxPossible'])
+    if num_awarded == max_possible:
+        completed_games_count = fetch_completed_games(username)
+        if completed_games_count is not None:
+            # Create a new embed message for the completed game
+            embed = discord.Embed(
+                description=f"This is your {completed_games_count}th mastery! :trophy:",
+                color=discord.Color.gold()
+            )
+            embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
+            embed.set_author(name=f"Mastered {achievement['GameTitle']}", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
+            embed.set_image(url=DISCORD_THUMBNAIL)
+            embed.set_thumbnail(url=f"https://i.imgur.com/rXH9hOd.png")
+            # Set the footer text and image based on the username
+            if username == 'Desiler':
+                embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/mJvWGe1.png')
+            elif username == 'Lipperdie':
+                embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
+            else:
+                embed.set_footer(text=f"Congratulations!")
+            return embed
+    return None
+
 def fetch_recent_achievements(completion_cache, username):
     data = fetch_data(username)
     if data is not None:
@@ -96,8 +133,16 @@ def fetch_recent_achievements(completion_cache, username):
             if game_id not in completion_cache[username]:
                 completion_cache[username][game_id] = fetch_completion(username)
             embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id], username)
-            embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
             new_achievements_count[game_id] += 1
+
+            # Check if the game is completed
+            completion_embed = check_game_completion(username, completion_cache[username][game_id], achievement)
+            if completion_embed is not None:
+                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), completion_embed))
+            else:
+                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+
         embeds.sort()
         return [embed.to_dict() for _, embed in embeds]
     else:
