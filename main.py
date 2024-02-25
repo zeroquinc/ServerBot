@@ -5,6 +5,8 @@ import asyncio
 
 from src.custom_logger import logger
 
+from src.utils import split_embeds
+
 from src.globals import (
     bot, 
     TOKEN, 
@@ -68,6 +70,8 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
+from utils import split_embeds
+
 @tasks.loop(minutes=30)
 async def fetch_retroachievements():
     try:
@@ -76,15 +80,18 @@ async def fetch_retroachievements():
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
-            # Convert the achievements to Discord embeds
-            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
-            # Get the channel where you want to send the message
-            channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
-            for embed in embeds:
-                # Send a new message
+            if achievements is not None:
+                # Convert the achievements to Discord embeds
+                embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+                # Split the embeds into groups of 10
+                embed_groups = split_embeds(embeds)
+                # Get the channel where you want to send the message
+                channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
+                # Send the embeds
                 logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
                 logger.debug(f'Fetched achievements: {achievements}')
-                await channel.send(embed=embed)
+                for embed_group in embed_groups:
+                    await channel.send(embeds=embed_group)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
