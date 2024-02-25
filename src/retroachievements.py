@@ -21,7 +21,7 @@ def fetch_completed_games(username):
     if response.status_code == 200:
         completed_games = response.json()
         logger.debug(f'Completed games: {completed_games}')
-        hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1')
+        hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1' and game['PctWon'] == '1.0000')
         return hardcore_completions
     else:
         logger.debug(f'Error: {response.status_code}')
