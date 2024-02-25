@@ -147,7 +147,7 @@ def fetch_recent_achievements(completion_cache, username):
             else:
                 embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
 
-        embeds.sort()
+        embeds.sort(key=lambda x: x[0])
         return [embed.to_dict() for _, embed in embeds]
     else:
         return None
