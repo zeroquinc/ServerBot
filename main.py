@@ -84,15 +84,7 @@ async def fetch_retroachievements():
                 # Send the embeds
                 logger.info(f'Fetched {len(embeds)} recent achievements for {username}')
                 logger.debug(f'Fetched achievements: {embeds}')
-                embed_list = []
-                for embed in embeds:
-                    embed_list.append(embed)
-                    if len(embed_list) == 10:
-                        await channel.send(embed=embed_list)
-                        embed_list = []
-                # Send any remaining embeds that didn't make up a group of 10
-                if embed_list:
-                    await channel.send(embed=embed_list)
+                await channel.send(embeds=embeds)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
