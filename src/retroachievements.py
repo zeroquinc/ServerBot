@@ -20,6 +20,7 @@ def fetch_completed_games(username):
     response = requests.get(url, params=params)
     if response.status_code == 200:
         completed_games = response.json()
+        logger.debug(f'Completed games: {completed_games}')
         hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1')
         return hardcore_completions
     else:
