@@ -77,17 +77,15 @@ async def fetch_retroachievements():
             # Fetch the completion progress for all games
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
-            achievements = fetch_recent_achievements(completion_cache, username)
-            if achievements is not None:
-                # Convert the achievements to Discord embeds
-                embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+            embeds = fetch_recent_achievements(completion_cache, username)
+            if embeds is not None:
                 # Split the embeds into groups of 10
                 embed_groups = split_embeds(embeds)
                 # Get the channel where you want to send the message
                 channel = bot.get_channel(CHANNEL_RETROACHIEVEMENTS)  # Replace with your channel ID
                 # Send the embeds
-                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-                logger.debug(f'Fetched achievements: {achievements}')
+                logger.info(f'Fetched {len(embeds)} recent achievements for {username}')
+                logger.debug(f'Fetched achievements: {embeds}')
                 for embed_group in embed_groups:
                     await channel.send(embeds=embed_group)
     except Exception as e:
