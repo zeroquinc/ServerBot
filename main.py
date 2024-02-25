@@ -70,8 +70,6 @@ async def send(ctx, channel_id: int, *, message: str):
 async def clear(ctx):
     await ctx.channel.purge()
 
-from utils import split_embeds
-
 @tasks.loop(minutes=30)
 async def fetch_retroachievements():
     try:
