@@ -97,6 +97,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     return embed
 
 def check_game_completion(username, completion, achievement):
+    logger.debug(f"Completion: {completion}")
     num_awarded = int(completion['NumAwarded'])
     max_possible = int(completion['MaxPossible'])
     if num_awarded == max_possible:
