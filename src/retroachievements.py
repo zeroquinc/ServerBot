@@ -1,7 +1,7 @@
 import requests
 import discord
 from discord.utils import utcnow
-from datetime import datetime
+from datetime import datetime, timedelta
 import collections
 
 from .globals import (
@@ -130,6 +130,7 @@ def fetch_recent_achievements(completion_cache, username):
     if data is not None:
         new_achievements_count = collections.defaultdict(int)
         embeds = []
+        game_completion_checked = set()
         for achievement in data:
             game_id = achievement['GameID']
             if username not in completion_cache:
@@ -139,13 +140,18 @@ def fetch_recent_achievements(completion_cache, username):
             embed = create_embed(achievement, completion_cache[username][game_id], new_achievements_count[game_id], username)
             new_achievements_count[game_id] += 1
 
-            # Check if the game is completed
-            completion_embed = check_game_completion(username, completion_cache[username][game_id], achievement)
-            if completion_embed is not None:
-                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
-                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), completion_embed))
-            else:
-                embeds.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+            # Add the achievement embed
+            achievement_time = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
+            embeds.append((achievement_time, embed))
+
+            # Check if the game is completed, but only if it hasn't been checked before
+            if game_id not in game_completion_checked:
+                completion_embed = check_game_completion(username, completion_cache[username][game_id], achievement)
+                if completion_embed is not None:
+                    # Add a small delay to the completion time to ensure it's always after the last achievement
+                    completion_time = achievement_time + timedelta(seconds=1)
+                    embeds.append((completion_time, completion_embed))
+                game_completion_checked.add(game_id)
 
         embeds.sort(key=lambda x: x[0])
         return [embed.to_dict() for _, embed in embeds]
