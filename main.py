@@ -18,7 +18,7 @@ from src.globals import (
     CHANNEL_TRAKT_GLOBAL,
     CHANNEL_TRAKT_RATINGS,
     CHANNEL_PLEXTRAKTSYNC,
-    CHANNEL_UNLOCKS,
+    CHANNEL_ACHIEVEMENTS,
     CHANNEL_MASTERED,
     RETRO_TARGET_USERNAMES
 )
@@ -79,32 +79,18 @@ async def fetch_retroachievements():
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
             embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
-            # Get the channel where you want to send the message
-            unlocks_channel = bot.get_channel(CHANNEL_UNLOCKS)  # Replace with your channel ID
-            mastered_channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your mastered channel ID
-            first_message = None
             for embed in embeds:
+                # Get the channel where you want to send the message
                 if 'Mastered' in embed.author.name:
-                    # Send a new message to the mastered channel
-                    await mastered_channel.send(embed=embed)
+                    channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your channel ID for Mastered
+                elif 'Achievement Unlocked' in embed.author.name:
+                    channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your channel ID for Unlocks
                 else:
-                    # If this is the first message in the last 30 minutes, send a new message
-                    if first_message is None:
-                        first_message = await unlocks_channel.send(embed=embed)
-                    else:
-                        # Get the embeds of the first message
-                        message_embeds = first_message.embeds
-                        # Check if the message already has 10 embeds
-                        if len(message_embeds) < 10:
-                            # If not, add the new embed
-                            message_embeds.append(embed)
-                            # Update the message with the new list of embeds
-                            await first_message.edit(embeds=message_embeds)
-                        else:
-                            # If the message has 10 embeds, send a new message
-                            first_message = await unlocks_channel.send(embed=embed)
-            logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-            logger.debug(f'Fetched achievements: {achievements}')
+                    channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
+                # Send a new message
+                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
+                logger.debug(f'Fetched achievements: {achievements}')
+                await channel.send(embed=embed)
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
