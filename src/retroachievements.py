@@ -154,6 +154,6 @@ def fetch_recent_achievements(completion_cache, username):
                 game_completion_checked.add(game_id)
 
         embeds.sort(key=lambda x: x[0])
-        return embed.to_dict()
+        return embeds
     else:
         return None
