@@ -95,7 +95,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     else:
         embed.set_footer(text=f"Earned on {friendly_date}")
 
-    return embed
+    return embed.to_dict()
 
 def check_game_completion(username, completion, achievement):
     game_id = achievement['GameID']
@@ -122,7 +122,7 @@ def check_game_completion(username, completion, achievement):
                     embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
                 else:
                     embed.set_footer(text=f"Congratulations!")
-                return embed
+                return embed.to_dict()
     return None
 
 def fetch_recent_achievements(completion_cache, username):
