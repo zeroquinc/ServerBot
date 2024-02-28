@@ -96,18 +96,19 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
     embed.set_author(name="Achievement Unlocked", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
 
+    # Check if the achievement type is "Missable"
+    suffix = " (m)" if achievement['Type'] == 'missable' else ""
     # Add the achievement link to the embed
     achievement_link = f"[{achievement['Title']}](https://retroachievements.org/achievement/{achievement['AchievementID']})"
-    embed.add_field(name="Achievement", value=achievement_link, inline=True)
+    embed.add_field(name="Achievement", value=f"{achievement_link}{suffix}", inline=True)
+
     embed.add_field(name="Points", value=achievement['Points'], inline=True)
 
     # Hardcore mode is a boolean, so we need to convert it to a string
     hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
     embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
 
-    # Check if the achievement type is Missable
-    suffix = "\n\nThis achievement is missable." if achievement['Type'] == "missable" else ""
-    embed.add_field(name="Description", value=f"```{achievement['Description']}{suffix}```", inline=False)
+    embed.add_field(name="Description", value=f"```{achievement['Description']}```", inline=False)
 
     # Fetch the completion status of the game
     completion = completion_cache.get(achievement['GameID'])
