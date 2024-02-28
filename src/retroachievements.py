@@ -106,7 +106,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
 
     # Check if the achievement type is Missable
-    suffix = "\n(Missable)" if achievement['Type'] == "missable" else ""
+    suffix = "\n\nThis achievement is missable." if achievement['Type'] == "missable" else ""
     embed.add_field(name="Description", value=f"```{achievement['Description']}{suffix}```", inline=False)
 
     # Fetch the completion status of the game
