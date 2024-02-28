@@ -14,117 +14,7 @@ from .globals import (
 
 from .custom_logger import logger
 
-def fetch_completed_games(username):
-    url = 'https://retroachievements.org/API/API_GetUserCompletedGames.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        completed_games = response.json()
-        logger.debug(f'Completed games: {completed_games}')
-        hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1' and game['PctWon'] == '1.0000')
-        return hardcore_completions
-    else:
-        logger.debug(f'Error: {response.status_code}')
-        return None
-
-def fetch_completion(username):
-    url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        return {game['GameID']: game for game in response.json()['Results']}
-    else:
-        logger.debug(f'Error: {response.status_code}')
-        return None
-
-def fetch_data(username):
-    url = 'https://retroachievements.org/API/API_GetUserRecentAchievements.php'
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username, 'm': RETRO_TIMEFRAME}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        logger.debug(f'Data fetched successfully: {response.json()}')
-        return response.json()
-    else:
-        logger.debug(f'Error: {response.status_code}')
-        return None
-
-def create_embed(achievement, completion_cache, new_achievements_count, username):
-    embed = discord.Embed(
-        title=achievement['GameTitle'],
-        color=discord.Color.blue()
-    )
-    #timestamp = utcnow()
-    #embed.timestamp = timestamp
-    embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
-    embed.set_author(name="Achievement Unlocked", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
-
-    # Add the achievement link to the embed
-    achievement_link = f"[{achievement['Title']}](https://retroachievements.org/achievement/{achievement['AchievementID']})"
-    embed.add_field(name="Achievement", value=achievement_link, inline=True)
-    embed.add_field(name="Points", value=achievement['Points'], inline=True)
-
-    # Hardcore mode is a boolean, so we need to convert it to a string
-    hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
-
-    embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
-    embed.add_field(name="Description", value=f"```{achievement['Description']}```", inline=False)
-
-    # Fetch the completion status of the game
-    completion = completion_cache.get(achievement['GameID'])
-    if completion is not None:
-        num_awarded = int(completion['NumAwarded']) - new_achievements_count
-        max_possible = int(completion['MaxPossible'])
-        percentage = (num_awarded / max_possible) * 100
-        embed.add_field(name="Set Completion", value=f"```{num_awarded}/{max_possible} ({percentage:.2f}%)```", inline=False)
-
-    # Convert the date to a more friendly format
-    date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
-    friendly_date = date.strftime('%d/%m/%Y at %H:%M:%S')
-
-    embed.add_field(name="User", value=f"[{username}](https://retroachievements.org/user/{username})", inline=True)
-    embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
-
-    embed.set_image(url=DISCORD_THUMBNAIL)
-    embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
-
-    # Set the footer text and image based on the username
-    if username == 'Desiler':
-        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
-    elif username == 'Lipperdie':
-        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
-    else:
-        embed.set_footer(text=f"Earned on {friendly_date}")
-
-    return embed
-
-def check_game_completion(username, completion, achievement):
-    game_id = achievement['GameID']
-    if game_id in completion:
-        game_details = completion[game_id]
-        num_awarded = int(game_details['NumAwarded'])
-        max_possible = int(game_details['MaxPossible'])
-        if num_awarded == max_possible:
-            completed_games_count = fetch_completed_games(username)
-            if completed_games_count is not None:
-                # Create a new embed message for the completed game
-                embed = discord.Embed(
-                    description=f"This is {username}'s {completed_games_count}th mastery! :trophy:",
-                    color=discord.Color.gold()
-                )
-                embed.url = f"https://retroachievements.org/game/{game_id}"
-                embed.set_author(name=f"Mastered {achievement['GameTitle']}", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
-                embed.set_image(url=DISCORD_THUMBNAIL)
-                embed.set_thumbnail(url=f"https://i.imgur.com/rXH9hOd.png")
-                # Set the footer text and image based on the username
-                if username == 'Desiler':
-                    embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/mJvWGe1.png')
-                elif username == 'Lipperdie':
-                    embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
-                else:
-                    embed.set_footer(text=f"Congratulations!")
-                return embed
-    return None
-
+# Main function to fetch the recent achievements for all target usernames
 def fetch_recent_achievements(completion_cache, username):
     data = fetch_data(username)
     if data is not None:
@@ -157,3 +47,126 @@ def fetch_recent_achievements(completion_cache, username):
         return [embed.to_dict() for _, embed in embeds]
     else:
         return None
+
+# Function to fetch the number of hardcore completions for a user
+def fetch_completed_games(username):
+    url = 'https://retroachievements.org/API/API_GetUserCompletedGames.php'
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        completed_games = response.json()
+        logger.debug(f'Completed games: {completed_games}')
+        hardcore_completions = sum(1 for game in completed_games if game['HardcoreMode'] == '1' and game['PctWon'] == '1.0000')
+        return hardcore_completions
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+
+# Function to fetch the completion status of a user for a specific game
+def fetch_completion(username):
+    url = 'https://retroachievements.org/API/API_GetUserCompletionProgress.php'
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        return {game['GameID']: game for game in response.json()['Results']}
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+
+# Function to fetch the recent achievements for a user
+def fetch_data(username):
+    url = 'https://retroachievements.org/API/API_GetUserRecentAchievements.php'
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'u': username, 'm': RETRO_TIMEFRAME}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        logger.debug(f'Data fetched successfully: {response.json()}')
+        return response.json()
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+
+# Function to create an embed message for a new achievement
+def create_embed(achievement, completion_cache, new_achievements_count, username):
+    embed = discord.Embed(
+        title=achievement['GameTitle'],
+        color=discord.Color.blue()
+    )
+    #timestamp = utcnow()
+    #embed.timestamp = timestamp
+    embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
+    embed.set_author(name="Achievement Unlocked", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
+
+    # Add the achievement link to the embed
+    achievement_link = f"[{achievement['Title']}](https://retroachievements.org/achievement/{achievement['AchievementID']})"
+    embed.add_field(name="Achievement", value=achievement_link, inline=True)
+    embed.add_field(name="Points", value=achievement['Points'], inline=True)
+
+    # Hardcore mode is a boolean, so we need to convert it to a string
+    hardcore_value = "Yes" if achievement['HardcoreMode'] == 1 else "No"
+    embed.add_field(name="Hardcore", value=hardcore_value, inline=True)
+
+    # Check if the achievement type is Missable
+    suffix = "\n(Missable)" if achievement['Missable'] == 1 else ""
+    embed.add_field(name="Description", value=f"```{achievement['Description']}{suffix}```", inline=False)
+
+    # Fetch the completion status of the game
+    completion = completion_cache.get(achievement['GameID'])
+    if completion is not None:
+        num_awarded = int(completion['NumAwarded']) - new_achievements_count
+        max_possible = int(completion['MaxPossible'])
+        percentage = (num_awarded / max_possible) * 100
+        embed.add_field(name="Set Completion", value=f"```{num_awarded}/{max_possible} ({percentage:.2f}%)```", inline=False)
+
+    # Convert the date to a more friendly format
+    date = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
+    friendly_date = date.strftime('%d/%m/%Y at %H:%M:%S')
+
+    embed.add_field(name="User", value=f"[{username}](https://retroachievements.org/user/{username})", inline=True)
+    embed.add_field(name="Console", value=achievement['ConsoleName'], inline=True)
+
+    embed.set_image(url=DISCORD_THUMBNAIL)
+    embed.set_thumbnail(url=f"https://media.retroachievements.org{achievement['BadgeURL']}")
+
+    # Set the footer text and image based on the username
+    if username == 'Desiler':
+        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/mJvWGe1.png')
+    elif username == 'Lipperdie':
+        embed.set_footer(text=f"Earned on {friendly_date}", icon_url='https://i.imgur.com/TA9LKKW.png')
+    else:
+        embed.set_footer(text=f"Earned on {friendly_date}")
+
+    return embed
+
+# Function to create an embed message for a completed game
+def create_embed_if_game_completed(username, completed_games_count, game_id, achievement):
+    if completed_games_count is not None:
+        # Create a new embed message for the completed game
+        embed = discord.Embed(
+            description=f"This is {username}'s {completed_games_count}th mastery! :trophy:",
+            color=discord.Color.gold()
+        )
+        embed.url = f"https://retroachievements.org/game/{game_id}"
+        embed.set_author(name=f"Mastered {achievement['GameTitle']}", icon_url=f"https://media.retroachievements.org{achievement['GameIcon']}")
+        embed.set_image(url=DISCORD_THUMBNAIL)
+        embed.set_thumbnail(url=f"https://i.imgur.com/rXH9hOd.png")
+        # Set the footer text and image based on the username
+        if username == 'Desiler':
+            embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/mJvWGe1.png')
+        elif username == 'Lipperdie':
+            embed.set_footer(text=f"Congratulations!", icon_url='https://i.imgur.com/TA9LKKW.png')
+        else:
+            embed.set_footer(text=f"Congratulations!")
+        return embed
+    return None
+
+# Function to check if a game has been completed
+def check_game_completion(username, completion, achievement):
+    game_id = achievement['GameID']
+    if game_id in completion:
+        game_details = completion[game_id]
+        num_awarded = int(game_details['NumAwarded'])
+        max_possible = int(game_details['MaxPossible'])
+        if num_awarded == max_possible:
+            completed_games_count = fetch_completed_games(username)
+            return create_embed_if_game_completed(username, completed_games_count, game_id, achievement)
+    return None

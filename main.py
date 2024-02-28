@@ -88,9 +88,9 @@ async def fetch_retroachievements():
                 else:
                     channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
                 # Send a new message
-                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-                logger.debug(f'Fetched achievements: {achievements}')
                 await channel.send(embed=embed)
+            logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
+            logger.debug(f'Fetched achievements: {achievements}')
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
     
