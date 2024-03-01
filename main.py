@@ -101,10 +101,9 @@ async def fetch_retro_overview():
     try:
         for username in RETRO_TARGET_USERNAMES:
             embeds = create_daily_overview(username)
-            if embeds is not None:
-                channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
-                for embed in embeds:
-                    await channel.send(embed=embed)
+            channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
+            for embed in embeds:
+                await channel.send(embed=embed)
     except Exception as e:
         print(f"An error occurred: {e}")
     

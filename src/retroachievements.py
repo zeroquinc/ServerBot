@@ -20,6 +20,13 @@ def create_daily_overview_embed(username, total_points, cumul_score):
         description=f"{username} earned {total_points} points and {cumul_score} RetroPoints today.",
         color=discord.Color.blue()
     )
+    # Set the footer text and image based on the username
+    if username == 'Desiler':
+        embed.set_footer(icon_url='https://i.imgur.com/mJvWGe1.png')
+    elif username == 'Lipperdie':
+        embed.set_footer(icon_url='https://i.imgur.com/TA9LKKW.png')
+    else:
+        embed.set_footer(icon_url=None)
     return embed
 
 def create_daily_overview(username):
