@@ -22,7 +22,6 @@ def ordinal(n):
 
 def create_daily_overview_embed(username, total_points, cumul_score):
     embed = discord.Embed(
-        title=f"Daily Overview for {username}",
         description=f"{username} earned {total_points} points and {cumul_score} RetroPoints in the last 24 hours.",
         color=discord.Color.blue()
     )
