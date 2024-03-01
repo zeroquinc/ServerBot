@@ -3,6 +3,7 @@ import discord
 from discord.utils import utcnow
 from datetime import datetime, timedelta
 import collections
+import time
 
 from .globals import (
     DISCORD_THUMBNAIL,
@@ -14,14 +15,21 @@ from .globals import (
 
 from .custom_logger import logger
 
+from datetime import datetime
+
+def ordinal(n):
+    return str(n) + ('th' if 4<=n%100<=20 else {1:'st',2:'nd',3:'rd'}.get(n%10, 'th'))
+
 def create_daily_overview_embed(username, total_points, cumul_score):
     embed = discord.Embed(
         title=f"Daily Overview for {username}",
-        description=f"{username} earned {total_points} points and {cumul_score} RetroPoints today.",
+        description=f"{username} earned {total_points} points and {cumul_score} RetroPoints in the last 24 hours.",
         color=discord.Color.blue()
     )
-    # The timestamp is set to the current time
-    timestamp = utcnow()
+    embed.set_author(name=f"Daily Overview for {username}", icon_url="https://www.wikidata.org/wiki/Q104413574#/media/File:RetroAchievements_logo_square_color.png")
+    # The timestamp is set to the current date
+    now = datetime.now()
+    timestamp = f"{ordinal(now.day)} of {now.strftime('%B %Y')}"
     embed.set_image(url=DISCORD_THUMBNAIL)
     # Set the footer text and image based on the username
     if username == 'Desiler':
@@ -34,15 +42,28 @@ def create_daily_overview_embed(username, total_points, cumul_score):
 
 def create_daily_overview(username):
     logger.debug(f"Fetching daily overview for {username}")
-    url = f"https://retroachievements.org/API/API_GetAchievementsEarnedOnDay.php?u={username}&d={datetime.now().strftime('%Y-%m-%d')}"
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
+    now = int(time.time())
+    yesterday = now - 24*60*60
+    url = f"https://retroachievements.org/API/API_GetAchievementsEarnedBetween.php?u={username}"
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'f': yesterday, 't': now}
     response = requests.get(url, params=params)
     if response.status_code == 200:
         achievements = response.json()
-        total_points = sum(achievement['Points'] for achievement in achievements)
-        cumul_score = sum(achievement['CumulScore'] for achievement in achievements)
+        total_points = 0
+        cumul_score = 0
+        max_points = 0
+        max_achievement = None
+        for achievement in achievements:
+            points = achievement['Points']
+            total_points += points
+            cumul_score += achievement['CumulScore']
+            if points > max_points:
+                max_points = points
+                max_achievement = achievement
         logger.debug(f"Total points: {total_points}, Cumulative score: {cumul_score}")
         embed = create_daily_overview_embed(username, total_points, cumul_score)
+        if max_achievement is not None:
+            embed.add_field(name="Hardest Achievement", value=f"{max_achievement['Title']} with {max_points} points")
         logger.debug(f"Embed created: {embed.to_dict()}")
         return embed
     else:
