@@ -26,11 +26,11 @@ def create_daily_overview(username):
     url = f"https://retroachievements.org/API/API_GetAchievementsEarnedOnDay.php?u={username}&d={datetime.now().strftime('%Y-%m-%d')}"
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
     response = requests.get(url, params=params)
-    logger.debug(f'Response: {response.status_code}')
     if response.status_code == 200:
         achievements = response.json()
         total_points = sum(achievement['Points'] for achievement in achievements)
         cumul_score = sum(achievement['CumulScore'] for achievement in achievements)
+        logger.debug(f'Response: {achievements}, Total Points: {total_points}, Cumul Score: {cumul_score}')
         embed = create_daily_overview_embed(username, total_points, cumul_score)
         return embed
     else:
