@@ -39,6 +39,18 @@ def create_daily_overview_embed(username, total_points, cumul_score):
         embed.set_footer(text=timestamp, icon_url=None)
     return embed
 
+def get_user_profile(username):
+    url = f"https://retroachievements.org/API/API_GetUserProfile.php?u={username}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        user_profile = response.json()
+        total_points = user_profile['TotalPoints']
+        total_true_points = user_profile['TotalTruePoints']
+        return total_points, total_true_points
+    else:
+        logger.error(f"Error fetching user profile: {response.status_code}")
+        return None, None
+
 def create_daily_overview(username):
     logger.debug(f"Fetching daily overview for {username}")
     now = int(time.time())
@@ -64,6 +76,13 @@ def create_daily_overview(username):
         if max_achievement is not None:
             achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
             embed.add_field(name="Best Achievement in the last 24h", value=f"[{max_achievement['Title']}]({achievement_url}) with {max_points} points")
+        
+        # Fetch user profile
+        total_points, total_true_points = get_user_profile(username)
+        if total_points is not None and total_true_points is not None:
+            embed.add_field(name="Total Points", value=total_points)
+            embed.add_field(name="Total RetroPoints", value=total_true_points)
+        
         logger.debug(f"Embed created: {embed.to_dict()}")
         return embed
     else:
