@@ -26,7 +26,7 @@ def create_daily_overview_embed(username, total_points, cumul_score):
         description=f"{username} earned {total_points} points and {cumul_score} RetroPoints in the last 24 hours.",
         color=discord.Color.blue()
     )
-    embed.set_author(name=f"Daily Overview for {username}", icon_url="https://www.wikidata.org/wiki/Q104413574#/media/File:RetroAchievements_logo_square_color.png")
+    embed.set_author(name=f"Daily Overview for {username}", icon_url="https://i.imgur.com/P0nEGGs.png")
     # The timestamp is set to the current date
     now = datetime.now()
     timestamp = f"{ordinal(now.day)} of {now.strftime('%B %Y')}"
@@ -63,7 +63,8 @@ def create_daily_overview(username):
         logger.debug(f"Total points: {total_points}, Cumulative score: {cumul_score}")
         embed = create_daily_overview_embed(username, total_points, cumul_score)
         if max_achievement is not None:
-            embed.add_field(name="Hardest Achievement", value=f"{max_achievement['Title']} with {max_points} points")
+            achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['ID']}"
+            embed.add_field(name="Hardest Achievement", value=f"[{max_achievement['Title']}]({achievement_url}) with {max_points} points")
         logger.debug(f"Embed created: {embed.to_dict()}")
         return embed
     else:
