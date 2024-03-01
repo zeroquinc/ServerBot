@@ -55,6 +55,7 @@ async def on_ready():
         fetch_system_info.start()
         fetch_plextraktsync.start()
         fetch_retroachievements.start()
+        fetch_retro_overview.start()
         logger.info("Tasks started succesfully.")
     except Exception as e:
         logger.error(f'Error starting tasks: {str(e)}')
