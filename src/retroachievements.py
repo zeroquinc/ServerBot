@@ -14,6 +14,28 @@ from .globals import (
 
 from .custom_logger import logger
 
+def create_daily_overview_embed(username, total_points, cumul_score):
+    embed = discord.Embed(
+        title=f"Daily Overview for {username}",
+        description=f"{username} earned {total_points} points and {cumul_score} RetroPoints today.",
+        color=discord.Color.blue()
+    )
+    return embed
+
+def create_daily_overview(username):
+    url = f"https://retroachievements.org/API/API_GetAchievementsEarnedOnDay.php?u={username}&d={datetime.now().strftime('%Y-%m-%d')}"
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        achievements = response.json()
+        total_points = sum(achievement['Points'] for achievement in achievements)
+        cumul_score = sum(achievement['CumulScore'] for achievement in achievements)
+        embed = create_daily_overview_embed(username, total_points, cumul_score)
+        return embed
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+
 # Main function to fetch the recent achievements for all target usernames
 def fetch_recent_achievements(completion_cache, username):
     data = fetch_data(username)

@@ -20,6 +20,7 @@ from src.globals import (
     CHANNEL_PLEXTRAKTSYNC,
     CHANNEL_ACHIEVEMENTS,
     CHANNEL_MASTERED,
+    CHANNEL_RETRO_OVERVIEW,
     RETRO_TARGET_USERNAMES
 )
 
@@ -41,7 +42,7 @@ from src.sonarr import create_sonarr_embed
 from src.radarr import create_radarr_embed
 from src.system import system_info
 from src.plextraktsync import plextraktsync
-from src.retroachievements import fetch_completion, fetch_recent_achievements
+from src.retroachievements import fetch_completion, fetch_recent_achievements, create_daily_overview
 
 @bot.event
 async def on_ready():
@@ -93,6 +94,18 @@ async def fetch_retroachievements():
             logger.debug(f'Fetched achievements: {achievements}')
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
+
+@tasks.loop(hours=24)
+async def fetch_retro_overview():
+    try:
+        for username in RETRO_TARGET_USERNAMES:
+            embeds = create_daily_overview(username)
+            if embeds is not None:
+                channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
+                for embed in embeds:
+                    await channel.send(embed=embed)
+    except Exception as e:
+        print(f"An error occurred: {e}")
     
 # Define the !trakt command
 @bot.command(name='trakt')
