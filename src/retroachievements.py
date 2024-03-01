@@ -30,6 +30,7 @@ def create_daily_overview_embed(username, total_points, cumul_score):
     return embed
 
 def create_daily_overview(username):
+    logger.debug(f"Fetching daily overview for {username}")
     url = f"https://retroachievements.org/API/API_GetAchievementsEarnedOnDay.php?u={username}&d={datetime.now().strftime('%Y-%m-%d')}"
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
     response = requests.get(url, params=params)
@@ -37,12 +38,28 @@ def create_daily_overview(username):
         achievements = response.json()
         total_points = sum(achievement['Points'] for achievement in achievements)
         cumul_score = sum(achievement['CumulScore'] for achievement in achievements)
-        logger.debug(f'Response: {achievements}, Total Points: {total_points}, Cumul Score: {cumul_score}')
+        logger.debug(f"Total points: {total_points}, Cumulative score: {cumul_score}")
         embed = create_daily_overview_embed(username, total_points, cumul_score)
+        logger.debug(f"Embed created: {embed.to_dict()}")
         return embed
     else:
-        logger.debug(f'Error: {response.status_code}')
+        logger.error(f"Error fetching daily overview: {response.status_code}")
         return None
+
+@tasks.loop(hours=24)
+async def fetch_retro_overview():
+    try:
+        for username in RETRO_TARGET_USERNAMES:
+            logger.debug(f"Fetching retro overview for {username}")
+            embed = create_daily_overview(username)
+            if embed is not None:
+                channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
+                logger.debug(f"Sending embed to channel {channel.name}")
+                await channel.send(embed=embed)
+            else:
+                logger.debug(f"No embed to send for {username}")
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
 
 # Main function to fetch the recent achievements for all target usernames
 def fetch_recent_achievements(completion_cache, username):

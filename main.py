@@ -100,13 +100,16 @@ async def fetch_retroachievements():
 async def fetch_retro_overview():
     try:
         for username in RETRO_TARGET_USERNAMES:
-            embeds = create_daily_overview(username)
-            channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
-            for embed in embeds:
-                logger.info(f'Sending daily overview for {username}: {embed}')
+            logger.debug(f"Fetching retro overview for {username}")
+            embed = create_daily_overview(username)
+            if embed is not None:
+                channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
+                logger.debug(f"Sending embed to channel {channel.name}")
                 await channel.send(embed=embed)
+            else:
+                logger.debug(f"No embed to send for {username}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
     
 # Define the !trakt command
 @bot.command(name='trakt')
