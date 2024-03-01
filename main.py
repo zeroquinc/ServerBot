@@ -103,6 +103,7 @@ async def fetch_retro_overview():
             embeds = create_daily_overview(username)
             channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
             for embed in embeds:
+                logger.info(f'Sending daily overview for {username}: {embed}')
                 await channel.send(embed=embed)
     except Exception as e:
         print(f"An error occurred: {e}")
