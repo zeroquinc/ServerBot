@@ -41,7 +41,8 @@ def create_daily_overview_embed(username, total_points, cumul_score):
 
 def get_user_profile(username):
     url = f"https://retroachievements.org/API/API_GetUserProfile.php?u={username}"
-    response = requests.get(url)
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
+    response = requests.get(url, params=params)
     if response.status_code == 200:
         user_profile = response.json()
         total_points = user_profile['TotalPoints']
