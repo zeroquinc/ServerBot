@@ -16,7 +16,7 @@ def switch_logger():
             os.makedirs('logs')
         log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>"
         if LOG_LEVEL == 'DEBUG':
-            log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <red>{file: <30}</red> | <yellow>{function: <25}</yellow> | <level>{message}</level>"
+            log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <red>{file: <20}</red> | <yellow>{function: <20}</yellow> | <level>{message}</level>"
         logger.add(sys.stdout, level=LOG_LEVEL, colorize=True, format=log_format)
         logger.add('logs/serverbot.log', level=LOG_LEVEL, colorize=False, format=log_format)
     else:
