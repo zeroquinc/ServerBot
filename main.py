@@ -93,6 +93,7 @@ async def send(ctx, channel_id: int, *, message: str):
     channel = bot.get_channel(channel_id)
     await channel.send(message)
 
+# Command to purge messages in a channel
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def clear(ctx):
@@ -124,6 +125,7 @@ async def fetch_retroachievements():
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
 
+# Task to fetch the RetroAchievements daily overview
 @tasks.loop(hours=24)
 async def fetch_retro_overview():
     try:
@@ -138,6 +140,24 @@ async def fetch_retro_overview():
                 logger.debug(f"No embed to send for {username}")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
+
+# Command to manually send the RetroAchievements daily overview
+@bot.command()
+async def retrooverview(ctx):
+    try:
+        for username in RETRO_TARGET_USERNAMES:
+            logger.info(f"Fetching Retro Daily Overview for {username}")
+            embed = create_daily_overview(username)
+            if embed is not None:
+                channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
+                logger.info(f"Sending Retro Daily Overview for {username}. Checking again in 24 hours.")
+                await channel.send(embed=embed)
+            else:
+                logger.debug(f"No embed to send for {username}")
+        await ctx.send("Retro Daily Manual Overview sent successfully.")
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        await ctx.send("An error occurred while sending the Retro Daily Manual Overview.")
     
 # Define the !trakt command
 @bot.command(name='trakt')

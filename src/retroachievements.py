@@ -84,7 +84,7 @@ def create_daily_overview(username):
             achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
             embed.add_field(name="Best Achievement Earned", 
                             value=f"[{max_achievement['Title']}]({achievement_url}) ({max_points})", 
-                            inline=True)
+                            inline=False)
         
         # Add the count of achievements earned
         embed.add_field(name="Achievements Earned", value=len(achievements), inline=True)
