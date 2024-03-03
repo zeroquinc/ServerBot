@@ -84,7 +84,9 @@ def create_daily_overview(username):
         embed = create_daily_overview_embed(username, total_points, cumul_score)
         if max_achievement is not None:
             achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
-            embed.add_field(name="Best Achievement Earned", value=f"[{max_achievement['Title']}]({achievement_url}) with {max_points} points", inline=False)
+            embed.add_field(name="Best Achievement Earned", 
+                            value=f"[{max_achievement['Title']}]({achievement_url}) ({max_points} ({max_achievement['CumulScore']})", 
+                            inline=False)
         
         # Add the count of achievements earned
         embed.add_field(name="Achievements Earned", value=len(achievements), inline=True)
@@ -92,8 +94,8 @@ def create_daily_overview(username):
         # Fetch user profile
         total_points, total_true_points = get_user_profile(username)
         if total_points is not None and total_true_points is not None:
-            embed.add_field(name="Total Points Overall", value=total_points, inline=True)
-            embed.add_field(name="Total RetroPoints Overall", value=total_true_points, inline=True)
+            embed.add_field(name="Total Points", value=total_points, inline=True)
+            embed.add_field(name="Total RetroPoints", value=total_true_points, inline=True)
         
         logger.debug(f"Embed created: {embed.to_dict()}")
         return embed
