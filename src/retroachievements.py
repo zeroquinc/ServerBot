@@ -21,9 +21,17 @@ def ordinal(n):
     return str(n) + ('th' if 4<=n%100<=20 else {1:'st',2:'nd',3:'rd'}.get(n%10, 'th'))
 
 def create_daily_overview_embed(username, total_points, cumul_score):
+    # Set color based on username
+    if username == 'Desiler':
+        color = discord.Color.red()
+    elif username == 'Lipperdie':
+        color = discord.Color.blue()
+    else:
+        color = discord.Color.green()
+
     embed = discord.Embed(
         description=f"{username} earned {total_points} points and {cumul_score} RetroPoints in the last 24 hours.",
-        color=discord.Color.blue()
+        color=color
     )
     embed.set_author(name=f"Daily Overview for {username}", icon_url="https://i.imgur.com/P0nEGGs.png")
     # The timestamp is set to the current date
@@ -166,10 +174,19 @@ def fetch_data(username):
 
 # Function to create an embed message for a new achievement
 def create_embed(achievement, completion_cache, new_achievements_count, username):
+    # Set color based on username
+    if username == 'Desiler':
+        color = discord.Color.red()
+    elif username == 'Lipperdie':
+        color = discord.Color.blue()
+    else:
+        color = discord.Color.green()
+
     embed = discord.Embed(
         title=achievement['GameTitle'],
-        color=discord.Color.blue()
+        color=color
     )
+    # Rest of the code...
     #timestamp = utcnow()
     #embed.timestamp = timestamp
     embed.url = f"https://retroachievements.org/game/{achievement['GameID']}"
