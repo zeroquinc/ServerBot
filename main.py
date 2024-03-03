@@ -58,15 +58,15 @@ from datetime import datetime, timedelta
 async def on_ready():
     logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
 
-    # Start the other tasks immediately
+    # Start the tasks immediately
     trakt_ratings_task.start()
-    logger.info("trakt_ratings_task started")
+    logger.info("Trakt Ratings Task started")
     trakt_favorites_task.start()
-    logger.info("trakt_favorites_task started")
+    logger.info("Trakt Favorites Task started")
     tautulli_discord_activity.start()
-    logger.info("tautulli_discord_activity started")
+    logger.info("Tautulli Discord Activity Task started")
     fetch_retroachievements.start()
-    logger.info("fetch_retroachievements started")
+    logger.info("RetroAchievements Achievement Fetch Task started")
 
     # Calculate the time until the next midnight
     now = datetime.now()
@@ -78,16 +78,14 @@ async def on_ready():
     minutes, seconds = divmod(remainder, 60)
 
     # Delay the start of the fetch_retro_overview, fetch_system_info and fetch_plextraktsync tasks until the next midnight
-    logger.info(f"Waiting for {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds before starting fetch_retro_overview, fetch_system_info and fetch_plextraktsync")
+    logger.info(f"Waiting for {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds before starting Fetch Retro Overview, Fetch System Info and Fetch PlexTraktSync Tasks.")
     await asyncio.sleep(delta_s)
     fetch_retro_overview.start()
-    logger.info("fetch_retro_overview started")
+    logger.info("Fetch Retro Overview Task started")
     fetch_system_info.start()
-    logger.info("fetch_system_info started")
+    logger.info("Fetch System Info Task started")
     fetch_plextraktsync.start()
-    logger.info("fetch_plextraktsync started")
-
-    logger.info("All tasks started successfully.")
+    logger.info("Fetch PlexTraktSync Task started")
 
 # Command to send a message to a specific channel
 @bot.command()
@@ -120,8 +118,9 @@ async def fetch_retroachievements():
                     channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
                 # Send a new message
                 await channel.send(embed=embed)
-            logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
-            logger.debug(f'Fetched achievements: {achievements}')
+            if len(achievements) > 0:
+                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
+                logger.debug(f'Fetched achievements: {achievements}')
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
 
@@ -129,11 +128,11 @@ async def fetch_retroachievements():
 async def fetch_retro_overview():
     try:
         for username in RETRO_TARGET_USERNAMES:
-            logger.debug(f"Fetching retro overview for {username}")
+            logger.info(f"Fetching Retro Daily Overview for {username}")
             embed = create_daily_overview(username)
             if embed is not None:
                 channel = bot.get_channel(CHANNEL_RETRO_OVERVIEW)
-                logger.debug(f"Sending embed to channel {channel.name}")
+                logger.info(f"Sending Retro Daily Overview for {username}. Checking again in 24 hours.")
                 await channel.send(embed=embed)
             else:
                 logger.debug(f"No embed to send for {username}")
