@@ -20,7 +20,7 @@ from datetime import datetime
 def ordinal(n):
     return str(n) + ('th' if 4<=n%100<=20 else {1:'st',2:'nd',3:'rd'}.get(n%10, 'th'))
 
-def create_daily_overview_embed(username, total_points):
+def create_daily_overview_embed(username, total_points, total_retropoints, achievements, max_achievement):
     # Set color based on username
     if username == 'Desiler':
         color = discord.Color.red()
@@ -29,42 +29,48 @@ def create_daily_overview_embed(username, total_points):
     else:
         color = discord.Color.green()
 
+    # The timestamp is set to the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    timestamp = f"{ordinal(yesterday.day)} of {yesterday.strftime('%B, %Y')}"
+
     embed = discord.Embed(
-        description=f"{username} earned {total_points} points in the last 24 hours.",
+        description=f"{username} has earned {total_points} points on the {timestamp}.",
         color=color
     )
     embed.set_author(name=f"Daily Overview for {username}", icon_url="https://i.imgur.com/P0nEGGs.png")
-    # The timestamp is set to the current date
-    now = datetime.now()
-    timestamp = f"{ordinal(now.day)} of {now.strftime('%B %Y')}"
     embed.set_image(url=DISCORD_THUMBNAIL)
-    # Set the footer text and image based on the username
-    if username == 'Desiler':
-        embed.set_footer(text=timestamp, icon_url='https://i.imgur.com/mJvWGe1.png')
-    elif username == 'Lipperdie':
-        embed.set_footer(text=timestamp, icon_url='https://i.imgur.com/TA9LKKW.png')
-    else:
-        embed.set_footer(text=timestamp, icon_url=None)
-    return embed
 
-def get_user_profile(username):
-    url = f"https://retroachievements.org/API/API_GetUserProfile.php?u={username}"
-    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        user_profile = response.json()
-        total_points = user_profile['TotalPoints']
-        total_true_points = user_profile['TotalTruePoints']
-        return total_points, total_true_points
+    # Set the thumbnail to the BadgeURL of the max_achievement
+    if max_achievement is not None:
+        embed.set_thumbnail(url=f"https://media.retroachievements.org{max_achievement['BadgeURL']}")
+
+    # Set the footer text and image based on the username
+    footer_text = f"Total Points: {total_points} | Total RetroPoints: {total_retropoints}"
+    if username == 'Desiler':
+        embed.set_footer(text=footer_text, icon_url='https://i.imgur.com/mJvWGe1.png')
+    elif username == 'Lipperdie':
+        embed.set_footer(text=footer_text, icon_url='https://i.imgur.com/TA9LKKW.png')
     else:
-        logger.error(f"Error fetching user profile: {response.status_code}")
-        return None, None
+        embed.set_footer(text=footer_text, icon_url=None)
+
+    # Add the best achievement only if there are achievements
+    if max_achievement is not None:
+        achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
+        embed.add_field(name="Best Achievement Earned", 
+                        value=f"[{max_achievement['Title']}]({achievement_url}) ({max_achievement['Points']})", 
+                        inline=True)
+        
+    # Add the count of achievements earned only if there are achievements
+    if achievements:
+        embed.add_field(name="Achievements Earned", value=len(achievements), inline=True)
+
+    return embed
 
 def create_daily_overview(username):
     logger.debug(f"Fetching daily overview for {username}")
     now = int(time.time())
     yesterday = now - 24*60*60
-    url = f"https://retroachievements.org/API/API_GetAchievementsEarnedBetween.php?u={username}"
+    url = f"https://retroachievements.org/API/API_GetAchievementsEarnBetween.php?u={username}"
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'f': yesterday, 't': now}
     response = requests.get(url, params=params)
     if response.status_code == 200:
@@ -79,27 +85,29 @@ def create_daily_overview(username):
                 max_points = points
                 max_achievement = achievement
         logger.debug(f"Total points: {total_points}")
-        embed = create_daily_overview_embed(username, total_points)
-        if max_achievement is not None:
-            achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
-            embed.add_field(name="Best Achievement Earned", 
-                            value=f"[{max_achievement['Title']}]({achievement_url}) ({max_points})", 
-                            inline=True)
-        
-        # Add the count of achievements earned
-        embed.add_field(name="Achievements Earned", value=len(achievements), inline=False)
         
         # Fetch user profile
         total_points, total_true_points = get_user_profile(username)
         if total_points is not None and total_true_points is not None:
-            embed.add_field(name="Total Points", value=total_points, inline=True)
-            embed.add_field(name="Total RetroPoints", value=total_true_points, inline=True)
-        
-        logger.debug(f"Embed created: {embed.to_dict()}")
-        return embed
+            embed = create_daily_overview_embed(username, total_points, total_true_points, achievements, max_achievement)
+            logger.debug(f"Embed created: {embed.to_dict()}")
+            return embed
     else:
         logger.error(f"Error fetching daily overview: {response.status_code}")
         return None
+
+def get_user_profile(username):
+    url = f"https://retroachievements.org/API/API_GetUserProfile.php?u={username}"
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        user_profile = response.json()
+        total_points = user_profile['TotalPoints']
+        total_true_points = user_profile['TotalTruePoints']
+        return total_points, total_true_points
+    else:
+        logger.error(f"Error fetching user profile: {response.status_code}")
+        return None, None
 
 # Main function to fetch the recent achievements for all target usernames
 def fetch_recent_achievements(completion_cache, username):
