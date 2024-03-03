@@ -73,8 +73,12 @@ async def on_ready():
     midnight = datetime.combine(now + timedelta(days=1), time(0))
     delta_s = (midnight - now).total_seconds()
 
-    # Delay the start of the fetch_retro_overview, fetch_system_info and fetch_plextraktsync tasks
-    logger.info(f"Waiting for {delta_s} seconds before starting fetch_retro_overview, fetch_system_info and fetch_plextraktsync")
+    # Convert the seconds into hours, minutes, and seconds
+    hours, remainder = divmod(delta_s, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Delay the start of the fetch_retro_overview, fetch_system_info and fetch_plextraktsync tasks until the next midnight
+    logger.info(f"Waiting for {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds before starting fetch_retro_overview, fetch_system_info and fetch_plextraktsync")
     await asyncio.sleep(delta_s)
     fetch_retro_overview.start()
     logger.info("fetch_retro_overview started")
