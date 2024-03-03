@@ -70,22 +70,20 @@ def create_daily_overview(username):
     if response.status_code == 200:
         achievements = response.json()
         total_points = 0
-        cumul_score = 0
         max_points = 0
         max_achievement = None
         for achievement in achievements:
             points = achievement['Points']
             total_points += points
-            cumul_score += achievement['CumulScore']
             if points > max_points:
                 max_points = points
                 max_achievement = achievement
-        logger.debug(f"Total points: {total_points}, Cumulative score: {cumul_score}")
-        embed = create_daily_overview_embed(username, total_points, cumul_score)
+        logger.debug(f"Total points: {total_points}")
+        embed = create_daily_overview_embed(username, total_points)
         if max_achievement is not None:
             achievement_url = f"https://retroachievements.org/Achievement/{max_achievement['AchievementID']}"
             embed.add_field(name="Best Achievement Earned", 
-                            value=f"[{max_achievement['Title']}]({achievement_url}) ({max_points}) ({max_achievement['CumulScore']})", 
+                            value=f"[{max_achievement['Title']}]({achievement_url}) ({max_points})", 
                             inline=True)
         
         # Add the count of achievements earned
