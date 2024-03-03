@@ -1,6 +1,7 @@
 import discord
 from discord.ext import tasks, commands
 from aiohttp import web
+from datetime import datetime, timedelta, time   
 import asyncio
 
 from src.custom_logger import logger
@@ -44,21 +45,45 @@ from src.system import system_info
 from src.plextraktsync import plextraktsync
 from src.retroachievements import fetch_completion, fetch_recent_achievements, create_daily_overview
 
+import asyncio
+from datetime import datetime, timedelta
+
+import asyncio
+from datetime import datetime, timedelta
+
+import asyncio
+from datetime import datetime, timedelta
+
 @bot.event
 async def on_ready():
     logger.info(f'Logged in as {bot.user.name} ({bot.user.id}) and is ready!')
-    # Load Tasks
-    try:
-        trakt_ratings_task.start()
-        trakt_favorites_task.start()
-        tautulli_discord_activity.start()
-        fetch_system_info.start()
-        fetch_plextraktsync.start()
-        fetch_retroachievements.start()
-        fetch_retro_overview.start()
-        logger.info("Tasks started succesfully.")
-    except Exception as e:
-        logger.error(f'Error starting tasks: {str(e)}')
+
+    # Start the other tasks immediately
+    trakt_ratings_task.start()
+    logger.info("trakt_ratings_task started")
+    trakt_favorites_task.start()
+    logger.info("trakt_favorites_task started")
+    tautulli_discord_activity.start()
+    logger.info("tautulli_discord_activity started")
+    fetch_retroachievements.start()
+    logger.info("fetch_retroachievements started")
+
+    # Calculate the time until the next midnight
+    now = datetime.now()
+    midnight = datetime.combine(now + timedelta(days=1), time(0))
+    delta_s = (midnight - now).total_seconds()
+
+    # Delay the start of the fetch_retro_overview, fetch_system_info and fetch_plextraktsync tasks
+    logger.info(f"Waiting for {delta_s} seconds before starting fetch_retro_overview, fetch_system_info and fetch_plextraktsync")
+    await asyncio.sleep(delta_s)
+    fetch_retro_overview.start()
+    logger.info("fetch_retro_overview started")
+    fetch_system_info.start()
+    logger.info("fetch_system_info started")
+    fetch_plextraktsync.start()
+    logger.info("fetch_plextraktsync started")
+
+    logger.info("All tasks started successfully.")
 
 # Command to send a message to a specific channel
 @bot.command()
