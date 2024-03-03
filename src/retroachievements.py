@@ -20,7 +20,7 @@ from datetime import datetime
 def ordinal(n):
     return str(n) + ('th' if 4<=n%100<=20 else {1:'st',2:'nd',3:'rd'}.get(n%10, 'th'))
 
-def create_daily_overview_embed(username, total_points, cumul_score):
+def create_daily_overview_embed(username, total_points):
     # Set color based on username
     if username == 'Desiler':
         color = discord.Color.red()
@@ -30,7 +30,7 @@ def create_daily_overview_embed(username, total_points, cumul_score):
         color = discord.Color.green()
 
     embed = discord.Embed(
-        description=f"{username} earned {total_points} points and {cumul_score} RetroPoints in the last 24 hours.",
+        description=f"{username} earned {total_points} points in the last 24 hours.",
         color=color
     )
     embed.set_author(name=f"Daily Overview for {username}", icon_url="https://i.imgur.com/P0nEGGs.png")
