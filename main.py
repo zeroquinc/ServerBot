@@ -109,8 +109,10 @@ async def fetch_retroachievements():
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
-            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
-            all_embeds.extend(embeds)
+            for achievement in achievements:
+                achievement['timestamp'] = datetime.fromisoformat(achievement['timestamp'])
+                embed = discord.Embed.from_dict(achievement)
+                all_embeds.append(embed)
         
         # Sort all embeds by timestamp
         all_embeds.sort(key=lambda embed: embed.timestamp)
