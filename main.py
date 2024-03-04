@@ -102,24 +102,20 @@ async def clear(ctx):
 @tasks.loop(minutes=30)
 async def fetch_retroachievements():
     try:
-        all_achievements = []
+        all_embeds = []
         for username in RETRO_TARGET_USERNAMES:
             # Fetch the completion progress for all games
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
-            for achievement in achievements:
-                if 'Date' in achievement:
-                    try:
-                        embed = discord.Embed.from_dict(achievement)
-                        all_achievements.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
-                    except Exception as e:
-                        logger.error(f'An error occurred while creating embed: {e}')
-        # Sort all achievements by date
-        all_achievements.sort(key=lambda x: x[0])
+            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+            all_embeds.extend(embeds)
+        
+        # Sort all embeds by timestamp
+        all_embeds.sort(key=lambda embed: embed.timestamp)
 
-        for _, embed in all_achievements:
+        for embed in all_embeds:
             # Get the channel where you want to send the message
             if 'Mastered' in embed.author.name:
                 channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your channel ID for Mastered
@@ -129,10 +125,9 @@ async def fetch_retroachievements():
                 channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
             # Send a new message
             await channel.send(embed=embed)
-
-        if len(all_achievements) > 0:
-            logger.info(f'Fetched {len(all_achievements)} recent achievements')
-            logger.debug(f'Fetched achievements: {all_achievements}')
+        if len(all_embeds) > 0:
+            logger.info(f'Fetched {len(all_embeds)} recent achievements')
+            logger.debug(f'Fetched achievements: {all_embeds}')
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
 
