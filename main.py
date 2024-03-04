@@ -102,35 +102,26 @@ async def clear(ctx):
 @tasks.loop(minutes=30)
 async def fetch_retroachievements():
     try:
-        all_embeds = []
         for username in RETRO_TARGET_USERNAMES:
             # Fetch the completion progress for all games
             completion_cache = fetch_completion(username)
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
-            for achievement in achievements:
-                timestamp = datetime.fromisoformat(achievement.pop('timestamp'))
-                embed = discord.Embed.from_dict(achievement)
-                embed.timestamp = timestamp
-                all_embeds.append(embed)
-        
-        # Sort all embeds by timestamp
-        all_embeds.sort(key=lambda embed: embed.timestamp)
-
-        for embed in all_embeds:
-            # Get the channel where you want to send the message
-            if 'Mastered' in embed.author.name:
-                channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your channel ID for Mastered
-            elif 'Achievement Unlocked' in embed.author.name:
-                channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your channel ID for Unlocks
-            else:
-                channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
-            # Send a new message
-            await channel.send(embed=embed)
-        if len(all_embeds) > 0:
-            logger.info(f'Fetched {len(all_embeds)} recent achievements')
-            logger.debug(f'Fetched achievements: {all_embeds}')
+            embeds = [discord.Embed.from_dict(achievement) for achievement in achievements]
+            for embed in embeds:
+                # Get the channel where you want to send the message
+                if 'Mastered' in embed.author.name:
+                    channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your channel ID for Mastered
+                elif 'Achievement Unlocked' in embed.author.name:
+                    channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your channel ID for Unlocks
+                else:
+                    channel = bot.get_channel(CHANNEL_ACHIEVEMENTS)  # Replace with your default channel ID
+                # Send a new message
+                await channel.send(embed=embed)
+            if len(achievements) > 0:
+                logger.info(f'Fetched {len(achievements)} recent achievements for {username}')
+                logger.debug(f'Fetched achievements: {achievements}')
     except Exception as e:
         logger.error(f'An error occurred while fetching retroachievements: {e}')
 

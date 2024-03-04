@@ -64,7 +64,6 @@ def fetch_recent_achievements(completion_cache, username):
 
             # Add the achievement embed
             achievement_time = datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S')
-            embed.timestamp = achievement_time.isoformat()  # Add timestamp to the embed
             embeds.append((achievement_time, embed))
 
             # Check if the game is completed, but only if it hasn't been checked before
