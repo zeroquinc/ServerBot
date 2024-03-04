@@ -109,13 +109,13 @@ async def fetch_retroachievements():
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
-            embeds = [(datetime.strptime(achievement['Date']), discord.Embed.from_dict(achievement)) for achievement in achievements]
+            embeds = [(datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), discord.Embed.from_dict(achievement)) for achievement in achievements if 'Date' in achievement]
             all_achievements.extend(embeds)
 
         # Sort all achievements by date
         all_achievements.sort(key=lambda x: x[0])
 
-        for date, embed in all_achievements:
+        for _, embed in all_achievements:
             # Get the channel where you want to send the message
             if 'Mastered' in embed.author.name:
                 channel = bot.get_channel(CHANNEL_MASTERED)  # Replace with your channel ID for Mastered
