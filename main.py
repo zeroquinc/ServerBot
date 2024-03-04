@@ -109,9 +109,13 @@ async def fetch_retroachievements():
             # Fetch the recent achievements
             achievements = fetch_recent_achievements(completion_cache, username)
             # Convert the achievements to Discord embeds
-            embeds = [(datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), discord.Embed.from_dict(achievement)) for achievement in achievements if 'Date' in achievement]
-            all_achievements.extend(embeds)
-
+            for achievement in achievements:
+                if 'Date' in achievement:
+                    try:
+                        embed = discord.Embed.from_dict(achievement)
+                        all_achievements.append((datetime.strptime(achievement['Date'], '%Y-%m-%d %H:%M:%S'), embed))
+                    except Exception as e:
+                        logger.error(f'An error occurred while creating embed: {e}')
         # Sort all achievements by date
         all_achievements.sort(key=lambda x: x[0])
 
