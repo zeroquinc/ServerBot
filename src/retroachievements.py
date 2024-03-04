@@ -20,7 +20,7 @@ from datetime import datetime
 def ordinal(n):
     return str(n) + ('th' if 4<=n%100<=20 else {1:'st',2:'nd',3:'rd'}.get(n%10, 'th'))
 
-def create_daily_overview_embed(username, total_points, total_retropoints, achievements, max_achievement):
+def create_daily_overview_embed(username, daily_points, total_points, total_retropoints, achievements, max_achievement):
     # Set color based on username
     if username == 'Desiler':
         color = discord.Color.red()
@@ -34,7 +34,7 @@ def create_daily_overview_embed(username, total_points, total_retropoints, achie
     timestamp = f"{ordinal(yesterday.day)} of {yesterday.strftime('%B, %Y')}"
 
     embed = discord.Embed(
-        description=f"{username} has earned {total_points} points on the {timestamp}.",
+        description=f"{username} has earned {daily_points} points on the {timestamp}.",
         color=color
     )
     embed.set_author(name=f"Daily Overview for {username}", icon_url="https://i.imgur.com/P0nEGGs.png")
@@ -75,21 +75,21 @@ def create_daily_overview(username):
     response = requests.get(url, params=params)
     if response.status_code == 200:
         achievements = response.json()
-        total_points = 0
+        daily_points = 0
         max_points = 0
         max_achievement = None
         for achievement in achievements:
             points = achievement['Points']
-            total_points += points
+            daily_points += points
             if points > max_points:
                 max_points = points
                 max_achievement = achievement
-        logger.debug(f"Total points: {total_points}")
+        logger.debug(f"Daily points: {daily_points}")
         
         # Fetch user profile
-        total_points, total_true_points = get_user_profile(username)
-        if total_points is not None and total_true_points is not None:
-            embed = create_daily_overview_embed(username, total_points, total_true_points, achievements, max_achievement)
+        total_points, total_retropoints = get_user_profile(username)
+        if total_points is not None and total_retropoints is not None:
+            embed = create_daily_overview_embed(username, daily_points, total_points, total_retropoints, achievements, max_achievement)
             logger.debug(f"Embed created: {embed.to_dict()}")
             return embed
     else:
