@@ -70,7 +70,7 @@ def create_daily_overview(username):
     logger.debug(f"Fetching daily overview for {username}")
     now = int(time.time())
     yesterday = now - 24*60*60
-    url = f"https://retroachievements.org/API/API_GetAchievementsEarnBetween.php?u={username}"
+    url = f"https://retroachievements.org/API/API_GetAchievementsEarnedBetween.php?u={username}"
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'f': yesterday, 't': now}
     response = requests.get(url, params=params)
     if response.status_code == 200:
