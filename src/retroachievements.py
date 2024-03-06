@@ -162,7 +162,7 @@ def fetch_data(username):
         logger.debug(f'Error: {response.status_code}')
         return None
     
-def fetch_game_data(game_id)
+def fetch_game_data(game_id):
     url = "https://retroachievements.org/API/API_GetGameExtended.php"
     params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'i': game_id}
     response = requests.get(url, params=params)
