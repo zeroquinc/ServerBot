@@ -162,6 +162,16 @@ def fetch_data(username):
         logger.debug(f'Error: {response.status_code}')
         return None
     
+def fetch_game_data(game_id)
+    url = "https://retroachievements.org/API/API_GetGameExtended.php"
+    params = {'z': RETRO_USERNAME, 'y': RETRO_API_KEY, 'i': game_id}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        logger.debug(f'Error: {response.status_code}')
+        return None
+    
 # Function to check if a game has been completed
 def check_game_completion(username, completion, achievement):
     game_id = achievement['GameID']
@@ -172,8 +182,11 @@ def check_game_completion(username, completion, achievement):
         highest_award_date = game_details['HighestAwardDate']
         if num_awarded == max_possible:
             completed_games_count = fetch_completed_games(username)
-            points_earned = max_possible
-            return create_embed_if_game_completed(username, completed_games_count, game_id, achievement, highest_award_date, points_earned)
+            game_data = fetch_game_data(game_id)
+            if game_data is not None:
+                points_earned = game_data['points_total']
+            achievements_earned = max_possible
+            return create_embed_if_game_completed(username, completed_games_count, game_id, achievement, highest_award_date, achievements_earned, points_earned)
     return None
 
 '''
@@ -266,7 +279,7 @@ def create_embed(achievement, completion_cache, new_achievements_count, username
     return embed
 
 # Function to create an embed message for a completed game
-def create_embed_if_game_completed(username, completed_games_count, game_id, achievement, highest_award_date, points_earned):
+def create_embed_if_game_completed(username, completed_games_count, game_id, achievement, highest_award_date, achievements_earned, points_earned):
     if completed_games_count is not None:
         if highest_award_date:
             highest_award_date = parse(highest_award_date)
@@ -285,6 +298,9 @@ def create_embed_if_game_completed(username, completed_games_count, game_id, ach
 
         # Add the game title as a field
         embed.add_field(name="Game Mastered", value=achievement['GameTitle'], inline=False)
+
+        # Add the Achievements earned as a field
+        embed.add_field(name="Achievements Earned", value=str(achievements_earned), inline=False)
 
         # Add the points earned as a field
         embed.add_field(name="Points Earned", value=str(points_earned), inline=False)
