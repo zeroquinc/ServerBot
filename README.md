@@ -1,4 +1,6 @@
-# ServerBot
+# ServerBot - DEPRECATED
+
+This bot is rewritten is much more optimized code. Will be on GitHub soon.
 
 This is a Discord.py bot created for learning Python and for fun.
 It is mainly used for Arrs and Plex notifications on your Discord server.
